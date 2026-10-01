@@ -1,0 +1,16 @@
+# History and project files
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+
+# Packages and build artifacts
+*.tar.gz
+*.Rcheck/
+
+# Environment files
+.Renviron
+
+# OS metadata
+.DS_Store
+Thumbs.db
