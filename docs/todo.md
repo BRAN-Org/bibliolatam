@@ -9,11 +9,11 @@
 - [x] Testes unitários do construtor (`tests/testthat/test-as_bibliometrix.R`)
 
 ## 2. Parser SPELL / ANPAD (read_spell)
-- [ ] Leitura de CSV e RIS do portal SPELL
-- [ ] Sanitização de quebras de linha e encoding UTF-8
-- [ ] Mapeamento e normalização de autoria (`SOBRENOME, INICIAIS; ...`)
-- [ ] Curadoria de fixture de teste real em `inst/extdata/spell_sample.csv`
-- [ ] Testes unitários do parser (`tests/testthat/test-spell.R`)
+- [x] Leitura de CSV do portal SPELL com detecção de separador e encoding
+- [x] Sanitização de quebras de linha e encoding UTF-8 / Latin-1
+- [x] Mapeamento e normalização de autoria (`SOBRENOME INICIAIS; ...`)
+- [x] Curadoria de fixture de teste real em `inst/extdata/spell_sample.csv`
+- [x] Testes unitários do parser (`tests/testthat/test-spell.R`)
 
 ## 3. Interoperabilidade com biblioshiny
 - [ ] Função auxiliar `export_biblioshiny()` para salvar `.RData` compatível
