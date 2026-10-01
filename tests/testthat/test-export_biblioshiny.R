@@ -1,7 +1,10 @@
 test_that("export_biblioshiny valida parametros de entrada", {
+  valid_df <- data.frame(AU = "SILVA J", TI = "Titulo", SO = "Revista", PY = 2024)
+
   expect_error(export_biblioshiny("nao_sou_df", "teste.RData"), "data precisa ser um data.frame")
-  expect_error(export_biblioshiny(data.frame(), ""), "Caminho de arquivo invalido")
-  expect_error(export_biblioshiny(data.frame(), 123), "Caminho de arquivo invalido")
+  expect_error(export_biblioshiny(valid_df, ""), "Caminho de arquivo invalido")
+  expect_error(export_biblioshiny(valid_df, 123), "Caminho de arquivo invalido")
+  expect_error(export_biblioshiny(data.frame(), "teste.RData"), "data esta vazio")
 })
 
 test_that("export_biblioshiny salva RData compativel e le variavel M", {

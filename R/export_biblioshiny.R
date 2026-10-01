@@ -8,17 +8,22 @@
 #' @return Invisibly returns the normalized path of the saved file.
 #' @export
 export_biblioshiny <- function(data, file) {
+  # valida caminho do arquivo primeiro (fail-fast)
+  if (!is.character(file) || length(file) != 1L || !nzchar(trimws(file))) {
+    stop("Caminho de arquivo invalido para salvar o .RData.", call. = FALSE)
+  }
+
   if (!is.data.frame(data)) {
     stop("data precisa ser um data.frame/tibble.", call. = FALSE)
+  }
+
+  if (nrow(data) == 0L) {
+    stop("data esta vazio, nada para exportar.", call. = FALSE)
   }
 
   if (!inherits(data, "bibliometrixDB")) {
     warning("data nao possui a classe 'bibliometrixDB'. Tentando converter com as_bibliometrix()...", call. = FALSE)
     data <- as_bibliometrix(data)
-  }
-
-  if (!is.character(file) || length(file) != 1L || !nzchar(trimws(file))) {
-    stop("Caminho de arquivo invalido para salvar o .RData.", call. = FALSE)
   }
 
   # garante extensao .RData se o dev/usuario esqueceu de por
