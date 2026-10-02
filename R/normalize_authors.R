@@ -25,12 +25,18 @@ normalize_authors <- function(au_str) {
     if (!nzchar(a)) next
 
     if (grepl(",", a, fixed = TRUE)) {
-      # formato: 'Sobrenome, Nome Meio' ou 'Sobrenome Filho, Nome'
+      # formato: 'Sobrenome, Nome Meio' ou 'Sobrenome, Nome Meio Filho'
       parts <- unlist(strsplit(a, ",", fixed = TRUE))
       sobrenome <- toupper(trimws(parts[1]))
       restante <- if (length(parts) > 1) trimws(parts[2]) else ""
       prenomes <- unlist(strsplit(restante, "\\s+"))
       prenomes <- prenomes[nzchar(prenomes)]
+
+      # se o ultimo token dos prenomes for sufixo (ex: 'Batista, Jose Rodrigues Filho')
+      if (length(prenomes) > 1 && tolower(prenomes[length(prenomes)]) %in% sufixos) {
+        sobrenome <- paste(sobrenome, toupper(prenomes[length(prenomes)]))
+        prenomes <- prenomes[-length(prenomes)]
+      }
 
       # extrai iniciais ignorando particulas (ex: 'da', 'de')
       iniciais_tokens <- prenomes[!tolower(prenomes) %in% particulas]
