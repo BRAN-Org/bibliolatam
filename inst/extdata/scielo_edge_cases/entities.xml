@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article xmlns:xlink="http://www.w3.org/1999/xlink" article-type="research-article" xml:lang="pt">
+  <front>
+    <journal-meta><journal-title>Revista Brasileira de &amp; Informação &lt;Especial&gt;</journal-title><issn>1234-5678</issn></journal-meta>
+    <article-meta>
+      <article-id pub-id-type="doi">10.1590/test-entities-&amp;-edge</article-id>
+      <title-group><article-title>Uso de &quot;Inteligência Artificial&quot; &amp; Mineração &lt;Textual&gt; na Saúde</article-title></title-group>
+      <contrib-group>
+        <contrib contrib-type="author"><name><surname>D&#39;Ávila Neto</surname><given-names>José</given-names></name></contrib>
+        <contrib contrib-type="author"><name><surname>O&#39;Connor</surname><given-names>Maria de la Paz</given-names></name></contrib>
+      </contrib-group>
+      <pub-date><year>2023</year></pub-date>
+      <abstract><p>Resumo com &lt;b&gt;tags aninhadas&lt;/b&gt; e caracteres &amp; especiais.</p></abstract>
+      <kwd-group><kwd>Mineração de Texto &amp; IA</kwd><kwd>Ciência &amp; Tecnologia</kwd></kwd-group>
+    </article-meta>
+  </front>
+  <back>
+    <ref-list>
+      <ref id="r1">
+        <mixed-citation>D&#39;ÁVILA NETO J. Citações complexas &amp; referências. Revista de Informação, 2021.</mixed-citation>
+      </ref>
+      <ref id="r2">
+        <element-citation publication-type="journal">
+          <person-group><name><surname>O&#39;Connor</surname><given-names>M</given-names></name></person-group>
+          <year>2020</year>
+          <source>Nature &amp; Science</source>
+          <volume>12</volume>
+          <fpage>100</fpage>
+          <pub-id pub-id-type="doi">10.1000/nature-&amp;-sci</pub-id>
+        </element-citation>
+      </ref>
+    </ref-list>
+  </back>
+</article>

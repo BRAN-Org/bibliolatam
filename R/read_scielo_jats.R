@@ -84,6 +84,12 @@ extract_first_tag <- function(text, tag_name) {
   reg <- regmatches(text, m)[[1]]
   if (length(reg) >= 2) {
     clean_txt <- gsub("<[^>]+>", "", reg[2])
+    # decodifica entidades xml comuns
+    clean_txt <- gsub("&amp;", "&", clean_txt, fixed = TRUE)
+    clean_txt <- gsub("&lt;", "<", clean_txt, fixed = TRUE)
+    clean_txt <- gsub("&gt;", ">", clean_txt, fixed = TRUE)
+    clean_txt <- gsub("&quot;", "\"", clean_txt, fixed = TRUE)
+    clean_txt <- gsub("&apos;|&#39;", "'", clean_txt)
     trimws(clean_txt)
   } else {
     NA_character_
@@ -128,15 +134,22 @@ parse_single_scielo_jats <- function(file) {
   }
 
   # 4. Autores (AU)
-  # Extrai contrib contrib-type="author"
+  # Extrai contrib contrib-type="author" ou qualquer contrib se nao houver author
   m_contrib <- gregexpr("<contrib\\b[^>]*contrib-type=[\"']author[\"'][^>]*>(.*?)</contrib>", front_text, perl = TRUE)
   contrib_matches <- regmatches(front_text, m_contrib)[[1]]
+  if (length(contrib_matches) == 0L || (length(contrib_matches) == 1L && !nzchar(contrib_matches[1]))) {
+    m_contrib <- gregexpr("<contrib\\b[^>]*>(.*?)</contrib>", front_text, perl = TRUE)
+    contrib_matches <- regmatches(front_text, m_contrib)[[1]]
+  }
+
   raw_authors <- character(0L)
+  is_collab_vec <- logical(0L)
 
   if (length(contrib_matches) > 0) {
     for (cm in contrib_matches) {
       surname <- extract_first_tag(cm, "surname")
       given <- extract_first_tag(cm, "given-names")
+      collab <- extract_first_tag(cm, "collab")
       suffix <- extract_first_tag(cm, "suffix")
       if (!is.na(suffix) && nzchar(suffix) && !is.na(surname)) {
         surname <- paste(surname, suffix)
@@ -144,12 +157,37 @@ parse_single_scielo_jats <- function(file) {
       if (!is.na(surname) && nzchar(surname)) {
         author_name <- if (!is.na(given) && nzchar(given)) paste(surname, given, sep = ", ") else surname
         raw_authors <- c(raw_authors, author_name)
+        is_collab_vec <- c(is_collab_vec, FALSE)
+      } else if (!is.na(collab) && nzchar(collab)) {
+        raw_authors <- c(raw_authors, collab)
+        is_collab_vec <- c(is_collab_vec, TRUE)
+      }
+    }
+  }
+
+  # Se ainda nao achou autores, checa collab direto em contrib-group
+  if (length(raw_authors) == 0L) {
+    m_cg <- regexec("<contrib-group\\b[^>]*>(.*?)</contrib-group>", front_text, perl = TRUE)
+    reg_cg <- regmatches(front_text, m_cg)[[1]]
+    if (length(reg_cg) >= 2) {
+      cg_collab <- extract_first_tag(reg_cg[2], "collab")
+      if (!is.na(cg_collab) && nzchar(cg_collab)) {
+        raw_authors <- c(raw_authors, cg_collab)
+        is_collab_vec <- c(is_collab_vec, TRUE)
       }
     }
   }
 
   au <- if (length(raw_authors) > 0) {
-    normalize_authors(paste(raw_authors, collapse = "; "))
+    norm_vec <- mapply(function(a, is_c) {
+      if (is_c) {
+        toupper(trimws(a))
+      } else {
+        normalize_authors(a)
+      }
+    }, raw_authors, is_collab_vec, USE.NAMES = FALSE)
+    norm_vec <- norm_vec[!is.na(norm_vec) & nzchar(norm_vec)]
+    if (length(norm_vec) > 0) paste(norm_vec, collapse = "; ") else NA_character_
   } else {
     NA_character_
   }
@@ -248,29 +286,24 @@ parse_scielo_reference <- function(ref_text) {
   # Verifica se tem element-citation
   if (grepl("<element-citation\\b", ref_text, ignore.case = TRUE)) {
     # 1. Autor primeiro
-    m_author <- regexec("<surname\\b[^>]*>(.*?)</surname>", ref_text, perl = TRUE)
-    reg_author <- regmatches(ref_text, m_author)[[1]]
-    ref_author <- if (length(reg_author) >= 2) toupper(trimws(gsub("<[^>]+>", "", reg_author[2]))) else ""
+    ref_author <- extract_first_tag(ref_text, "surname")
+    ref_author <- if (!is.na(ref_author) && nzchar(ref_author)) toupper(ref_author) else ""
 
     # 2. Ano
-    m_year <- regexec("<year\\b[^>]*>(.*?)</year>", ref_text, perl = TRUE)
-    reg_year <- regmatches(ref_text, m_year)[[1]]
-    ref_year <- if (length(reg_year) >= 2) trimws(gsub("<[^>]+>", "", reg_year[2])) else ""
+    ref_year <- extract_first_tag(ref_text, "year")
+    ref_year <- if (!is.na(ref_year) && nzchar(ref_year)) ref_year else ""
 
     # 3. Periodico / Fonte
-    m_source <- regexec("<source\\b[^>]*>(.*?)</source>", ref_text, perl = TRUE)
-    reg_source <- regmatches(ref_text, m_source)[[1]]
-    ref_source <- if (length(reg_source) >= 2) toupper(trimws(gsub("<[^>]+>", "", reg_source[2]))) else ""
+    ref_source <- extract_first_tag(ref_text, "source")
+    ref_source <- if (!is.na(ref_source) && nzchar(ref_source)) toupper(ref_source) else ""
 
     # 4. Volume
-    m_vol <- regexec("<volume\\b[^>]*>(.*?)</volume>", ref_text, perl = TRUE)
-    reg_vol <- regmatches(ref_text, m_vol)[[1]]
-    ref_vol <- if (length(reg_vol) >= 2) paste0("V", trimws(gsub("<[^>]+>", "", reg_vol[2]))) else ""
+    ref_vol <- extract_first_tag(ref_text, "volume")
+    ref_vol <- if (!is.na(ref_vol) && nzchar(ref_vol)) paste0("V", ref_vol) else ""
 
     # 5. Pagina
-    m_page <- regexec("<fpage\\b[^>]*>(.*?)</fpage>", ref_text, perl = TRUE)
-    reg_page <- regmatches(ref_text, m_page)[[1]]
-    ref_page <- if (length(reg_page) >= 2) paste0("P", trimws(gsub("<[^>]+>", "", reg_page[2]))) else ""
+    ref_page <- extract_first_tag(ref_text, "fpage")
+    ref_page <- if (!is.na(ref_page) && nzchar(ref_page)) paste0("P", ref_page) else ""
 
     # 6. DOI
     m_rdoi <- regexec("<pub-id\\b[^>]*pub-id-type=[\"']doi[\"'][^>]*>(.*?)</pub-id>", ref_text, perl = TRUE)
