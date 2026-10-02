@@ -26,4 +26,7 @@ test_that("as_bibliometrix converte com sucesso e bate no contrato", {
   expect_true("CR" %in% names(res))
   expect_true(is.na(res$CR[1]))
   expect_equal(res$DB[1], "spell")
+  expect_true(all(c("SR", "SR_FULL", "JI", "J9") %in% names(res)))
+  expect_true(!is.na(res$SR[1]) && nzchar(res$SR[1]))
+  expect_equal(res$SR[1], "SILVA, J, 2023, REVISTA XPTO")
 })
