@@ -91,6 +91,11 @@ as_bibliometrix <- function(df, dbsource = c("spell", "scielo", "bdtd", "redalyc
     df$J9 <- substr(toupper(df$SO), 1, 29)
   }
 
+  # se ID (Keywords Plus) nao veio na base regional, espelha DE (Author Keywords) para compatibilidade com bibliometrix
+  if ("DE" %in% names(df) && (all(is.na(df$ID)) || !any(nzchar(df$ID[!is.na(df$ID)])))) {
+    df$ID <- df$DE
+  }
+
   # preenche dbsource
   df$DB <- dbsource
 

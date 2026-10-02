@@ -37,13 +37,20 @@ test_that("biblioAnalysis runs cleanly on real SciELO JATS dataset", {
   expect_gt(nrow(net_collab), 0L)
   expect_equal(nrow(net_collab), ncol(net_collab))
 
-  # 5. Rede de co-ocorrencia de palavras-chave (DE)
-  net_kwd <- suppressMessages(
+  # 5. Rede de co-ocorrencia de palavras-chave (author_keywords via DE e keywords via ID)
+  net_kwd_de <- suppressMessages(
+    bibliometrix::biblioNetwork(df, analysis = "co-occurrences", network = "author_keywords")
+  )
+  expect_true(inherits(net_kwd_de, "Matrix") || inherits(net_kwd_de, "matrix") || inherits(net_kwd_de, "igraph"))
+  expect_gt(nrow(net_kwd_de), 0L)
+  expect_equal(nrow(net_kwd_de), ncol(net_kwd_de))
+
+  net_kwd_id <- suppressMessages(
     bibliometrix::biblioNetwork(df, analysis = "co-occurrences", network = "keywords")
   )
-  expect_true(inherits(net_kwd, "Matrix") || inherits(net_kwd, "matrix") || inherits(net_kwd, "igraph"))
-  expect_gt(nrow(net_kwd), 0L)
-  expect_equal(nrow(net_kwd), ncol(net_kwd))
+  expect_true(inherits(net_kwd_id, "Matrix") || inherits(net_kwd_id, "matrix") || inherits(net_kwd_id, "igraph"))
+  expect_gt(nrow(net_kwd_id), 0L)
+  expect_equal(nrow(net_kwd_id), ncol(net_kwd_id))
 
   # 6. Acoplamento bibliografico de autores via CR
   net_coup <- suppressMessages(
