@@ -137,6 +137,10 @@ parse_single_scielo_jats <- function(file) {
     for (cm in contrib_matches) {
       surname <- extract_first_tag(cm, "surname")
       given <- extract_first_tag(cm, "given-names")
+      suffix <- extract_first_tag(cm, "suffix")
+      if (!is.na(suffix) && nzchar(suffix) && !is.na(surname)) {
+        surname <- paste(surname, suffix)
+      }
       if (!is.na(surname) && nzchar(surname)) {
         author_name <- if (!is.na(given) && nzchar(given)) paste(surname, given, sep = ", ") else surname
         raw_authors <- c(raw_authors, author_name)

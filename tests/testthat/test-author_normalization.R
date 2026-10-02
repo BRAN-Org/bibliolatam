@@ -32,6 +32,9 @@ test_that("normalize_authors preserva sufixos geracionais brasileiros", {
   # formato Sobrenome Sufixo, Nome
   expect_equal(normalize_authors("Silva Junior, Jose da"), "SILVA JUNIOR J")
   expect_equal(normalize_authors("Moraes Filho, Carlos"), "MORAES FILHO C")
+
+  # formato Sobrenome, Nome Meio Sufixo
+  expect_equal(normalize_authors("Batista, Jose Rodrigues Filho"), "BATISTA FILHO JR")
 })
 
 test_that("normalize_authors ignora particulas minusculas nas iniciais", {
