@@ -16,5 +16,6 @@
 - [x] Testes unitários do parser (`tests/testthat/test-spell.R`)
 
 ## 3. Interoperabilidade com biblioshiny
-- [ ] Função auxiliar `export_biblioshiny()` para salvar `.RData` compatível
-- [ ] Teste de carga de ponta a ponta simulando `bibliometrix::biblioAnalysis()`
+- [x] Função auxiliar `export_biblioshiny()` para salvar `.RData` compatível (variável canônica `M`)
+- [x] Teste de isolamento de carga simulando consumo do `biblioshiny` via `load()`
+
