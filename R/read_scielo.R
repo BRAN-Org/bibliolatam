@@ -86,7 +86,7 @@ read_scielo <- function(file, convert = TRUE) {
   }
 
   # normaliza autores no padrao wos/bibliometrix
-  out$AU <- vapply(out$AU, normalize_spell_authors, FUN.VALUE = character(1L), USE.NAMES = FALSE)
+  out$AU <- vapply(out$AU, normalize_authors, FUN.VALUE = character(1L), USE.NAMES = FALSE)
 
   # sanitiza prefixo doi
   if ("DI" %in% names(out)) {
