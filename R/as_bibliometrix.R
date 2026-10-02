@@ -51,6 +51,51 @@ as_bibliometrix <- function(df, dbsource = c("spell", "scielo", "bdtd", "redalyc
     }
   }
 
+  # gera SR (Standard Reference) se ausente ou vazio, obrigatorio para cocMatrix e redes
+  if (!"SR" %in% names(df) || all(is.na(df$SR))) {
+    first_author <- gsub(";.*$", "", df$AU)
+    first_author <- trimws(first_author)
+    first_author[is.na(first_author) | !nzchar(first_author)] <- "ANONYMOUS"
+
+    py_val <- if ("PY" %in% names(df)) df$PY else ""
+    py_val[is.na(py_val)] <- ""
+
+    so_val <- if ("SO" %in% names(df)) trimws(df$SO) else ""
+    so_val[is.na(so_val)] <- ""
+
+    vl_val <- if ("VL" %in% names(df)) paste0("V", trimws(df$VL)) else ""
+    vl_val[is.na(df$VL) | !nzchar(df$VL)] <- ""
+
+    bp_val <- if ("BP" %in% names(df)) paste0("P", trimws(df$BP)) else ""
+    bp_val[is.na(df$BP) | !nzchar(df$BP)] <- ""
+
+    di_val <- if ("DI" %in% names(df)) paste0("DOI ", trimws(df$DI)) else ""
+    di_val[is.na(df$DI) | !nzchar(df$DI)] <- ""
+
+    sr_vec <- character(nrow(df))
+    for (i in seq_len(nrow(df))) {
+      parts <- c(first_author[i], py_val[i], so_val[i], vl_val[i], bp_val[i], di_val[i])
+      parts <- parts[nzchar(parts)]
+      sr_vec[i] <- paste(parts, collapse = ", ")
+    }
+    df$SR <- make.unique(toupper(sr_vec), sep = "-")
+  }
+
+  if (!"SR_FULL" %in% names(df) || all(is.na(df$SR_FULL))) {
+    df$SR_FULL <- df$SR
+  }
+  if (!"JI" %in% names(df) || all(is.na(df$JI))) {
+    df$JI <- df$SO
+  }
+  if (!"J9" %in% names(df) || all(is.na(df$J9))) {
+    df$J9 <- substr(toupper(df$SO), 1, 29)
+  }
+
+  # se ID (Keywords Plus) nao veio na base regional, espelha DE (Author Keywords) para compatibilidade com bibliometrix
+  if ("DE" %in% names(df) && (all(is.na(df$ID)) || !any(nzchar(df$ID[!is.na(df$ID)])))) {
+    df$ID <- df$DE
+  }
+
   # preenche dbsource
   df$DB <- dbsource
 
