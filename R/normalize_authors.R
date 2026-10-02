@@ -16,7 +16,7 @@ normalize_authors <- function(au_str) {
   norm_authors <- character(0L)
 
   # particulas que nao viram iniciais em padrao cienciometrico
-  particulas <- c("da", "de", "do", "das", "dos", "del", "della", "van", "von", "der", "e", "y")
+  particulas <- c("da", "de", "do", "das", "dos", "del", "della", "la", "las", "los", "van", "von", "der", "e", "y")
   # sufixos geracionais brasileiros e hispanicos
   sufixos <- c("junior", "jr", "filho", "neto", "sobrinho", "segundo", "terceiro")
 
