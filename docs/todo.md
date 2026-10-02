@@ -19,3 +19,19 @@
 - [x] Função auxiliar `export_biblioshiny()` para salvar `.RData` compatível (variável canônica `M`)
 - [x] Teste de isolamento de carga simulando consumo do `biblioshiny` via `load()`
 
+---
+
+# To-Do — Fase 2 (SciELO)
+
+## 1. Parser SciELO Tabular (read_scielo)
+- [x] Leitura de CSV do portal SciELO com detecção de separador e encoding
+- [x] Mapeamento multilíngue de tags pt/es/en (`title`/`titulo`, `authors`/`autores`, `journal`/`revista`)
+- [x] Normalização de autoria para o padrão canônico WoS/bibliometrix (`SOBRENOME INICIAIS; ...`)
+- [x] Fixture pública representativa em `inst/extdata/scielo_sample.csv`
+- [x] Testes unitários do parser (`tests/testthat/test-scielo.R`)
+
+## 2. Parser SciELO JATS XML (read_scielo_jats)
+- [ ] Parser XML via `xml2` para extrair corpo e árvore de referências citadas (`<ref-list>`)
+- [ ] Construção do campo `CR` (Cited References) no padrão `AUTOR, ANO, PERIODICO...`
+- [ ] Fixture JATS XML real em `inst/extdata/scielo_sample.xml`
+- [ ] Testes unitários de extração de referências citadas
