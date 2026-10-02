@@ -43,6 +43,14 @@ as_bibliometrix <- function(df, dbsource = c("spell", "scielo", "bdtd", "redalyc
   df$TC <- suppressWarnings(as.numeric(df$TC))
   df$TC[is.na(df$TC)] <- 0
 
+  # garante que colunas de texto nao fiquem como factor
+  char_tags <- c("AU", "TI", "SO", "DE", "ID", "AB", "C1", "RP", "CR", "DI", "DT", "SN", "LA", "UT")
+  for (tag in char_tags) {
+    if (tag %in% names(df) && is.factor(df[[tag]])) {
+      df[[tag]] <- as.character(df[[tag]])
+    }
+  }
+
   # preenche dbsource
   df$DB <- dbsource
 
