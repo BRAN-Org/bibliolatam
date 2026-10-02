@@ -1,18 +1,18 @@
 ---
-name: '💡 Proposta de Nova Base ou Funcionalidade'
-about: Sugerir suporte a uma nova base de dados latino-americana ou novo formato de exportação.
+name: 'Proposta de Nova Base ou Funcionalidade'
+about: Sugerir suporte a uma nova base de dados latino-americana ou novo formato de exportacao.
 title: '[PROPOSTA] '
 labels: 'enhancement'
 ---
 
-## 📌 Descrição da Base de Dados / Funcionalidade
+## Descricao da Base de Dados / Funcionalidade
 - **Nome da Base / Portal**:
-- **País / Cobertura Regional**:
-- **URL Pública do Portal**:
-- **Formatos de Exportação Oferecidos** (ex: CSV, RIS, BibTeX, OAI-PMH, API):
+- **Pais / Cobertura Regional**:
+- **URL Publica do Portal**:
+- **Formatos de Exportacao Oferecidos** (ex: CSV, RIS, BibTeX, OAI-PMH, API):
 
-## 🎯 Relevância e Justificativa
-Explique por que esta fonte é relevante para estudos bibliométricos na América Latina.
+## Relevancia e Justificativa
+Explique por que esta fonte e relevante para estudos bibliometricos na America Latina.
 
-## 📄 Amostra de Dados
-Disponibilidade de um arquivo ou link de exemplo público para desenvolvimento e criação de testes automatizados.
+## Amostra de Dados
+Disponibilidade de um arquivo ou link de exemplo publico para desenvolvimento e criacao de testes automatizados.

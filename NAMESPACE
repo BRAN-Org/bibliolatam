@@ -2,4 +2,5 @@
 
 export(as_bibliometrix)
 export(export_biblioshiny)
+export(read_scielo)
 export(read_spell)
