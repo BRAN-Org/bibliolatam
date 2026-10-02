@@ -83,7 +83,7 @@ read_spell <- function(file, convert = TRUE) {
   }
 
   # padroniza autores no formato wos/bibliometrix (SOBRENOME INICIAIS)
-  out$AU <- vapply(out$AU, normalize_spell_authors, FUN.VALUE = character(1L), USE.NAMES = FALSE)
+  out$AU <- vapply(out$AU, normalize_authors, FUN.VALUE = character(1L), USE.NAMES = FALSE)
 
   # limpa doi se veio com url junto
   if ("DI" %in% names(out)) {
@@ -100,46 +100,6 @@ read_spell <- function(file, convert = TRUE) {
   out
 }
 
-# helper interno pra formatar autores estilo bibliometrix
-normalize_spell_authors <- function(au_str) {
-  if (is.na(au_str) || !nzchar(trimws(au_str))) {
-    return(NA_character_)
-  }
+# alias interno para compatibilidade
+normalize_spell_authors <- normalize_authors
 
-  # separa autores individuais (normalmente ';' no spell)
-  raw_authors <- unlist(strsplit(au_str, ";", fixed = TRUE))
-  norm_authors <- character(0L)
-
-  for (a in raw_authors) {
-    a <- trimws(a)
-    if (!nzchar(a)) next
-
-    if (grepl(",", a, fixed = TRUE)) {
-      # formato: 'Sobrenome, Nome Outro'
-      parts <- unlist(strsplit(a, ",", fixed = TRUE))
-      sobrenome <- toupper(trimws(parts[1]))
-      restante <- if (length(parts) > 1) trimws(parts[2]) else ""
-      prenomes <- unlist(strsplit(restante, "\\s+"))
-      iniciais <- paste0(substr(prenomes[nzchar(prenomes)], 1, 1), collapse = "")
-      norm_a <- if (nzchar(iniciais)) paste(sobrenome, toupper(iniciais)) else sobrenome
-    } else {
-      # formato: 'Nome Outro Sobrenome'
-      tokens <- unlist(strsplit(a, "\\s+"))
-      if (length(tokens) == 1) {
-        norm_a <- toupper(tokens)
-      } else {
-        sobrenome <- toupper(tokens[length(tokens)])
-        prenomes <- tokens[-length(tokens)]
-        iniciais <- paste0(substr(prenomes[nzchar(prenomes)], 1, 1), collapse = "")
-        norm_a <- paste(sobrenome, toupper(iniciais))
-      }
-    }
-    norm_authors <- c(norm_authors, norm_a)
-  }
-
-  if (length(norm_authors) == 0L) {
-    return(NA_character_)
-  }
-
-  paste(norm_authors, collapse = "; ")
-}
