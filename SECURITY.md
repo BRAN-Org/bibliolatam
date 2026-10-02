@@ -1,17 +1,17 @@
-# 🔒 Política de Segurança da BRAN Org
+# Politica de Seguranca da BRAN Org
 
-A **BRAN Org** leva a sério a segurança dos dados, scripts de automação e pacotes de software.
+A BRAN Org leva a serio a seguranca dos dados, scripts de automacao e pacotes de software.
 
-## 🐛 Relatando Vulnerabilidades
+## Relatando Vulnerabilidades
 
-Se você encontrar uma falha de segurança, vulnerabilidade ou vazamento inadvertido nos nossos repositórios, pedimos que **não abra uma Issue pública**.
+Se voce encontrar uma falha de seguranca, vulnerabilidade ou vazamento inadvertido nos nossos repositorios, pedimos que nao abra uma Issue publica.
 
-Em vez disso, envie um e-mail confidencial para:
-👉 **[gabrielngama@gmail.com](mailto:gabrielngama@gmail.com)**
+Envie um e-mail confidencial para:
+[gabrielngama@gmail.com](mailto:gabrielngama@gmail.com)
 
 ### O que incluir no seu relato:
-- Descrição detalhada da vulnerabilidade
+- Descricao detalhada da vulnerabilidade
 - Passos para reproduzir o problema
 - Impacto potencial estimado
 
-Agradecemos o apoio de pesquisadores e desenvolvedores na proteção da infraestrutura de ciência aberta.
+Agradecemos o apoio de pesquisadores e desenvolvedores na protecao da infraestrutura de ciencia aberta.

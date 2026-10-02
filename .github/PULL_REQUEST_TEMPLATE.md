@@ -1,15 +1,15 @@
-## 📌 O que mudou?
-- Breve explicação técnica das alterações propostas.
+## O que mudou?
+- Breve explicacao tecnica das alteracoes propostas.
 
-## 🎯 Tipo de Mudança
+## Tipo de Mudanca
 - [ ] Nova funcionalidade (novo parser de base de dados ou conversor)
-- [ ] Correção de bug (ajuste em schema, parsing ou compatibilidade)
-- [ ] Documentação
+- [ ] Correcao de bug (ajuste em schema, parsing ou compatibilidade)
+- [ ] Documentacao
 - [ ] Testes / Fixtures
 
-## ✅ Checklist de Qualidade BRAN Org
-- [ ] PR destinado obrigatoriamente à branch **`development`**.
-- [ ] Não há metadados inferidos ou deduzidos (inviolabilidade do dado de origem).
-- [ ] Suíte de testes (`devtools::test()`) passa com sucesso.
-- [ ] Verificação limpa com `devtools::check()` (sem erros ou advertências graves).
-- [ ] CHANGELOG.md atualizado na seção `[Unreleased]`.
+## Checklist de Qualidade BRAN Org
+- [ ] PR destinado obrigatoriamente a branch `development`.
+- [ ] Nao ha metadados inferidos ou deduzidos (inviolabilidade do dado de origem).
+- [ ] Suite de testes (`devtools::test()`) passa com sucesso.
+- [ ] Verificacao limpa com `devtools::check()` (sem erros ou advertencias graves).
+- [ ] CHANGELOG/NEWS atualizado.
