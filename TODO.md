@@ -14,3 +14,7 @@
 - [x] Standalone Brazilian/Hispanic author normalizer (`normalize_authors`) with generational suffixes and particles
 - [x] Web GUI exporter (`export_biblioshiny`) creating loadable `.RData` objects
 - [ ] OpenAlex / Crossref live metadata reconciliation helper for Latin American repositories
+
+## Developer Tooling & Agent Guidelines
+- [ ] Create `AGENTS.md`: repository architecture, code standards, and execution protocols for AI coding agents
+
