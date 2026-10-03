@@ -14,6 +14,7 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 - Parser de XML completo NLM/JATS SciELO (`read_scielo_jats`) com reconstrução de referências citadas (`CR`).
 - Motor de download automatizado SciELO (`download_scielo_jats`) com resolução de DOI/PID/URL, retentativas em falhas de gateway e validação de integridade XML.
 - Extração e normalização de idioma (`LA`) a partir do atributo `xml:lang` no parser JATS SciELO.
+- Parser de teses e dissertações da BDTD / Oasisbr (`read_bdtd` e alias `read_oasisbr`) com suporte a programas de pós-graduação, orientadores (`RP`) e tipos documentais (`DT`).
 - Exportador para interface gráfica `export_biblioshiny()` gerando arquivos `.RData` prontos para importação direta.
 - Normalizador independente de nomes de autores (`normalize_authors`) com suporte a sufixos geracionais brasileiros e partículas.
 - Licença dual (GNU GPL-3.0 para software e CC BY-NC-SA 4.0 para dados de exemplo).

@@ -5,7 +5,7 @@
 - [x] SciELO tabular CSV parser (`read_scielo`)
 - [x] SciELO NLM/JATS XML parser (`read_scielo_jats`) with Cited References (`CR`) extraction
 - [x] Direct automated XML retrieval helper (`download_scielo_jats`): download raw XMLs from official SciELO endpoints by vector of DOIs or PID article identifiers
-- [ ] BDTD / Oasisbr tabular and OAI-PMH thesis/dissertation parser (`read_bdtd`)
+- [x] BDTD / Oasisbr tabular and OAI-PMH thesis/dissertation parser (`read_bdtd` / `read_oasisbr`)
 - [ ] Redalyc metadata parser (`read_redalyc`)
 - [ ] LA Referencia regional aggregator parser (`read_lareferencia`)
 
