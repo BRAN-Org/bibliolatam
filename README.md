@@ -26,6 +26,9 @@ library(bibliometrix)
 # Read and parse exported files from regional portals
 df_spell <- read_spell("spell_export.csv")
 
+# Or download and parse full-text SciELO JATS XML with cited references directly
+df_jats <- download_scielo_jats("10.1590/S0034-8910.2014048004911")
+
 # Convert to a bibliometrix-compatible object
 M <- as_bibliometrix(df_spell, dbsource = "spell")
 

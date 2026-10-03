@@ -10,3 +10,4 @@
 ^LICENSE$
 ^CITATION\.cff$
 ^TODO\.md$
+^.*\.RData$
