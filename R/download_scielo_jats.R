@@ -119,6 +119,19 @@ get_headers_with_retry <- function(url, redirect = TRUE, retries = 3L) {
   h
 }
 
+resolve_via_crossref <- function(doi) {
+  tryCatch({
+    api_url <- paste0("https://api.crossref.org/works/", doi)
+    con <- url(api_url, headers = c("User-Agent" = "bibliolatam/0.1 (mailto:contato@bran.org)"))
+    on.exit(close(con), add = TRUE)
+    txt <- paste(readLines(con, warn = FALSE), collapse = " ")
+    if (!grepl("\"resource\"", txt)) return(NULL)
+    res_url <- sub(".*\"resource\":\\{\"primary\":\\{\"URL\":\"([^\"]+)\".*", "\\1", txt)
+    res_url <- gsub("\\\\/", "/", res_url)
+    sub("^http://", "https://", res_url, ignore.case = TRUE)
+  }, error = function(e) NULL)
+}
+
 resolve_scielo_xml_url <- function(id) {
   id <- trimws(id)
   id_clean <- gsub("^https?://(dx\\.)?doi\\.org/", "", id, ignore.case = TRUE)
@@ -138,16 +151,21 @@ resolve_scielo_xml_url <- function(id) {
     # Resolve DOI via doi.org com redirect = FALSE para capturar e forcar HTTPS no SciELO
     doi_url <- paste0("https://doi.org/", id_clean)
     h_doi <- get_headers_with_retry(doi_url, redirect = FALSE)
-    if (is.null(h_doi) || (!is.null(attr(h_doi, "status")) && attr(h_doi, "status") >= 400)) {
+    start_url <- NULL
+    if (!is.null(h_doi) && (is.null(attr(h_doi, "status")) || attr(h_doi, "status") < 400)) {
+      locs_doi <- grep("location:", h_doi, ignore.case = TRUE, value = TRUE)
+      if (length(locs_doi) > 0L) {
+        loc_target <- trimws(sub("^location:[[:space:]]*", "", locs_doi[1], ignore.case = TRUE))
+        loc_target <- sub("[\r\n]+$", "", loc_target)
+        start_url <- sub("^http://", "https://", loc_target, ignore.case = TRUE)
+      }
+    }
+    if (is.null(start_url)) {
+      start_url <- resolve_via_crossref(id_clean)
+    }
+    if (is.null(start_url)) {
       return(NULL)
     }
-    locs_doi <- grep("location:", h_doi, ignore.case = TRUE, value = TRUE)
-    if (length(locs_doi) == 0L) {
-      return(NULL)
-    }
-    loc_target <- trimws(sub("^location:[[:space:]]*", "", locs_doi[1], ignore.case = TRUE))
-    loc_target <- sub("[\r\n]+$", "", loc_target)
-    start_url <- sub("^http://", "https://", loc_target, ignore.case = TRUE)
   } else if (grepl("^S[0-9]{4}-[0-9]{4}", id_clean, ignore.case = TRUE) || grepl("^S[0-9]{22,23}", id_clean, ignore.case = TRUE)) {
     start_url <- paste0("https://www.scielo.br/scielo.php?script=sci_arttext&pid=", id_clean)
   } else {

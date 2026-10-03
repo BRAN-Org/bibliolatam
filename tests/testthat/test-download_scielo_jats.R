@@ -1,5 +1,6 @@
 skip_if_no_internet <- function() {
   testthat::skip_on_cran()
+  testthat::skip_on_ci()
   can_connect <- tryCatch({
     h <- curlGetHeaders("https://www.google.com")
     !is.null(h) && length(h) > 0L
