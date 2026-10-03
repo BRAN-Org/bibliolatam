@@ -1,7 +1,7 @@
 #' Parse SciELO JATS XML articles and cited references
 #'
 #' Reads one or multiple SciELO articles in NLM/JATS XML format (`.xml`, directory, or `.zip`).
-#' Extracts core metadata tags (`AU`, `TI`, `SO`, `PY`, `AB`, `DE`, `DI`, `SN`, `VL`, `IS`, `BP`, `EP`, `C1`)
+#' Extracts core metadata tags (`AU`, `TI`, `SO`, `PY`, `AB`, `DE`, `DI`, `SN`, `VL`, `IS`, `BP`, `EP`, `C1`, `LA`)
 #' and reconstructs the canonical Cited References (`CR`) tag from `<ref-list>` for cocitation
 #' and bibliographic coupling workflows in `bibliometrix`.
 #'
@@ -260,6 +260,12 @@ parse_single_scielo_jats <- function(file) {
 
   cr <- if (length(cr_list) > 0) paste(cr_list, collapse = "; ") else NA_character_
 
+  # 14. Idioma (LA)
+  m_lang <- regexec("<article\\b[^>]*\\b(?:xml:)?lang=[\"']([A-Za-z_-]+)[\"']", xml_text, perl = TRUE)
+  reg_lang <- regmatches(xml_text, m_lang)[[1]]
+  la_code <- if (length(reg_lang) >= 2) reg_lang[2] else NA_character_
+  la <- normalize_scielo_language(la_code)
+
   list(
     TI = ti,
     AU = au,
@@ -274,7 +280,22 @@ parse_single_scielo_jats <- function(file) {
     BP = bp,
     EP = ep,
     C1 = c1,
-    CR = cr
+    CR = cr,
+    LA = la
+  )
+}
+
+normalize_scielo_language <- function(code) {
+  if (is.na(code) || !nzchar(code)) return(NA_character_)
+  base_code <- tolower(sub("[-_].*$", "", trimws(code)))
+  switch(base_code,
+    "pt" = "PORTUGUESE",
+    "en" = "ENGLISH",
+    "es" = "SPANISH",
+    "fr" = "FRENCH",
+    "de" = "GERMAN",
+    "it" = "ITALIAN",
+    toupper(code)
   )
 }
 
