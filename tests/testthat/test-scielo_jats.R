@@ -28,6 +28,7 @@ test_that("read_scielo_jats reads single XML file and populates canonical tags",
   expect_equal(df$EP[1], "215")
   expect_match(df$DE[1], "HIV INFECTIONS; HEALTH KNOWLEDGE", fixed = TRUE)
   expect_match(df$C1[1], "Universidade Federal de Minas Gerais", fixed = TRUE)
+  expect_equal(df$LA[1], "ENGLISH")
 
   # Valida Cited References (CR)
   expect_false(is.na(df$CR[1]))
@@ -89,3 +90,19 @@ test_that("read_scielo_jats raises informative errors on invalid input", {
   expect_error(read_scielo_jats(tmp_empty_dir), "Nenhum arquivo XML encontrado")
   unlink(tmp_empty_dir, recursive = TRUE)
 })
+
+test_that("read_scielo_jats extracts and normalizes language (LA)", {
+  real_dir <- system.file("extdata", "real_scielo_samples", package = "bibliolatam")
+  if (!nzchar(real_dir)) {
+    real_dir <- "../../inst/extdata/real_scielo_samples"
+  }
+
+  pt_file <- file.path(real_dir, "0034-8910-rsp-48-2-0232.xml")
+  df_pt <- read_scielo_jats(pt_file)
+  expect_equal(df_pt$LA[1], "PORTUGUESE")
+
+  en_file <- file.path(real_dir, "0034-8910-rsp-48-2-0206.xml")
+  df_en <- read_scielo_jats(en_file)
+  expect_equal(df_en$LA[1], "ENGLISH")
+})
+

@@ -16,7 +16,7 @@ A data frame formatted with standard bibliometric tags including CR.
 }
 \description{
 Reads one or multiple SciELO articles in NLM/JATS XML format (.xml, directory, or .zip).
-Extracts core metadata tags (AU, TI, SO, PY, AB, DE, DI, SN, VL, IS, BP, EP, C1)
+Extracts core metadata tags (AU, TI, SO, PY, AB, DE, DI, SN, VL, IS, BP, EP, C1, LA)
 and reconstructs the canonical Cited References (CR) tag from <ref-list> for cocitation
 and bibliographic coupling workflows in bibliometrix.
 }
