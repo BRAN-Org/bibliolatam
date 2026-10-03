@@ -1,6 +1,6 @@
 # History and project files
 .Rhistory
-.RData
+*.RData
 .Ruserdata
 .Rproj.user/
 
