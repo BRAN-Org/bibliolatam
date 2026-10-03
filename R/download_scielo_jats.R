@@ -101,11 +101,11 @@ download_scielo_jats <- function(ids,
   }
 }
 
-get_headers_with_retry <- function(url, retries = 3L) {
+get_headers_with_retry <- function(url, redirect = TRUE, retries = 3L) {
   h <- NULL
   for (attempt in seq_len(retries)) {
     h <- tryCatch(
-      curlGetHeaders(url, redirect = TRUE),
+      curlGetHeaders(url, redirect = redirect),
       error = function(e) NULL
     )
     if (!is.null(h) && length(h) > 0L) {
@@ -123,18 +123,49 @@ resolve_scielo_xml_url <- function(id) {
   id <- trimws(id)
   id_clean <- gsub("^https?://(dx\\.)?doi\\.org/", "", id, ignore.case = TRUE)
 
-  # Determina URL inicial para seguir redirecionamento
-  start_url <- if (grepl("^10\\.", id_clean)) {
-    paste0("https://doi.org/", id_clean)
-  } else if (grepl("^https?://", id, ignore.case = TRUE)) {
-    id
-  } else if (grepl("^S[0-9]{4}-[0-9]{4}", id_clean, ignore.case = TRUE)) {
-    paste0("https://www.scielo.br/scielo.php?script=sci_arttext&pid=", id_clean)
+  # Se ja for uma URL da SciELO
+  if (grepl("^https?://.*scielo", id, ignore.case = TRUE)) {
+    id_https <- sub("^http://", "https://", id, ignore.case = TRUE)
+    if (grepl("format=xml", id_https, ignore.case = TRUE)) {
+      return(id_https)
+    }
+    if (grepl("/j/[^/]+/a/", id_https)) {
+      sep <- if (grepl("\\?", id_https)) "&" else "?"
+      return(paste0(id_https, sep, "format=xml"))
+    }
+    start_url <- id_https
+  } else if (grepl("^10\\.", id_clean)) {
+    # Resolve DOI via doi.org com redirect = FALSE para capturar e forcar HTTPS no SciELO
+    doi_url <- paste0("https://doi.org/", id_clean)
+    h_doi <- get_headers_with_retry(doi_url, redirect = FALSE)
+    if (is.null(h_doi) || (!is.null(attr(h_doi, "status")) && attr(h_doi, "status") >= 400)) {
+      return(NULL)
+    }
+    locs_doi <- grep("location:", h_doi, ignore.case = TRUE, value = TRUE)
+    if (length(locs_doi) == 0L) {
+      return(NULL)
+    }
+    loc_target <- trimws(sub("^location:[[:space:]]*", "", locs_doi[1], ignore.case = TRUE))
+    loc_target <- sub("[\r\n]+$", "", loc_target)
+    start_url <- sub("^http://", "https://", loc_target, ignore.case = TRUE)
+  } else if (grepl("^S[0-9]{4}-[0-9]{4}", id_clean, ignore.case = TRUE) || grepl("^S[0-9]{22,23}", id_clean, ignore.case = TRUE)) {
+    start_url <- paste0("https://www.scielo.br/scielo.php?script=sci_arttext&pid=", id_clean)
   } else {
-    paste0("https://doi.org/", id_clean)
+    doi_url <- paste0("https://doi.org/", id_clean)
+    h_doi <- get_headers_with_retry(doi_url, redirect = FALSE)
+    if (is.null(h_doi) || (!is.null(attr(h_doi, "status")) && attr(h_doi, "status") >= 400)) {
+      return(NULL)
+    }
+    locs_doi <- grep("location:", h_doi, ignore.case = TRUE, value = TRUE)
+    if (length(locs_doi) == 0L) {
+      return(NULL)
+    }
+    loc_target <- trimws(sub("^location:[[:space:]]*", "", locs_doi[1], ignore.case = TRUE))
+    loc_target <- sub("[\r\n]+$", "", loc_target)
+    start_url <- sub("^http://", "https://", loc_target, ignore.case = TRUE)
   }
 
-  headers <- get_headers_with_retry(start_url)
+  headers <- get_headers_with_retry(start_url, redirect = TRUE)
 
   if (is.null(headers) || length(headers) == 0L) {
     return(NULL)
@@ -154,7 +185,7 @@ resolve_scielo_xml_url <- function(id) {
     if (startsWith(last_loc, "/")) {
       paste0("https://www.scielo.br", last_loc)
     } else {
-      last_loc
+      sub("^http://", "https://", last_loc, ignore.case = TRUE)
     }
   } else {
     if (grepl("^https?://(dx\\.)?doi\\.org/", start_url, ignore.case = TRUE)) {
@@ -163,7 +194,10 @@ resolve_scielo_xml_url <- function(id) {
     start_url
   }
 
-  # Se a landing URL ja tem format=xml, retorna direto
+  if (is.null(landing_url) || !grepl("scielo", landing_url, ignore.case = TRUE)) {
+    return(NULL)
+  }
+
   if (grepl("format=xml", landing_url, ignore.case = TRUE)) {
     return(landing_url)
   }
@@ -171,6 +205,7 @@ resolve_scielo_xml_url <- function(id) {
   sep <- if (grepl("\\?", landing_url)) "&" else "?"
   paste0(landing_url, sep, "format=xml")
 }
+
 
 is_valid_scielo_xml <- function(file_path) {
   if (!file.exists(file_path) || file.info(file_path)$size < 200) {
