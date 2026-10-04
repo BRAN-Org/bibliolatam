@@ -26,6 +26,9 @@ library(bibliometrix)
 # Read and parse exported files from regional portals
 df_spell <- read_spell("spell_export.csv")
 
+# Or download and parse full-text SciELO JATS XML with cited references directly
+df_jats <- download_scielo_jats("10.1590/S0034-8910.2014048004911")
+
 # Convert to a bibliometrix-compatible object
 M <- as_bibliometrix(df_spell, dbsource = "spell")
 
@@ -40,8 +43,10 @@ summary(results)
 - `inst/extdata/`: Minimal, curated export samples for automated unit testing.
 - `tests/testthat/`: Test suites ensuring schema compatibility with `bibliometrix`.
 
-## License
+## Principles & License
 
-This project is licensed under a dual structure:
-- Source code is licensed under the **GNU General Public License v3.0 (GPL-3.0)**.
-- Sample datasets and scientometric metadata fixtures are licensed under **CC BY-NC-SA 4.0**.
+- **[FAIR Principles](https://www.go-fair.org/fair-principles/)**: Focus on making Latin American scientific literature Findable, Accessible, Interoperable, and Reusable.
+- **[BOAI](https://www.budapestopenaccessinitiative.org/)**: Committed to Diamond Open Access and open scientific communication.
+- **Dual Licensing**:
+  - **Source Code**: [GNU General Public License v3.0 (GPL-3.0)](https://www.gnu.org/licenses/gpl-3.0.html) — Guarantees software freedom and prevents proprietary closures.
+  - **Sample Datasets & Metadata Fixtures (`inst/extdata/`)**: [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/) — For academic research and validation only; unauthorized bulk ingestion for training commercial AI models without prior consent is prohibited.

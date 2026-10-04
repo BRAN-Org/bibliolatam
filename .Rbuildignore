@@ -1,0 +1,13 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^\.github$
+^CHANGELOG\.md$
+^CODE_OF_CONDUCT\.md$
+^CONTRIBUTING\.md$
+^SECURITY\.md$
+^SUPPORT\.md$
+^docs$
+^LICENSE$
+^CITATION\.cff$
+^TODO\.md$
+^.*\.RData$

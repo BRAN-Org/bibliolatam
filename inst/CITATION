@@ -1,0 +1,16 @@
+bibentry(
+  bibtype = "Manual",
+  title = "bibliolatam: Latin American Bibliographic Data Parsers for 'bibliometrix'",
+  author = c(
+    person("Gabriel", "Gama", email = "contato@bran.org", role = c("aut", "cre")),
+    person("BRAN Org", role = "cph")
+  ),
+  year = "2026",
+  organization = "BRAN Org",
+  url = "https://github.com/BRAN-Org/bibliolatam",
+  textVersion = paste(
+    "Gama, G., & BRAN Org. (2026).",
+    "bibliolatam: Latin American Bibliographic Data Parsers for 'bibliometrix'.",
+    "R package version 0.1.0.9000. https://github.com/BRAN-Org/bibliolatam"
+  )
+)

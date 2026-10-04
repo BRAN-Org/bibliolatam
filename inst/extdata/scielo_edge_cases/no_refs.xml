@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article xmlns:xlink="http://www.w3.org/1999/xlink" article-type="editorial" xml:lang="en">
+  <front>
+    <journal-meta><journal-title>Editorial Express</journal-title><issn>0000-1111</issn></journal-meta>
+    <article-meta>
+      <article-id pub-id-type="doi">10.1590/editorial-without-references</article-id>
+      <title-group><article-title>Editorial Note on Open Science</article-title></title-group>
+      <contrib-group>
+        <contrib contrib-type="author"><name><surname>Santos</surname><given-names>Carlos</given-names></name></contrib>
+      </contrib-group>
+      <pub-date><year>2022</year></pub-date>
+    </article-meta>
+  </front>
+</article>
