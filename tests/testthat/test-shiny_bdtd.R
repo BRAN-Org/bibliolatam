@@ -5,7 +5,9 @@ test_that("bdtdUI returns valid Shiny UI structure", {
   expect_s3_class(ui, "shiny.tag.list")
 
   ui_char <- as.character(ui)
-  expect_true(grepl("BDTD / Oasisbr Collection", ui_char))
+  expect_true(grepl("BDTD Collection", ui_char))
+  expect_true(grepl("bdtdSearchQuery", ui_char))
+  expect_true(grepl("bdtdFetchOnline", ui_char))
   expect_true(grepl("bdtdFile", ui_char))
   expect_true(grepl("bdtdDegreeFilter", ui_char))
   expect_true(grepl("bdtdProcessFile", ui_char))
