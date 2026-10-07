@@ -7,16 +7,16 @@
 read_scielo_jats(path, convert = TRUE)
 }
 \arguments{
-\item{path}{Path to a .xml file, a directory of XML files, or a .zip archive containing XML files.}
+\item{path}{Path to a \code{.xml} file, a directory of XML files, or a \code{.zip} archive containing XML files.}
 
 \item{convert}{Logical. If TRUE, directly wraps output with \code{as_bibliometrix(..., dbsource = "scielo")}. Default is TRUE.}
 }
 \value{
-A data frame formatted with standard bibliometric tags including CR.
+A data frame formatted with standard bibliometric tags including \code{CR}.
 }
 \description{
-Reads one or multiple SciELO articles in NLM/JATS XML format (.xml, directory, or .zip).
-Extracts core metadata tags (AU, TI, SO, PY, AB, DE, DI, SN, VL, IS, BP, EP, C1, LA)
-and reconstructs the canonical Cited References (CR) tag from <ref-list> for cocitation
-and bibliographic coupling workflows in bibliometrix.
+Reads one or multiple SciELO articles in NLM/JATS XML format (\code{.xml}, directory, or \code{.zip}).
+Extracts core metadata tags (\code{AU}, \code{TI}, \code{SO}, \code{PY}, \code{AB}, \code{DE}, \code{DI}, \code{SN}, \code{VL}, \code{IS}, \code{BP}, \code{EP}, \code{C1}, \code{LA})
+and reconstructs the canonical Cited References (\code{CR}) tag from \verb{<ref-list>} for cocitation
+and bibliographic coupling workflows in \code{bibliometrix}.
 }

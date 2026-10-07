@@ -72,26 +72,44 @@ bibliolatamInfoUI <- function() {
                 )
               )
             ),
-            # BDTD / Oasisbr
+            # BDTD
             shiny::column(
               width = 4,
               shiny::div(
                 style = "border: 1px solid #e1e4e8; border-radius: 6px; padding: 15px; background: #fff; min-height: 200px; margin-bottom: 15px;",
                 shiny::div(
                   shiny::span(class = "label label-success", "ACTIVE"),
-                  shiny::h4("BDTD / Oasisbr", style = "font-weight: bold; margin-top: 8px; color: #2980b9;"),
+                  shiny::h4("BDTD", style = "font-weight: bold; margin-top: 8px; color: #2980b9;"),
                   shiny::p(
                     "Brazilian Digital Library of Theses and Dissertations (IBICT). ",
-                    "Parses thesis (Doutorado) and dissertation (Mestrado) metadata, graduate programs, university sources, and advisor mapping."
+                    "Online API search and tabular parsing for theses (Doutorado) and dissertations (Mestrado), graduate programs, and advisor mapping."
                   )
                 )
               )
             ),
-            # SPELL / ANPAD
+            # Oasisbr
             shiny::column(
               width = 4,
               shiny::div(
                 style = "border: 1px solid #e1e4e8; border-radius: 6px; padding: 15px; background: #fff; min-height: 200px; margin-bottom: 15px;",
+                shiny::div(
+                  shiny::span(class = "label label-success", "ACTIVE"),
+                  shiny::h4("Oasisbr", style = "font-weight: bold; margin-top: 8px; color: #e67e22;"),
+                  shiny::p(
+                    "Brazilian Open Access Portal (IBICT). ",
+                    "Online search and tabular parsing for multidisciplinary production: articles, theses, books, and conference proceedings across institutional repositories."
+                  )
+                )
+              )
+            )
+          ),
+
+          shiny::fluidRow(
+            # SPELL / ANPAD
+            shiny::column(
+              width = 4,
+              shiny::div(
+                style = "border: 1px solid #e1e4e8; border-radius: 6px; padding: 15px; background: #fff; min-height: 180px; margin-bottom: 15px;",
                 shiny::div(
                   shiny::span(class = "label label-success", "ACTIVE"),
                   shiny::h4("SPELL / ANPAD", style = "font-weight: bold; margin-top: 8px; color: #8e44ad;"),
@@ -110,10 +128,10 @@ bibliolatamInfoUI <- function() {
               shiny::div(
                 style = "border: 1px solid #e1e4e8; border-radius: 6px; padding: 15px; background: #fff; min-height: 160px; margin-bottom: 15px;",
                 shiny::div(
-                  shiny::span(class = "label label-info", "NEXT PHASE"),
+                  shiny::span(class = "label label-success", "ACTIVE"),
                   shiny::h4("Redalyc / AmeliCA", style = "font-weight: bold; margin-top: 8px; color: #d35400;"),
                   shiny::p(
-                    "Network of Scientific Journals from Latin America and the Caribbean, Spain and Portugal (UAEMex). Pure diamond open-access ecosystem with over 1,500 active journals."
+                    "Network of Scientific Journals from Latin America and the Caribbean, Spain and Portugal (UAEMex). Parses BibTeX, RIS, and CSV formats with Hispanic compound author name resolution."
                   )
                 )
               )
@@ -124,10 +142,27 @@ bibliolatamInfoUI <- function() {
               shiny::div(
                 style = "border: 1px solid #e1e4e8; border-radius: 6px; padding: 15px; background: #fff; min-height: 160px; margin-bottom: 15px;",
                 shiny::div(
-                  shiny::span(class = "label label-info", "NEXT PHASE"),
+                  shiny::span(class = "label label-success", "ACTIVE"),
                   shiny::h4("LA Referencia", style = "font-weight: bold; margin-top: 8px; color: #c0392b;"),
                   shiny::p(
-                    "Federated Network of Institutional Repositories of Scientific Publications. Continental aggregator connecting university research outputs from 12 Latin American nations."
+                    "Federated Network of Institutional Repositories of Scientific Publications. Continental aggregator connecting university research outputs from 12 Latin American nations with live VuFind API integration."
+                  )
+                )
+              )
+            )
+          ),
+
+          shiny::fluidRow(
+            # Omnisearch Engine
+            shiny::column(
+              width = 12,
+              shiny::div(
+                style = "border: 1px solid #b7eb8f; border-radius: 6px; padding: 15px; background: #f6ffed; margin-bottom: 15px;",
+                shiny::div(
+                  shiny::span(class = "label label-success", "ACTIVE"),
+                  shiny::h4("Omnisearch Engine (SciELO + BDTD + Oasisbr + LA Referencia)", style = "font-weight: bold; margin-top: 8px; color: #389e0d;"),
+                  shiny::p(
+                    "Unified 1-click discovery engine across peer-reviewed journals, national graduate thesis archives, and open access repositories across Latin America with automated DOI and fuzzy title deduplication."
                   )
                 )
               )

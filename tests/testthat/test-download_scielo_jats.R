@@ -23,23 +23,23 @@ test_that("is_valid_scielo_xml validates file size and JATS article tag", {
     xml_path <- "../../inst/extdata/scielo_sample.xml"
   }
 
-  expect_true(is_valid_scielo_xml(xml_path))
-  expect_false(is_valid_scielo_xml("nonexistent_file.xml"))
+  expect_true(bibliolatam:::is_valid_scielo_xml(xml_path))
+  expect_false(bibliolatam:::is_valid_scielo_xml("nonexistent_file.xml"))
 
   tmp_fake <- tempfile(fileext = ".xml")
   writeLines(c("<html>", "<body>Error 404 Not Found</body>", "</html>"), tmp_fake)
   on.exit(unlink(tmp_fake), add = TRUE)
-  expect_false(is_valid_scielo_xml(tmp_fake))
+  expect_false(bibliolatam:::is_valid_scielo_xml(tmp_fake))
 })
 
 test_that("resolve_scielo_xml_url formats URLs correctly", {
   skip_if_no_internet()
 
-  url_doi <- resolve_scielo_xml_url("10.1590/S0034-8910.2014048004911")
+  url_doi <- bibliolatam:::resolve_scielo_xml_url("10.1590/S0034-8910.2014048004911")
   expect_type(url_doi, "character")
   expect_match(url_doi, "format=xml")
 
-  url_direct <- resolve_scielo_xml_url("https://www.scielo.br/j/rsp/a/TZzbxXk9WvsFCKrPYtgZ3jd/?lang=en")
+  url_direct <- bibliolatam:::resolve_scielo_xml_url("https://www.scielo.br/j/rsp/a/TZzbxXk9WvsFCKrPYtgZ3jd/?lang=en")
   expect_type(url_direct, "character")
   expect_match(url_direct, "format=xml")
 })

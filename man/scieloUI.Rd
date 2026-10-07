@@ -2,28 +2,15 @@
 % Please edit documentation in R/shiny_scielo.R
 \name{scieloUI}
 \alias{scieloUI}
-\alias{scieloServer}
-\title{SciELO UI and Server Components for Biblioshiny}
+\title{SciELO UI Component for Biblioshiny}
 \usage{
 scieloUI()
-
-scieloServer(input, output, session, values)
-}
-\arguments{
-\item{input}{Shiny input object.}
-
-\item{output}{Shiny output object.}
-
-\item{session}{Shiny session object.}
-
-\item{values}{ReactiveValues object from biblioshiny containing global state.}
 }
 \value{
 A Shiny tagList containing the UI elements.
 }
 \description{
 Renders the SciELO data collection and import panel compatible with
-biblioshiny AdminLTE layout, and handles online DOI retrieval, local file parsing,
-preview statistics, and direct injection into the biblioshiny reactive state.
+biblioshiny AdminLTE layout.
 }
 \keyword{internal}

@@ -10,4 +10,5 @@
 ^LICENSE$
 ^CITATION\.cff$
 ^TODO\.md$
+^AGENTS\.md$
 ^.*\.RData$
