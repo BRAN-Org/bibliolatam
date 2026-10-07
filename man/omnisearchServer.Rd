@@ -4,7 +4,7 @@
 \alias{omnisearchServer}
 \title{Omnisearch Server Logic for Biblioshiny}
 \usage{
-omnisearchServer(input, output, session, values)
+omnisearchServer(input, output, session, values = NULL)
 }
 \arguments{
 \item{input}{Shiny input object.}
