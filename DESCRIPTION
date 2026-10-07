@@ -1,6 +1,6 @@
 Package: bibliolatam
 Title: Latin American Bibliographic Data Parsers for 'bibliometrix'
-Version: 0.1.0.9000
+Version: 0.1.0
 Authors@R: c(
     person("Gabriel", "Gama", role = c("aut", "cre"), email = "contato@bran.org"),
     person("BRAN Org", role = "cph")
