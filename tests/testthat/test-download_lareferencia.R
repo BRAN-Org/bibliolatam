@@ -53,3 +53,18 @@ test_that("download_lareferencia retrieves live data from LA Referencia API", {
     expect_equal(unique(df$DB), "lareferencia")
   }
 })
+
+test_that("download_lareferencia passes years parameter to query_vufind_api", {
+  mock_called_url <- NULL
+  testthat::with_mocked_bindings(
+    url = function(description, ...) {
+      mock_called_url <<- description
+      textConnection('{"status":"OK","resultCount":0,"records":[]}')
+    },
+    .package = "base",
+    {
+      suppressWarnings(download_lareferencia("salud", limit = 10L, years = c(2019, 2023), progress = FALSE))
+      expect_true(grepl("filter\\[\\]=publishDate:\\[2019%20TO%202023\\]", mock_called_url))
+    }
+  )
+})

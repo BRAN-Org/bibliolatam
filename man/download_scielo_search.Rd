@@ -7,6 +7,8 @@
 download_scielo_search(
   query,
   limit = 50L,
+  years = NULL,
+  enrich_references = FALSE,
   convert = TRUE,
   progress = TRUE,
   normalize_authors = TRUE,
@@ -17,6 +19,11 @@ download_scielo_search(
 \item{query}{Character. Search terms or query expression (e.g. \code{"dengue vacina"}).}
 
 \item{limit}{Integer. Maximum number of records to retrieve. Default is 50.}
+
+\item{years}{Numeric/Integer vector. Year range e.g. \code{c(2020, 2024)} or single year \code{2022}. Default is \code{NULL}.}
+
+\item{enrich_references}{Logical. If \code{TRUE}, retrieves full JATS XML for returned DOIs
+via \code{\link[=download_scielo_jats]{download_scielo_jats()}} and enriches the \code{CR} (Cited References) field. Default is \code{FALSE}.}
 
 \item{convert}{Logical. If \code{TRUE} (default), transforms the result into a canonical
 \code{bibliometrixDB} data frame using \code{\link[=as_bibliometrix]{as_bibliometrix()}}.}

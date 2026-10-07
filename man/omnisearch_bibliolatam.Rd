@@ -8,6 +8,8 @@ omnisearch_bibliolatam(
   query,
   sources = c("scielo", "bdtd", "oasisbr", "lareferencia"),
   limit_per_source = 50L,
+  years = NULL,
+  enrich_references = FALSE,
   deduplicate = TRUE,
   progress = TRUE,
   timeout = 30
@@ -20,6 +22,11 @@ omnisearch_bibliolatam(
 Supported choices: \code{"scielo"}, \code{"bdtd"}, \code{"oasisbr"}, \code{"lareferencia"}.}
 
 \item{limit_per_source}{Integer. Maximum records to retrieve per database. Default is 50.}
+
+\item{years}{Numeric/Integer vector. Year range e.g. \code{c(2020, 2024)} or single year \code{2022}. Default is \code{NULL}.}
+
+\item{enrich_references}{Logical. If \code{TRUE}, retrieves full JATS XML for SciELO records
+and enriches the \code{CR} (Cited References) field. Default is \code{FALSE}.}
 
 \item{deduplicate}{Logical. If \code{TRUE} (default), runs \code{\link[=merge_bibliolatam]{merge_bibliolatam()}} on the combined results
 to resolve duplicate DOIs and fuzzy titles, and fuse metadata tags.}

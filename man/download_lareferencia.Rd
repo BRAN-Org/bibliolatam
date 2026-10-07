@@ -7,6 +7,7 @@
 download_lareferencia(
   query,
   limit = 50L,
+  years = NULL,
   convert = TRUE,
   progress = TRUE,
   normalize_authors = TRUE
@@ -16,6 +17,8 @@ download_lareferencia(
 \item{query}{Character. Search terms or query expression (e.g. \code{"vacina dengue"}).}
 
 \item{limit}{Integer. Maximum number of records to retrieve. Default is 50.}
+
+\item{years}{Numeric/Integer vector. Year range e.g. \code{c(2020, 2024)} or single year \code{2022}. Default is \code{NULL}.}
 
 \item{convert}{Logical. If \code{TRUE} (default), transforms the result into a canonical
 \code{bibliometrixDB} data frame using \code{\link[=as_bibliometrix]{as_bibliometrix()}}.}

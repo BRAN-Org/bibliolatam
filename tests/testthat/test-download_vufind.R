@@ -57,3 +57,34 @@ test_that("parse_vufind_records handles edge cases", {
   expect_equal(df_oasis$DT, "ARTICLE")
   expect_equal(df_oasis$SO, "OASISBR/IBICT")
 })
+
+test_that("query_vufind_api constructs year filter properly in URL", {
+  mock_called_url <- NULL
+  testthat::with_mocked_bindings(
+    url = function(description, ...) {
+      mock_called_url <<- description
+      textConnection("{\"status\":\"OK\",\"resultCount\":0,\"records\":[]}")
+    },
+    .package = "base",
+    {
+      # Range
+      bibliolatam:::query_vufind_api("https://bdtd.ibict.br/vufind/api/v1/search", "ia", years = c(2021, 2023))
+      expect_true(grepl("filter\\[\\]=publishDate:\\[2021%20TO%202023\\]", mock_called_url))
+
+      # Single year
+      bibliolatam:::query_vufind_api("https://bdtd.ibict.br/vufind/api/v1/search", "ia", years = 2022)
+      expect_true(grepl("filter\\[\\]=publishDate:\\[2022%20TO%202022\\]", mock_called_url))
+
+      # Inverted range: min and max should be correctly sorted
+      bibliolatam:::query_vufind_api("https://bdtd.ibict.br/vufind/api/v1/search", "ia", years = c(2024, 2020))
+      expect_true(grepl("filter\\[\\]=publishDate:\\[2020%20TO%202024\\]", mock_called_url))
+
+      # No filter when NULL or invalid
+      bibliolatam:::query_vufind_api("https://bdtd.ibict.br/vufind/api/v1/search", "ia", years = NULL)
+      expect_false(grepl("filter\\[\\]=publishDate", mock_called_url))
+
+      bibliolatam:::query_vufind_api("https://bdtd.ibict.br/vufind/api/v1/search", "ia", years = c("invalid", "year"))
+      expect_false(grepl("filter\\[\\]=publishDate", mock_called_url))
+    }
+  )
+})

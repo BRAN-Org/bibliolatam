@@ -9,6 +9,9 @@
 #' @param sources Character vector. Databases to query. Defaults to `c("scielo", "bdtd", "oasisbr", "lareferencia")`.
 #'   Supported choices: `"scielo"`, `"bdtd"`, `"oasisbr"`, `"lareferencia"`.
 #' @param limit_per_source Integer. Maximum records to retrieve per database. Default is 50.
+#' @param years Numeric/Integer vector. Year range e.g. `c(2020, 2024)` or single year `2022`. Default is `NULL`.
+#' @param enrich_references Logical. If `TRUE`, retrieves full JATS XML for SciELO records
+#'   and enriches the `CR` (Cited References) field. Default is `FALSE`.
 #' @param deduplicate Logical. If `TRUE` (default), runs [merge_bibliolatam()] on the combined results
 #'   to resolve duplicate DOIs and fuzzy titles, and fuse metadata tags.
 #' @param progress Logical. If `TRUE` (default), prints progress status for each database queried.
@@ -18,6 +21,8 @@
 omnisearch_bibliolatam <- function(query,
                                    sources = c("scielo", "bdtd", "oasisbr", "lareferencia"),
                                    limit_per_source = 50L,
+                                   years = NULL,
+                                   enrich_references = FALSE,
                                    deduplicate = TRUE,
                                    progress = TRUE,
                                    timeout = 30) {
@@ -51,6 +56,8 @@ omnisearch_bibliolatam <- function(query,
           "scielo" = download_scielo_search(
             query = query,
             limit = limit_per_source,
+            years = years,
+            enrich_references = enrich_references,
             convert = TRUE,
             progress = progress,
             timeout = timeout
@@ -58,18 +65,21 @@ omnisearch_bibliolatam <- function(query,
           "bdtd" = download_bdtd(
             query = query,
             limit = limit_per_source,
+            years = years,
             convert = TRUE,
             progress = progress
           ),
           "oasisbr" = download_oasisbr(
             query = query,
             limit = limit_per_source,
+            years = years,
             convert = TRUE,
             progress = progress
           ),
           "lareferencia" = download_lareferencia(
             query = query,
             limit = limit_per_source,
+            years = years,
             convert = TRUE,
             progress = progress
           )
