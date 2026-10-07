@@ -21,6 +21,9 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 - Motor de busca online para artigos do SciELO (`download_scielo_search`) via API pública do Crossref com filtro de prefixo DOI `10.1590`.
 - Motor de busca federada unificada Latino-Americana (`omnisearch_bibliolatam`) com agregação paralela, deduplicação automática e fusão de metadados via `merge_bibliolatam`.
 - Painel interativo de Omnisearch no `biblioshiny` (`omnisearchUI` e `omnisearchServer`) com carregamento direto no `values$M`.
+- Filtragem temporal a nível de API (`years`) em `download_bdtd`, `download_oasisbr`, `download_lareferencia`, `download_scielo_search` e `omnisearch_bibliolatam` via Crossref e VuFind.
+- Enriquecimento opcional de referências citadas (`CR`) para artigos do SciELO via download automático de JATS XML (`download_scielo_jats`) no Omnisearch.
+- Botões de exportação direta em CSV e `.RData` compatível com Biblioshiny no painel do Omnisearch.
 - Motor de fusão e deduplicação entre bases heterogêneas (`merge_bibliolatam`) com resolução exata por DOI e correspondência aproximada por título em português e espanhol.
 - Parser de periódicos científicos do Redalyc e AmeliCA (`read_redalyc`) com suporte a formatos BibTeX, RIS e CSV, e normalização de nomes compostos hispânicos.
 - Módulo de interface gráfica para o Redalyc (`redalycUI`, `redalycServer`) e painel de fusão de coleções (`bibliolatamMergeUI`, `bibliolatamMergeServer`) no `biblioshiny`.

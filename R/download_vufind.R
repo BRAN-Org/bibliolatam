@@ -7,7 +7,7 @@
 #' @param timeout Numeric. Seconds before timeout.
 #' @return A list with parsed response or stops on error.
 #' @noRd
-query_vufind_api <- function(base_url, query, limit = 20L, page = 1L, timeout = 30) {
+query_vufind_api <- function(base_url, query, limit = 20L, page = 1L, years = NULL, timeout = 30) {
   if (!requireNamespace("jsonlite", quietly = TRUE)) {
     stop("O pacote 'jsonlite' e necessario para consultas a API da BDTD/Oasisbr. Instale com install.packages('jsonlite').", call. = FALSE)
   }
@@ -30,11 +30,23 @@ query_vufind_api <- function(base_url, query, limit = 20L, page = 1L, timeout = 
     "field[]=cleanDoi"
   )
 
+  yr_filter <- character(0L)
+  if (!is.null(years) && length(years) > 0L) {
+    y_vals <- suppressWarnings(as.integer(years))
+    y_vals <- y_vals[!is.na(y_vals) & y_vals > 1500 & y_vals < 2500]
+    if (length(y_vals) > 0L) {
+      y_min <- min(y_vals)
+      y_max <- max(y_vals)
+      yr_filter <- paste0("filter[]=publishDate:[", y_min, "%20TO%20", y_max, "]")
+    }
+  }
+
   params <- paste(
     c(
       paste0("lookfor=", utils::URLencode(query)),
       paste0("limit=", as.integer(limit)),
       paste0("page=", as.integer(page)),
+      yr_filter,
       fields
     ),
     collapse = "&"
@@ -279,6 +291,7 @@ parse_vufind_records <- function(records, dbsource = c("bdtd", "oasisbr", "laref
 #'
 #' @param query Character. Search terms or query expression (e.g. `"inteligencia artificial"`).
 #' @param limit Integer. Maximum number of records to retrieve. Default is 50.
+#' @param years Numeric/Integer vector. Year range e.g. `c(2020, 2024)` or single year `2022`. Default is `NULL`.
 #' @param convert Logical. If `TRUE` (default), transforms the result into a canonical
 #'   `bibliometrixDB` data frame using [as_bibliometrix()].
 #' @param progress Logical. If `TRUE` (default), prints progress messages during pagination.
@@ -287,6 +300,7 @@ parse_vufind_records <- function(records, dbsource = c("bdtd", "oasisbr", "laref
 #' @export
 download_bdtd <- function(query,
                           limit = 50L,
+                          years = NULL,
                           convert = TRUE,
                           progress = TRUE,
                           normalize_authors = TRUE) {
@@ -310,7 +324,7 @@ download_bdtd <- function(query,
       message(sprintf("[BDTD API] Consultando pagina %d (buscando ate %d registros)...", page, limit))
     }
 
-    resp <- query_vufind_api(base_url, query = query, limit = current_limit, page = page)
+    resp <- query_vufind_api(base_url, query = query, limit = current_limit, page = page, years = years)
 
     batch <- resp$records
     if (length(batch) == 0L) {
@@ -349,6 +363,7 @@ download_bdtd <- function(query,
 #'
 #' @param query Character. Search terms or query expression.
 #' @param limit Integer. Maximum number of records to retrieve. Default is 50.
+#' @param years Numeric/Integer vector. Year range e.g. `c(2020, 2024)` or single year `2022`. Default is `NULL`.
 #' @param convert Logical. If `TRUE` (default), transforms the result into a canonical
 #'   `bibliometrixDB` data frame using [as_bibliometrix()].
 #' @param progress Logical. If `TRUE` (default), prints progress messages during pagination.
@@ -357,6 +372,7 @@ download_bdtd <- function(query,
 #' @export
 download_oasisbr <- function(query,
                              limit = 50L,
+                             years = NULL,
                              convert = TRUE,
                              progress = TRUE,
                              normalize_authors = TRUE) {
@@ -380,7 +396,7 @@ download_oasisbr <- function(query,
       message(sprintf("[Oasisbr API] Consultando pagina %d (buscando ate %d registros)...", page, limit))
     }
 
-    resp <- query_vufind_api(base_url, query = query, limit = current_limit, page = page)
+    resp <- query_vufind_api(base_url, query = query, limit = current_limit, page = page, years = years)
 
     batch <- resp$records
     if (length(batch) == 0L) {
@@ -420,6 +436,7 @@ download_oasisbr <- function(query,
 #'
 #' @param query Character. Search terms or query expression (e.g. `"vacina dengue"`).
 #' @param limit Integer. Maximum number of records to retrieve. Default is 50.
+#' @param years Numeric/Integer vector. Year range e.g. `c(2020, 2024)` or single year `2022`. Default is `NULL`.
 #' @param convert Logical. If `TRUE` (default), transforms the result into a canonical
 #'   `bibliometrixDB` data frame using [as_bibliometrix()].
 #' @param progress Logical. If `TRUE` (default), prints progress messages during pagination.
@@ -428,6 +445,7 @@ download_oasisbr <- function(query,
 #' @export
 download_lareferencia <- function(query,
                                   limit = 50L,
+                                  years = NULL,
                                   convert = TRUE,
                                   progress = TRUE,
                                   normalize_authors = TRUE) {
@@ -451,7 +469,7 @@ download_lareferencia <- function(query,
       message(sprintf("[LA Referencia API] Consultando pagina %d (buscando ate %d registros)...", page, limit))
     }
 
-    resp <- query_vufind_api(base_url, query = query, limit = current_limit, page = page)
+    resp <- query_vufind_api(base_url, query = query, limit = current_limit, page = page, years = years)
 
     batch <- resp$records
     if (length(batch) == 0L) {

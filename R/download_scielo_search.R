@@ -7,6 +7,9 @@
 #'
 #' @param query Character. Search terms or query expression (e.g. `"dengue vacina"`).
 #' @param limit Integer. Maximum number of records to retrieve. Default is 50.
+#' @param years Numeric/Integer vector. Year range e.g. `c(2020, 2024)` or single year `2022`. Default is `NULL`.
+#' @param enrich_references Logical. If `TRUE`, retrieves full JATS XML for returned DOIs
+#'   via [download_scielo_jats()] and enriches the `CR` (Cited References) field. Default is `FALSE`.
 #' @param convert Logical. If `TRUE` (default), transforms the result into a canonical
 #'   `bibliometrixDB` data frame using [as_bibliometrix()].
 #' @param progress Logical. If `TRUE` (default), prints progress messages during pagination.
@@ -16,6 +19,8 @@
 #' @export
 download_scielo_search <- function(query,
                                    limit = 50L,
+                                   years = NULL,
+                                   enrich_references = FALSE,
                                    convert = TRUE,
                                    progress = TRUE,
                                    normalize_authors = TRUE,
@@ -37,6 +42,17 @@ download_scielo_search <- function(query,
   on.exit(options(timeout = old_timeout), add = TRUE)
   options(timeout = max(timeout, 10))
 
+  yr_filter <- ""
+  if (!is.null(years) && length(years) > 0L) {
+    y_vals <- suppressWarnings(as.integer(years))
+    y_vals <- y_vals[!is.na(y_vals) & y_vals > 1500 & y_vals < 2500]
+    if (length(y_vals) > 0L) {
+      y_min <- min(y_vals)
+      y_max <- max(y_vals)
+      yr_filter <- paste0(",from-pub-date:", y_min, ",until-pub-date:", y_max)
+    }
+  }
+
   base_url <- "https://api.crossref.org/works"
   page_size <- min(limit, 50L)
   accumulated_items <- list()
@@ -53,7 +69,7 @@ download_scielo_search <- function(query,
     req_url <- paste0(
       base_url,
       "?query=", utils::URLencode(query),
-      "&filter=prefix:10.1590",
+      "&filter=prefix:10.1590", yr_filter,
       "&rows=", as.integer(current_rows),
       "&offset=", as.integer(offset)
     )
@@ -113,6 +129,41 @@ download_scielo_search <- function(query,
   }
 
   df <- parse_crossref_scielo_items(accumulated_items, normalize_authors_flag = normalize_authors)
+
+  if (isTRUE(enrich_references) && nrow(df) > 0L) {
+    valid_dois <- df$DI[!is.na(df$DI) & nzchar(trimws(df$DI))]
+    if (length(valid_dois) > 0L) {
+      if (isTRUE(progress)) {
+        message(sprintf("[SciELO JATS] Enriquecendo %d artigos com referencias citadas (CR)...", length(valid_dois)))
+      }
+      enriched_jats <- tryCatch(
+        download_scielo_jats(valid_dois, parse = TRUE, progress = progress),
+        error = function(e) {
+          warning(sprintf("Falha ao enriquecer referencias citadas via JATS: %s", e$message), call. = FALSE)
+          NULL
+        }
+      )
+      if (!is.null(enriched_jats) && "CR" %in% names(enriched_jats) && "DI" %in% names(enriched_jats)) {
+        clean_jats_di <- toupper(trimws(as.character(enriched_jats$DI)))
+        clean_df_di <- toupper(trimws(as.character(df$DI)))
+        if (!"CR" %in% names(df)) {
+          df$CR <- NA_character_
+        }
+        for (k in seq_len(nrow(df))) {
+          curr_di <- clean_df_di[k]
+          if (!is.na(curr_di) && nzchar(curr_di)) {
+            match_idx <- which(clean_jats_di == curr_di)
+            if (length(match_idx) > 0L) {
+              cr_val <- enriched_jats$CR[match_idx[1]]
+              if (!is.na(cr_val) && nzchar(trimws(as.character(cr_val)))) {
+                df$CR[k] <- as.character(cr_val)
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
   if (isTRUE(convert)) {
     df <- as_bibliometrix(df, dbsource = "scielo")

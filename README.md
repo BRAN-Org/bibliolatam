@@ -45,7 +45,7 @@ summary(results)
 
 ## Principles & License
 
-- **[FAIR Principles](https://www.go-fair.org/fair-principles/)**: Focus on making Latin American scientific literature Findable, Accessible, Interoperable, and Reusable.
+- **[FAIR Principles](https://www.gofair.foundation/fair-principles)**: Focus on making Latin American scientific literature Findable, Accessible, Interoperable, and Reusable.
 - **[BOAI](https://www.budapestopenaccessinitiative.org/)**: Committed to Diamond Open Access and open scientific communication.
 - **Dual Licensing**:
   - **Source Code**: [GNU General Public License v3.0 (GPL-3.0)](https://www.gnu.org/licenses/gpl-3.0.html) — Guarantees software freedom and prevents proprietary closures.

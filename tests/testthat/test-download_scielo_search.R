@@ -59,3 +59,66 @@ test_that("download_scielo_search retrieves live data from Crossref API", {
     expect_equal(unique(df$DB), "scielo")
   }
 })
+
+test_that("download_scielo_search constructs Crossref year filters properly", {
+  mock_called_url <- NULL
+  testthat::with_mocked_bindings(
+    url = function(description, ...) {
+      mock_called_url <<- description
+      textConnection('{"status":"ok","message":{"total-results":0,"items":[]}}')
+    },
+    .package = "base",
+    {
+      # Range
+      suppressWarnings(download_scielo_search("dengue", limit = 5L, years = c(2021, 2024), progress = FALSE))
+      expect_true(grepl("from-pub-date:2021,until-pub-date:2024", mock_called_url))
+
+      # Single year
+      suppressWarnings(download_scielo_search("dengue", limit = 5L, years = 2022, progress = FALSE))
+      expect_true(grepl("from-pub-date:2022,until-pub-date:2022", mock_called_url))
+
+      # No filter
+      suppressWarnings(download_scielo_search("dengue", limit = 5L, years = NULL, progress = FALSE))
+      expect_false(grepl("from-pub-date", mock_called_url))
+    }
+  )
+})
+
+test_that("download_scielo_search integrates enrich_references logic", {
+  mock_item <- list(
+    title = list("Artigo Dengue"),
+    author = list(list(family = "Silva", given = "J")),
+    `container-title` = list("Revista Saude"),
+    issued = list(`date-parts` = list(list(2022L))),
+    DOI = "10.1590/test-cr-enrich",
+    type = "journal-article"
+  )
+  mock_json <- sprintf('{"status":"ok","message":{"total-results":1,"items":[%s]}}',
+                       jsonlite::toJSON(mock_item, auto_unbox = TRUE))
+
+  mock_jats_df <- data.frame(
+    DI = "10.1590/test-cr-enrich",
+    CR = "SILVA J, 2010, REV MED, V1, P10",
+    stringsAsFactors = FALSE
+  )
+
+  testthat::with_mocked_bindings(
+    url = function(description, ...) {
+      textConnection(mock_json)
+    },
+    .package = "base",
+    {
+      testthat::with_mocked_bindings(
+        download_scielo_jats = function(...) {
+          mock_jats_df
+        },
+        .package = "bibliolatam",
+        {
+          res <- download_scielo_search("dengue", limit = 1L, enrich_references = TRUE, progress = FALSE)
+          expect_true("CR" %in% names(res))
+          expect_equal(res$CR[1], "SILVA J, 2010, REV MED, V1, P10")
+        }
+      )
+    }
+  )
+})

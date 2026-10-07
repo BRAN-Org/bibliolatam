@@ -50,7 +50,7 @@ omnisearchUI <- function() {
             id = "omnisearchContent",
             shiny::fluidRow(
               shiny::column(
-                width = 8,
+                width = 6,
                 shiny::textInput(
                   "omniQuery",
                   "Search Query / Termos de Busca:",
@@ -59,10 +59,32 @@ omnisearchUI <- function() {
                 )
               ),
               shiny::column(
-                width = 4,
+                width = 2,
+                shiny::numericInput(
+                  "omniYearStart",
+                  "De (Ano Inicio):",
+                  value = NA,
+                  min = 1900,
+                  max = 2030,
+                  width = "100%"
+                )
+              ),
+              shiny::column(
+                width = 2,
+                shiny::numericInput(
+                  "omniYearEnd",
+                  "Ate (Ano Fim):",
+                  value = NA,
+                  min = 1900,
+                  max = 2030,
+                  width = "100%"
+                )
+              ),
+              shiny::column(
+                width = 2,
                 shiny::numericInput(
                   "omniLimit",
-                  "Max records per database:",
+                  "Max por base:",
                   value = 50,
                   min = 5,
                   max = 300,
@@ -73,7 +95,7 @@ omnisearchUI <- function() {
             ),
             shiny::fluidRow(
               shiny::column(
-                width = 8,
+                width = 7,
                 shiny::checkboxGroupInput(
                   "omniSources",
                   "Target Databases:",
@@ -88,13 +110,18 @@ omnisearchUI <- function() {
                 )
               ),
               shiny::column(
-                width = 4,
+                width = 5,
                 shiny::div(
-                  style = "margin-top: 25px;",
+                  style = "margin-top: 15px;",
                   shiny::checkboxInput(
                     "omniDeduplicate",
                     "Automated Cross-Database Deduplication & Fusion",
                     value = TRUE
+                  ),
+                  shiny::checkboxInput(
+                    "omniEnrichCR",
+                    "Enrich SciELO with Cited References (JATS XML)",
+                    value = FALSE
                   )
                 )
               )
@@ -138,7 +165,7 @@ omnisearchUI <- function() {
 #' @param values Biblioshiny reactive values container.
 #' @keywords internal
 #' @export
-omnisearchServer <- function(input, output, session, values) {
+omnisearchServer <- function(input, output, session, values = NULL) {
   omni_data <- shiny::reactiveVal(NULL)
   omni_stats <- shiny::reactiveVal(NULL)
 
@@ -169,6 +196,16 @@ omnisearchServer <- function(input, output, session, values) {
     lim <- as.integer(input$omniLimit)
     if (is.na(lim) || lim <= 0L) lim <- 50L
     dedup <- isTRUE(input$omniDeduplicate)
+    enrich_cr <- isTRUE(input$omniEnrichCR)
+
+    y_start <- input$omniYearStart
+    y_end <- input$omniYearEnd
+    years_arg <- NULL
+    if (!is.na(y_start) || !is.na(y_end)) {
+      ys <- if (!is.na(y_start)) as.integer(y_start) else 1900L
+      ye <- if (!is.na(y_end)) as.integer(y_end) else as.integer(format(Sys.Date(), "%Y"))
+      years_arg <- c(ys, ye)
+    }
 
     shiny::withProgress(message = "Omnisearch Latino-Americano", value = 0.1, {
       shiny::incProgress(0.2, detail = "Consultando repositorios selecionados...")
@@ -179,6 +216,8 @@ omnisearchServer <- function(input, output, session, values) {
             query = q,
             sources = srcs,
             limit_per_source = lim,
+            years = years_arg,
+            enrich_references = enrich_cr,
             deduplicate = dedup,
             progress = FALSE
           )
@@ -223,7 +262,9 @@ omnisearchServer <- function(input, output, session, values) {
       omni_stats(stat_obj)
 
       # Carregar diretamente no Biblioshiny
-      values$M <- df_result
+      if (!is.null(values)) {
+        values$M <- df_result
+      }
       shiny::showNotification(
         sprintf("Sucesso! %d registros unificados carregados na sessao ativa do Biblioshiny.", nrow(df_result)),
         type = "message",
@@ -298,7 +339,17 @@ omnisearchServer <- function(input, output, session, values) {
     if (is.null(df) || nrow(df) == 0L) return(NULL)
 
     shiny::div(
-      style = "margin-top: 15px; text-align: right;",
+      style = "margin-top: 15px; display: flex; justify-content: flex-end; gap: 10px;",
+      shiny::downloadButton(
+        "omniDownloadCSV",
+        "Baixar CSV",
+        class = "btn-info btn-sm"
+      ),
+      shiny::downloadButton(
+        "omniDownloadRData",
+        "Exportar .RData",
+        class = "btn-success btn-sm"
+      ),
       shiny::actionButton(
         "omniReloadBiblioshinyBtn",
         "Recarregar no Biblioshiny",
@@ -308,10 +359,37 @@ omnisearchServer <- function(input, output, session, values) {
     )
   })
 
+  output$omniDownloadCSV <- shiny::downloadHandler(
+    filename = function() {
+      paste0("omnisearch_results_", format(Sys.Date(), "%Y%m%d"), ".csv")
+    },
+    content = function(file) {
+      df <- omni_data()
+      if (!is.null(df)) {
+        utils::write.csv(df, file, row.names = FALSE, na = "")
+      }
+    }
+  )
+
+  output$omniDownloadRData <- shiny::downloadHandler(
+    filename = function() {
+      paste0("omnisearch_results_", format(Sys.Date(), "%Y%m%d"), ".RData")
+    },
+    content = function(file) {
+      df <- omni_data()
+      if (!is.null(df)) {
+        M <- df
+        save(M, file = file)
+      }
+    }
+  )
+
   shiny::observeEvent(input$omniReloadBiblioshinyBtn, {
     df <- omni_data()
     if (!is.null(df)) {
-      values$M <- df
+      if (!is.null(values)) {
+        values$M <- df
+      }
       shiny::showNotification("Dados recarregados com sucesso na sessao do Biblioshiny!", type = "message")
     }
   })

@@ -58,3 +58,32 @@ test_that("omnisearch_bibliolatam merges and deduplicates multi-source datasets"
   expect_equal(match_rec$AB, "Resumo completo")
   expect_true(grepl("scielo", match_rec$DB, ignore.case = TRUE) && grepl("bdtd", match_rec$DB, ignore.case = TRUE))
 })
+
+test_that("omnisearch_bibliolatam forwards years and enrich_references parameters", {
+  passed_years <- NULL
+  passed_enrich <- NULL
+
+  testthat::with_mocked_bindings(
+    download_scielo_search = function(query, limit, years, enrich_references, ...) {
+      passed_years <<- years
+      passed_enrich <<- enrich_references
+      df <- data.frame(TI = "Artigo Teste", AU = "A", SO = "J", PY = 2022, DI = "10.1590/1", DB = "scielo", stringsAsFactors = FALSE)
+      as_bibliometrix(df, dbsource = "scielo")
+    },
+    .package = "bibliolatam",
+    {
+      res <- omnisearch_bibliolatam(
+        "teste",
+        sources = "scielo",
+        limit_per_source = 5L,
+        years = c(2021, 2024),
+        enrich_references = TRUE,
+        deduplicate = FALSE,
+        progress = FALSE
+      )
+      expect_equal(passed_years, c(2021, 2024))
+      expect_true(passed_enrich)
+      expect_equal(nrow(res), 1L)
+    }
+  )
+})
