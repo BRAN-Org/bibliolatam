@@ -6,7 +6,7 @@
 \usage{
 as_bibliometrix(
   df,
-  dbsource = c("spell", "scielo", "bdtd", "redalyc", "lareferencia")
+  dbsource = c("spell", "scielo", "bdtd", "oasisbr", "redalyc", "lareferencia")
 )
 }
 \arguments{

@@ -18,5 +18,6 @@ BugReports: https://github.com/BRAN-Org/bibliolatam/issues
 Suggests: 
     testthat (>= 3.0.0),
     bibliometrix,
-    shiny
+    shiny,
+    jsonlite
 

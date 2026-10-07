@@ -72,26 +72,44 @@ bibliolatamInfoUI <- function() {
                 )
               )
             ),
-            # BDTD / Oasisbr
+            # BDTD
             shiny::column(
               width = 4,
               shiny::div(
                 style = "border: 1px solid #e1e4e8; border-radius: 6px; padding: 15px; background: #fff; min-height: 200px; margin-bottom: 15px;",
                 shiny::div(
                   shiny::span(class = "label label-success", "ACTIVE"),
-                  shiny::h4("BDTD / Oasisbr", style = "font-weight: bold; margin-top: 8px; color: #2980b9;"),
+                  shiny::h4("BDTD", style = "font-weight: bold; margin-top: 8px; color: #2980b9;"),
                   shiny::p(
                     "Brazilian Digital Library of Theses and Dissertations (IBICT). ",
-                    "Parses thesis (Doutorado) and dissertation (Mestrado) metadata, graduate programs, university sources, and advisor mapping."
+                    "Online API search and tabular parsing for theses (Doutorado) and dissertations (Mestrado), graduate programs, and advisor mapping."
                   )
                 )
               )
             ),
-            # SPELL / ANPAD
+            # Oasisbr
             shiny::column(
               width = 4,
               shiny::div(
                 style = "border: 1px solid #e1e4e8; border-radius: 6px; padding: 15px; background: #fff; min-height: 200px; margin-bottom: 15px;",
+                shiny::div(
+                  shiny::span(class = "label label-success", "ACTIVE"),
+                  shiny::h4("Oasisbr", style = "font-weight: bold; margin-top: 8px; color: #e67e22;"),
+                  shiny::p(
+                    "Brazilian Open Access Portal (IBICT). ",
+                    "Online search and tabular parsing for multidisciplinary production: articles, theses, books, and conference proceedings across institutional repositories."
+                  )
+                )
+              )
+            )
+          ),
+
+          shiny::fluidRow(
+            # SPELL / ANPAD
+            shiny::column(
+              width = 4,
+              shiny::div(
+                style = "border: 1px solid #e1e4e8; border-radius: 6px; padding: 15px; background: #fff; min-height: 180px; margin-bottom: 15px;",
                 shiny::div(
                   shiny::span(class = "label label-success", "ACTIVE"),
                   shiny::h4("SPELL / ANPAD", style = "font-weight: bold; margin-top: 8px; color: #8e44ad;"),
