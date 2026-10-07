@@ -22,7 +22,8 @@ test_that("bibliolatamInfoUI returns valid Shiny UI structure with documentation
   expect_true(grepl("bibliolatam", ui_char))
   expect_true(grepl("Why bibliolatam?", ui_char))
   expect_true(grepl("SciELO", ui_char))
-  expect_true(grepl("BDTD / Oasisbr", ui_char))
+  expect_true(grepl("BDTD", ui_char))
+  expect_true(grepl("Oasisbr", ui_char))
   expect_true(grepl("FAIR Principles", ui_char))
 })
 
