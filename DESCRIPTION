@@ -12,7 +12,6 @@ Description: Companion R package providing parsers and conversion pipelines
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
 URL: https://github.com/BRAN-Org/bibliolatam
 BugReports: https://github.com/BRAN-Org/bibliolatam/issues
 Suggests: 
@@ -20,4 +19,4 @@ Suggests:
     bibliometrix,
     shiny,
     jsonlite
-
+Config/roxygen2/version: 8.1.0

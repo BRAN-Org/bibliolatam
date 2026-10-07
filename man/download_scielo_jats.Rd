@@ -18,13 +18,13 @@ download_scielo_jats(
 SciELO PIDs, or article URLs.}
 
 \item{dest_dir}{Character. Directory where \code{.xml} files will be saved.
-Defaults to a temporary directory created via \code{tempfile()}.}
+Defaults to a temporary directory created via \code{\link[=tempfile]{tempfile()}}.}
 
-\item{parse}{Logical. If \code{TRUE} (default), calls \code{\link{read_scielo_jats}} on the
+\item{parse}{Logical. If \code{TRUE} (default), calls \code{\link[=read_scielo_jats]{read_scielo_jats()}} on the
 downloaded files and returns a parsed bibliometric data frame. If \code{FALSE},
 returns a character vector of downloaded file paths.}
 
-\item{convert}{Logical. Passed to \code{\link{read_scielo_jats}} when \code{parse = TRUE}.
+\item{convert}{Logical. Passed to \code{\link[=read_scielo_jats]{read_scielo_jats()}} when \code{parse = TRUE}.
 Default is \code{TRUE}.}
 
 \item{progress}{Logical. If \code{TRUE} (default), prints progress messages during
@@ -34,7 +34,7 @@ retrieval.}
 }
 \value{
 If \code{parse = TRUE}, a \code{data.frame} with class \code{c("bibliometrixDB", "data.frame")}.
-  If \code{parse = FALSE}, a character vector of local file paths to the downloaded XMLs.
+If \code{parse = FALSE}, a character vector of local file paths to the downloaded XMLs.
 }
 \description{
 Retrieves full-text NLM/JATS XML documents directly from official SciELO
