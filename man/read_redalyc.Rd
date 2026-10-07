@@ -9,7 +9,7 @@ read_redalyc(file, convert = TRUE)
 \arguments{
 \item{file}{Character. Path to the \code{.bib}, \code{.ris}, or \code{.csv} export file.}
 
-\item{convert}{Logical. If \code{TRUE} (default), directly converts to \code{bibliometrixDB} via \code{\link{as_bibliometrix}}.}
+\item{convert}{Logical. If \code{TRUE} (default), directly converts to \code{bibliometrixDB} via \code{\link[=as_bibliometrix]{as_bibliometrix()}}.}
 }
 \value{
 A data frame formatted with canonical bibliometric tags.
@@ -17,12 +17,6 @@ A data frame formatted with canonical bibliometric tags.
 \description{
 Reads and standardizes bibliographic files exported from Redalyc and AmeliCA
 supporting BibTeX (\code{.bib}), RIS (\code{.ris}), and tabular CSV/TSV formats.
-Standardizes author names via \code{\link{normalize_authors}}, maps Hispanic compound surnames,
+Standardizes author names via \code{\link[=normalize_authors]{normalize_authors()}}, maps Hispanic compound surnames,
 and returns a canonical \code{bibliometrixDB} object.
-}
-\examples{
-\dontrun{
-df_bib <- read_redalyc("redalyc_export.bib")
-df_ris <- read_redalyc("redalyc_export.ris")
-}
 }

@@ -2,26 +2,15 @@
 % Please edit documentation in R/shiny_oasisbr.R
 \name{oasisbrUI}
 \alias{oasisbrUI}
-\alias{oasisbrServer}
-\title{Oasisbr UI and Server Components for Biblioshiny}
+\title{Oasisbr UI Component for Biblioshiny}
 \usage{
 oasisbrUI()
-
-oasisbrServer(input, output, session, values)
-}
-\arguments{
-\item{input}{Shiny input object.}
-
-\item{output}{Shiny output object.}
-
-\item{session}{Shiny session object.}
-
-\item{values}{ReactiveValues object from biblioshiny containing global state.}
 }
 \value{
 A Shiny tagList containing the UI elements.
 }
 \description{
-Renders the Oasisbr (IBICT) open-access collection panel compatible with the biblioshiny AdminLTE layout, and handles online REST search, local file parsing, document type filtering, preview statistics, and direct injection into the biblioshiny reactive state.
+Renders the Oasisbr (IBICT) open-access collection panel
+compatible with the biblioshiny AdminLTE layout.
 }
 \keyword{internal}

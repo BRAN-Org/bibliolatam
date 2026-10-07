@@ -142,10 +142,27 @@ bibliolatamInfoUI <- function() {
               shiny::div(
                 style = "border: 1px solid #e1e4e8; border-radius: 6px; padding: 15px; background: #fff; min-height: 160px; margin-bottom: 15px;",
                 shiny::div(
-                  shiny::span(class = "label label-info", "NEXT PHASE"),
+                  shiny::span(class = "label label-success", "ACTIVE"),
                   shiny::h4("LA Referencia", style = "font-weight: bold; margin-top: 8px; color: #c0392b;"),
                   shiny::p(
-                    "Federated Network of Institutional Repositories of Scientific Publications. Continental aggregator connecting university research outputs from 12 Latin American nations."
+                    "Federated Network of Institutional Repositories of Scientific Publications. Continental aggregator connecting university research outputs from 12 Latin American nations with live VuFind API integration."
+                  )
+                )
+              )
+            )
+          ),
+
+          shiny::fluidRow(
+            # Omnisearch Engine
+            shiny::column(
+              width = 12,
+              shiny::div(
+                style = "border: 1px solid #b7eb8f; border-radius: 6px; padding: 15px; background: #f6ffed; margin-bottom: 15px;",
+                shiny::div(
+                  shiny::span(class = "label label-success", "ACTIVE"),
+                  shiny::h4("Omnisearch Engine (SciELO + BDTD + Oasisbr + LA Referencia)", style = "font-weight: bold; margin-top: 8px; color: #389e0d;"),
+                  shiny::p(
+                    "Unified 1-click discovery engine across peer-reviewed journals, national graduate thesis archives, and open access repositories across Latin America with automated DOI and fuzzy title deduplication."
                   )
                 )
               )

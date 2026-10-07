@@ -17,6 +17,10 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 - Módulo de interface gráfica para teses e dissertações da BDTD no `biblioshiny` (`bdtdUI` e `bdtdServer`) com busca online direta na API VuFind, filtro por grau acadêmico, cartões métricos e injeção reativa.
 - Módulo de interface gráfica dedicado para o portal Oasisbr no `biblioshiny` (`oasisbrUI` e `oasisbrServer`) com busca online na API VuFind, upload local e filtros por tipo de documento (`DT`).
 - Motor de consulta e download direto via API REST VuFind/IBICT (`download_bdtd` e `download_oasisbr`).
+- Motor de consulta e download para a rede latino-americana LA Referencia (`download_lareferencia`) via API REST VuFind v1.
+- Motor de busca online para artigos do SciELO (`download_scielo_search`) via API pública do Crossref com filtro de prefixo DOI `10.1590`.
+- Motor de busca federada unificada Latino-Americana (`omnisearch_bibliolatam`) com agregação paralela, deduplicação automática e fusão de metadados via `merge_bibliolatam`.
+- Painel interativo de Omnisearch no `biblioshiny` (`omnisearchUI` e `omnisearchServer`) com carregamento direto no `values$M`.
 - Motor de fusão e deduplicação entre bases heterogêneas (`merge_bibliolatam`) com resolução exata por DOI e correspondência aproximada por título em português e espanhol.
 - Parser de periódicos científicos do Redalyc e AmeliCA (`read_redalyc`) com suporte a formatos BibTeX, RIS e CSV, e normalização de nomes compostos hispânicos.
 - Módulo de interface gráfica para o Redalyc (`redalycUI`, `redalycServer`) e painel de fusão de coleções (`bibliolatamMergeUI`, `bibliolatamMergeServer`) no `biblioshiny`.

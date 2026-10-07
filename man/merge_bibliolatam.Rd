@@ -27,17 +27,10 @@ required for title matching. Default is 0.90.}
 }
 \value{
 A \code{data.frame} with class \code{c("bibliometrixDB", "data.frame")} containing the deduplicated
-  and merged collection.
+and merged collection.
 }
 \description{
 Merges two bibliographic datasets (e.g. SciELO, Oasisbr, SPELL, BDTD, or Redalyc),
 identifies cross-database duplicates through canonical DOI resolution and normalized
 title fuzzy matching, and fuses complementary metadata fields into a unified corpus.
-}
-\examples{
-\dontrun{
-df_scielo <- read_scielo("scielo_sample.csv")
-df_oasis <- read_oasisbr("oasisbr_sample.csv")
-df_merged <- merge_bibliolatam(df_scielo, df_oasis)
-}
 }

@@ -15,5 +15,5 @@ A normalized character string, or \code{NA_character_} if empty.
 \description{
 Converts diverse author string formats (e.g. 'Sobrenome, Nome', 'Nome Sobrenome',
 with generational suffixes like Junior, Filho, Neto) into the canonical
-WoS/bibliometrix format: \code{SOBRENOME INICIAIS; ...}.
+WoS/bibliometrix format: \verb{SOBRENOME INICIAIS; ...}.
 }

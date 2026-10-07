@@ -88,7 +88,7 @@ query_vufind_api <- function(base_url, query, limit = 20L, page = 1L, timeout = 
 #' @param normalize_authors_flag Logical.
 #' @return A data.frame formatted for bibliometrix.
 #' @noRd
-parse_vufind_records <- function(records, dbsource = c("bdtd", "oasisbr"), normalize_authors_flag = TRUE) {
+parse_vufind_records <- function(records, dbsource = c("bdtd", "oasisbr", "lareferencia"), normalize_authors_flag = TRUE) {
   dbsource <- match.arg(dbsource)
 
   if (length(records) == 0L) {
@@ -153,7 +153,14 @@ parse_vufind_records <- function(records, dbsource = c("bdtd", "oasisbr"), norma
       inst_val <- toupper(trimws(paste(unlist(r$institutions), collapse = "; ")))
     }
     if (is.na(inst_val) || !nzchar(inst_val)) {
-      inst_val <- if (dbsource == "bdtd") "BDTD/IBICT" else "OASISBR/IBICT"
+      if (dbsource == "bdtd") {
+        inst_val <- "BDTD/IBICT"
+      } else if (dbsource == "oasisbr") {
+        inst_val <- "OASISBR/IBICT"
+      } else {
+        country_val <- if (!is.null(r$country) && nzchar(trimws(r$country))) toupper(trimws(r$country)) else ""
+        inst_val <- if (nzchar(country_val)) paste0("LA REFERENCIA (", country_val, ")") else "LA REFERENCIA"
+      }
     }
     sources[i] <- inst_val
 
@@ -189,14 +196,14 @@ parse_vufind_records <- function(records, dbsource = c("bdtd", "oasisbr"), norma
         "THESIS"
       }
     } else {
-      # Oasisbr: multi-tipologia
+      # Oasisbr / LA Referencia: multi-tipologia
       if (grepl("DISSERTA|MESTRADO|MASTER", fmt_raw)) {
         doctypes[i] <- "DISSERTATION"
       } else if (grepl("TESE|DOUTORADO|DOCTOR|PHD", fmt_raw)) {
         doctypes[i] <- "THESIS"
       } else if (grepl("ARTICL|ARTIGO|PERIODIC", fmt_raw)) {
         doctypes[i] <- "ARTICLE"
-      } else if (grepl("BOOK|LIVRO|CAPITULO|CHAPTER", fmt_raw)) {
+      } else if (grepl("BOOK|LIVRO|LIBRO|CAPITULO|CHAPTER", fmt_raw)) {
         doctypes[i] <- "BOOK"
       } else if (grepl("CONFEREN|CONGRESS|ANAIS|EVENT", fmt_raw)) {
         doctypes[i] <- "CONFERENCE"
@@ -403,3 +410,75 @@ download_oasisbr <- function(query,
 
   df
 }
+
+#' Search and download records from LA Referencia
+#'
+#' Queries the official REST API of LA Referencia (Red Federada de Repositorios
+#' Institucionales de Publicaciones Científicas), retrieving metadata records
+#' across 12 Latin American national repository networks, and parses them into
+#' a standardized `bibliometrixDB` data frame.
+#'
+#' @param query Character. Search terms or query expression (e.g. `"vacina dengue"`).
+#' @param limit Integer. Maximum number of records to retrieve. Default is 50.
+#' @param convert Logical. If `TRUE` (default), transforms the result into a canonical
+#'   `bibliometrixDB` data frame using [as_bibliometrix()].
+#' @param progress Logical. If `TRUE` (default), prints progress messages during pagination.
+#' @param normalize_authors Logical. If `TRUE` (default), normalizes author names.
+#' @return A `data.frame` with class `c("bibliometrixDB", "data.frame")` containing LA Referencia records.
+#' @export
+download_lareferencia <- function(query,
+                                  limit = 50L,
+                                  convert = TRUE,
+                                  progress = TRUE,
+                                  normalize_authors = TRUE) {
+  if (!is.character(query) || length(query) != 1L || !nzchar(trimws(query))) {
+    stop("O argumento 'query' deve ser uma string de busca nao vazia.", call. = FALSE)
+  }
+
+  limit <- as.integer(limit)
+  if (is.na(limit) || limit <= 0L) {
+    stop("O argumento 'limit' deve ser um inteiro positivo.", call. = FALSE)
+  }
+
+  base_url <- "https://www.lareferencia.info/vufind/api/v1/search"
+  page_size <- min(limit, 50L)
+  accumulated_records <- list()
+  page <- 1L
+
+  while (length(accumulated_records) < limit) {
+    current_limit <- min(page_size, limit - length(accumulated_records))
+    if (isTRUE(progress)) {
+      message(sprintf("[LA Referencia API] Consultando pagina %d (buscando ate %d registros)...", page, limit))
+    }
+
+    resp <- query_vufind_api(base_url, query = query, limit = current_limit, page = page)
+
+    batch <- resp$records
+    if (length(batch) == 0L) {
+      break
+    }
+
+    accumulated_records <- c(accumulated_records, batch)
+
+    total_available <- as.integer(resp$resultCount)
+    if (!is.na(total_available) && length(accumulated_records) >= total_available) {
+      break
+    }
+
+    page <- page + 1L
+  }
+
+  if (length(accumulated_records) == 0L) {
+    warning("Nenhum registro encontrado na LA Referencia para a consulta fornecida.", call. = FALSE)
+    return(data.frame())
+  }
+
+  df <- parse_vufind_records(accumulated_records, dbsource = "lareferencia", normalize_authors_flag = normalize_authors)
+
+  if (isTRUE(convert)) {
+    df <- as_bibliometrix(df, dbsource = "lareferencia")
+  }
+
+  df
+}
+
