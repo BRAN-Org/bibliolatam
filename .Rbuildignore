@@ -11,4 +11,7 @@
 ^CITATION\.cff$
 ^TODO\.md$
 ^AGENTS\.md$
+^README\.pt-BR\.md$
+^\.zenodo\.json$
 ^.*\.RData$
+^.*\.tar\.gz$
