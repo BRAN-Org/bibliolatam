@@ -1,5 +1,10 @@
 # bibliolatam: Latin American Bibliographic Data Adapters for 'bibliometrix'
 
+<p align="left">
+  <a href="README.md"><img src="docs/assets/badge-english.svg" alt="English Version" height="28" /></a>
+  <a href="README.pt-BR.md"><img src="docs/assets/badge-portugues.svg" alt="Versão em Português" height="28" /></a>
+</p>
+
 `bibliolatam` is an R companion package designed to bridge the gap between Latin American open-access scientific repositories and bibliometric workflows in [`bibliometrix`](https://github.com/massimoaria/bibliometrix).
 
 ---
