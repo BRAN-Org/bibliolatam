@@ -1,8 +1,8 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
-title: "bibliolatam: Latin American Bibliographic Data Parsers for bibliometrix"
-version: 0.1.0.9000
-date-released: 2026-10-02
+title: "bibliolatam: Latin American Bibliographic Data Adapters for bibliometrix"
+version: 1.0.0
+date-released: 2026-10-07
 url: "https://github.com/BRAN-Org/bibliolatam"
 repository-code: "https://github.com/BRAN-Org/bibliolatam"
 license: GPL-3.0-or-later

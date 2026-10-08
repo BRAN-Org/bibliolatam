@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="28" viewBox="0 0 160 28" fill="none">
+  <rect width="160" height="28" rx="5" fill="#1b2838"/>
+  <rect x="1" y="1" width="158" height="26" rx="4" stroke="#4183c4" stroke-width="1.5" fill="#1b2838"/>
+  <g transform="translate(8, 5)">
+    <rect width="24" height="18" rx="2" fill="#00247d"/>
+    <path d="M0,0 L24,18 M24,0 L0,18" stroke="#ffffff" stroke-width="2.5"/>
+    <path d="M0,0 L24,18 M24,0 L0,18" stroke="#cf142b" stroke-width="1.2"/>
+    <path d="M12,0 V18 M0,9 H24" stroke="#ffffff" stroke-width="4"/>
+    <path d="M12,0 V18 M0,9 H24" stroke="#cf142b" stroke-width="2"/>
+  </g>
+  <text x="38" y="18" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#ffffff">English Version</text>
+</svg>

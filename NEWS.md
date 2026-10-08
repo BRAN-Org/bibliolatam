@@ -1,4 +1,4 @@
-# bibliolatam 0.1.0
+# bibliolatam 1.0.0
 
 - **Initial repository structure and governance**: Scaffolded package infrastructure, dual licensing (GPL-3.0 for code and CC BY-NC-SA 4.0 for scientometric fixtures), and standard BRAN Org community health files.
 - **R CMD check hygiene and build flags**: Added `.Rbuildignore` to strip top-level repo metadata (`.github/`, docs, changelog, licensing files) from the R build tarball, preventing non-standard file warnings.

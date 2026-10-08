@@ -1,0 +1,30 @@
+{
+  "title": "bibliolatam: Latin American Bibliographic Data Adapters for 'bibliometrix'",
+  "description": "An R companion package providing parsers, REST API clients, and federated discovery pipelines to adapt Latin American open-access scientific literature (SciELO, BDTD, Oasisbr, Redalyc, LA Referencia, SPELL) into canonical bibliometrixDB data frames compatible with bibliometrix and biblioshiny.",
+  "creators": [
+    {
+      "name": "Gama, Gabriel",
+      "affiliation": "BRAN Org"
+    },
+    {
+      "name": "BRAN Org",
+      "affiliation": "BRAN Org"
+    }
+  ],
+  "keywords": [
+    "bibliometrics",
+    "scientometrics",
+    "bibliometrix",
+    "scielo",
+    "bdtd",
+    "oasisbr",
+    "redalyc",
+    "la-referencia",
+    "latin-america",
+    "open-access",
+    "r-package"
+  ],
+  "license": "GPL-3.0-or-later",
+  "upload_type": "software",
+  "access_right": "open"
+}
