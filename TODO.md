@@ -15,9 +15,20 @@
 ## Core Features & Workflow Integrations
 - [x] Canonical `as_bibliometrix()` converter enforcing `bibliometrixDB` class contract
 - [x] Standalone Brazilian/Hispanic author normalizer (`normalize_authors`) with generational suffixes and particles
+- [x] Vectorized support for `normalize_authors()` (accepts character vectors directly)
 - [x] Web GUI exporter (`export_biblioshiny`) creating loadable `.RData` objects
 - [x] Biblioshiny UI/Server modules (`scieloUI`, `bdtdUI`, `oasisbrUI`, `redalycUI`, `bibliolatamMergeUI`, `omnisearchUI`)
+- [x] Standalone interactive Shiny application launcher (`run_app()`)
+
+## CRAN Submission Readiness
+- [x] Standardize `DESCRIPTION` (`Imports` for `jsonlite`/`utils`/`tools`, valid corporate authorship for BRAN Org, compliant Description text)
+- [x] Harmonize versioning across code, docs, and HTTP User-Agents (`1.0.0`)
+- [x] Add executable `@examples` to all 28 exported functions in Roxygen documentation
+- [x] Add `@return` / `\value` documentation for all Shiny server modules
+- [x] Sanitize non-ASCII / corrupted mojibake characters in R comments and roxygen tags
+- [x] Make Shiny server modules resilient to standalone mode (`values = NULL` fallback)
+- [x] Create `cran-comments.md` documenting testing environments and check results
+- [x] Create introductory package vignette (`vignettes/introduction-to-bibliolatam.Rmd`)
 
 ## Developer Tooling & Agent Guidelines
 - [x] Create `AGENTS.md`: repository architecture, code standards, and execution protocols for AI coding agents
-

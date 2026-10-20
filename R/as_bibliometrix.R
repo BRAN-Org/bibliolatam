@@ -4,6 +4,16 @@
 #' @param dbsource Character string identifying the regional source (e.g. "spell", "scielo", "bdtd").
 #' @return A data frame with class `c("bibliometrixDB", "data.frame")` ready for bibliometrix.
 #' @export
+#' @examples
+#' df <- data.frame(
+#'   AU = "SILVA J; SANTOS M",
+#'   TI = "Bibliometrics in Latin America",
+#'   SO = "Revista de Saude Publica",
+#'   PY = 2023,
+#'   stringsAsFactors = FALSE
+#' )
+#' bdf <- as_bibliometrix(df, dbsource = "scielo")
+#' class(bdf)
 as_bibliometrix <- function(df, dbsource = c("spell", "scielo", "bdtd", "oasisbr", "redalyc", "lareferencia", "omnisearch")) {
   if (!is.data.frame(df)) {
     stop("df precisa ser um data.frame/tibble.", call. = FALSE)

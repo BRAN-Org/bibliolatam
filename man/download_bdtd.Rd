@@ -35,3 +35,12 @@ Queries the official REST API of the Biblioteca Digital Brasileira de Teses e
 Dissertações (BDTD / IBICT), retrieves metadata records for doctoral theses and
 master's dissertations, and parses them into a standardized \code{bibliometrixDB} data frame.
 }
+
+\examples{
+\donttest{
+tryCatch({
+  df <- download_bdtd("educacao inclusiva", limit = 3L, progress = FALSE, timeout = 10)
+  head(df[, c("AU", "TI", "PY")])
+}, error = function(e) message("Service temporarily unavailable."))
+}
+}

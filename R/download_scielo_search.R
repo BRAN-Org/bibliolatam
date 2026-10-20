@@ -17,6 +17,13 @@
 #' @param timeout Numeric. Maximum seconds before connection timeout. Default is 30.
 #' @return A `data.frame` with class `c("bibliometrixDB", "data.frame")` containing SciELO records.
 #' @export
+#' @examples
+#' \donttest{
+#' tryCatch({
+#'   df <- download_scielo_search("dengue", limit = 3L, progress = FALSE, timeout = 10)
+#'   head(df[, c("AU", "TI", "PY")])
+#' }, error = function(e) message("Service temporarily unavailable."))
+#' }
 download_scielo_search <- function(query,
                                    limit = 50L,
                                    years = NULL,
@@ -74,7 +81,7 @@ download_scielo_search <- function(query,
       "&offset=", as.integer(offset)
     )
 
-    h <- c("User-Agent" = "bibliolatam/0.1.0 (mailto:suporte@bran.org)")
+    h <- c("User-Agent" = "bibliolatam/1.0.0 (mailto:suporte@bran.org)")
 
     conn <- tryCatch(
       url(req_url, open = "rb", headers = h),

@@ -50,3 +50,10 @@ test_that("normalize_authors lida com multiplos autores e espacamento sujo", {
   res <- normalize_authors(raw_mult)
   expect_equal(res, "SILVA C; SANTOS MC; OLIVEIRA L")
 })
+
+test_that("normalize_authors suporta vetores de caracteres diretamente", {
+  input_vec <- c("Gama, Gabriel", "Jose da Silva Junior", "Platao", NA_character_, "")
+  expected_vec <- c("GAMA G", "SILVA JUNIOR J", "PLATAO", NA_character_, NA_character_)
+  res <- normalize_authors(input_vec)
+  expect_equal(res, expected_vec)
+})

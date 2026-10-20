@@ -21,3 +21,11 @@ A data frame formatted with standard bibliometric tags.
 Reads and standardizes tabular exports (CSV, TSV) from the Biblioteca Digital
 Brasileira de Teses e Dissertações (BDTD) or Oasisbr portal (IBICT).
 }
+
+\examples{
+sample_file <- system.file("extdata", "bdtd_sample.csv", package = "bibliolatam")
+if (nzchar(sample_file)) {
+  df <- read_bdtd(sample_file, convert = TRUE)
+  head(df[, c("AU", "TI", "PY", "SO")])
+}
+}

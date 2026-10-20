@@ -17,3 +17,11 @@ A data frame formatted with standard bibliometric tags.
 \description{
 Parse export files from SPELL / ANPAD
 }
+
+\examples{
+sample_file <- system.file("extdata", "spell_sample.csv", package = "bibliolatam")
+if (nzchar(sample_file)) {
+  df <- read_spell(sample_file, convert = TRUE)
+  head(df[, c("AU", "TI", "PY", "SO")])
+}
+}

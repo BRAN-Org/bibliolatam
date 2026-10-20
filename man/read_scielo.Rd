@@ -17,3 +17,11 @@ A data frame formatted with standard bibliometric tags.
 \description{
 Reads and standardizes tabular CSV export files downloaded from the SciELO portal (search.scielo.org).
 }
+
+\examples{
+sample_file <- system.file("extdata", "scielo_sample.csv", package = "bibliolatam")
+if (nzchar(sample_file)) {
+  df <- read_scielo(sample_file, convert = TRUE)
+  head(df[, c("AU", "TI", "PY", "SO")])
+}
+}

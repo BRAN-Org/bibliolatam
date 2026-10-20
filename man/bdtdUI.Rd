@@ -14,3 +14,14 @@ Renders the BDTD (IBICT) thesis and dissertation collection panel
 compatible with the biblioshiny AdminLTE layout.
 }
 \keyword{internal}
+
+\examples{
+if (interactive()) {
+  library(shiny)
+  ui <- fluidPage(bdtdUI())
+  server <- function(input, output, session) {
+    bdtdServer(input, output, session)
+  }
+  shinyApp(ui, server)
+}
+}

@@ -14,3 +14,14 @@ Renders the SciELO data collection and import panel compatible with
 biblioshiny AdminLTE layout.
 }
 \keyword{internal}
+
+\examples{
+if (interactive()) {
+  library(shiny)
+  ui <- fluidPage(scieloUI())
+  server <- function(input, output, session) {
+    scieloServer(input, output, session)
+  }
+  shinyApp(ui, server)
+}
+}

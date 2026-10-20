@@ -7,6 +7,18 @@
 #' @param file Path to the output `.RData` file.
 #' @return Invisibly returns the normalized path of the saved file.
 #' @export
+#' @examples
+#' df <- data.frame(
+#'   AU = "SILVA J",
+#'   TI = "Bibliometrics Test",
+#'   SO = "Journal of Scientometrics",
+#'   PY = 2023,
+#'   stringsAsFactors = FALSE
+#' )
+#' bdf <- as_bibliometrix(df, dbsource = "scielo")
+#' tmp <- tempfile(fileext = ".RData")
+#' export_biblioshiny(bdf, tmp)
+#' unlink(tmp)
 export_biblioshiny <- function(data, file) {
   # valida caminho do arquivo primeiro (fail-fast)
   if (!is.character(file) || length(file) != 1L || !nzchar(trimws(file))) {

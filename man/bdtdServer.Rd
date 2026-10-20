@@ -4,7 +4,7 @@
 \alias{bdtdServer}
 \title{BDTD Server Logic for Biblioshiny}
 \usage{
-bdtdServer(input, output, session, values)
+bdtdServer(input, output, session, values = NULL)
 }
 \arguments{
 \item{input}{Shiny input object.}
@@ -15,7 +15,22 @@ bdtdServer(input, output, session, values)
 
 \item{values}{ReactiveValues object from biblioshiny containing global state.}
 }
+
+\value{
+An observer handle or NULL.
+}
 \description{
 Connects BDTD UI events with package parsers and the biblioshiny reactive state.
 }
 \keyword{internal}
+
+\examples{
+if (interactive()) {
+  library(shiny)
+  ui <- fluidPage(bdtdUI())
+  server <- function(input, output, session) {
+    bdtdServer(input, output, session)
+  }
+  shinyApp(ui, server)
+}
+}

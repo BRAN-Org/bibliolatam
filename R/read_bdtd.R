@@ -1,12 +1,18 @@
 #' Parse export files from BDTD / Oasisbr (IBICT)
 #'
 #' Reads and standardizes tabular exports (CSV, TSV) from the Biblioteca Digital
-#' Brasileira de Teses e Dissertações (BDTD) or Oasisbr portal (IBICT).
+#' Brasileira de Teses e Dissertaes (BDTD) or Oasisbr portal (IBICT).
 #'
 #' @param file Path to the CSV or TSV file exported from BDTD/Oasisbr.
 #' @param convert Logical. If TRUE, directly wraps output with `as_bibliometrix()`. Default is TRUE.
 #' @return A data frame formatted with standard bibliometric tags.
 #' @export
+#' @examples
+#' sample_file <- system.file("extdata", "bdtd_sample.csv", package = "bibliolatam")
+#' if (nzchar(sample_file)) {
+#'   df <- read_bdtd(sample_file, convert = TRUE)
+#'   head(df[, c("AU", "TI", "PY", "SO")])
+#' }
 read_bdtd <- function(file, convert = TRUE) {
   if (!is.character(file) || length(file) != 1L || !file.exists(file)) {
     stop("Arquivo nao encontrado ou caminho invalido.", call. = FALSE)

@@ -4,7 +4,7 @@
 \alias{scieloServer}
 \title{SciELO Server Logic for Biblioshiny}
 \usage{
-scieloServer(input, output, session, values)
+scieloServer(input, output, session, values = NULL)
 }
 \arguments{
 \item{input}{Shiny input object.}
@@ -15,7 +15,22 @@ scieloServer(input, output, session, values)
 
 \item{values}{ReactiveValues object from biblioshiny containing global state.}
 }
+
+\value{
+An observer handle or NULL.
+}
 \description{
 Connects SciELO UI events with package parsers and the biblioshiny reactive state.
 }
 \keyword{internal}
+
+\examples{
+if (interactive()) {
+  library(shiny)
+  ui <- fluidPage(scieloUI())
+  server <- function(input, output, session) {
+    scieloServer(input, output, session)
+  }
+  shinyApp(ui, server)
+}
+}

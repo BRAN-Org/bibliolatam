@@ -3,20 +3,26 @@ Title: Latin American Bibliographic Data Parsers for 'bibliometrix'
 Version: 1.0.0
 Authors@R: c(
     person("Gabriel", "Gama", role = c("aut", "cre"), email = "contato@bran.org"),
-    person("BRAN Org", role = "cph")
+    person(given = "BRAN Org", role = "cph")
   )
-Description: Companion R package providing parsers and conversion pipelines
-    to adapt Latin American open-access bibliographic databases (such as SciELO,
-    SPELL, BDTD, Redalyc, and LA Referencia) into standardized data frames
+Description: Provides parsers and conversion pipelines to adapt Latin
+    American open-access bibliographic databases (such as SciELO, SPELL,
+    BDTD, Redalyc, and LA Referencia) into standardized data frames
     compatible with 'bibliometrix' and 'biblioshiny'.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 URL: https://github.com/BRAN-Org/bibliolatam
 BugReports: https://github.com/BRAN-Org/bibliolatam/issues
+Imports: 
+    jsonlite,
+    utils,
+    tools
 Suggests: 
     testthat (>= 3.0.0),
     bibliometrix,
     shiny,
-    jsonlite
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
 Config/roxygen2/version: 8.1.0

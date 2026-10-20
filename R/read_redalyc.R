@@ -213,6 +213,11 @@ parse_redalyc_ris <- function(lines) {
 #' @param convert Logical. If `TRUE` (default), directly converts to `bibliometrixDB` via [as_bibliometrix()].
 #' @return A data frame formatted with canonical bibliometric tags.
 #' @export
+#' @examples
+#' \donttest{
+#' # When a Redalyc export file (.bib, .ris, or .csv) is available:
+#' # df <- read_redalyc("redalyc_export.csv", convert = TRUE)
+#' }
 read_redalyc <- function(file, convert = TRUE) {
   if (!is.character(file) || length(file) != 1L || !file.exists(file)) {
     stop("Arquivo nao encontrado ou caminho invalido.", call. = FALSE)

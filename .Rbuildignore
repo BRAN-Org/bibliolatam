@@ -13,5 +13,6 @@
 ^AGENTS\.md$
 ^README\.pt-BR\.md$
 ^\.zenodo\.json$
+^cran-comments\.md$
 ^.*\.RData$
 ^.*\.tar\.gz$

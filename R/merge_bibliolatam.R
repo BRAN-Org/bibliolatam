@@ -46,6 +46,19 @@ normalize_title_str <- function(titles) {
 #' @return A `data.frame` with class `c("bibliometrixDB", "data.frame")` containing the deduplicated
 #'   and merged collection.
 #' @export
+#' @examples
+#' df1 <- data.frame(
+#'   AU = "SILVA J", TI = "Open access in Brazil",
+#'   SO = "Journal A", PY = 2022, DI = "10.1590/test1",
+#'   stringsAsFactors = FALSE
+#' )
+#' df2 <- data.frame(
+#'   AU = "SILVA J", TI = "Open access in Brazil",
+#'   SO = "Journal A", PY = 2022, DI = "10.1590/test1",
+#'   stringsAsFactors = FALSE
+#' )
+#' merged <- merge_bibliolatam(as_bibliometrix(df1, "scielo"), as_bibliometrix(df2, "bdtd"))
+#' nrow(merged)
 merge_bibliolatam <- function(df1,
                               df2,
                               match_by = c("doi", "title"),

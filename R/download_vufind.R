@@ -55,7 +55,7 @@ query_vufind_api <- function(base_url, query, limit = 20L, page = 1L, years = NU
   req_url <- paste0(base_url, "?", params)
 
   conn <- tryCatch(
-    url(req_url, open = "rb", headers = c("User-Agent" = "bibliolatam/0.1.0 (https://github.com/BRAN-Org/bibliolatam)")),
+    url(req_url, open = "rb", headers = c("User-Agent" = "bibliolatam/1.0.0 (https://github.com/BRAN-Org/bibliolatam)")),
     error = function(e) {
       stop(sprintf("Falha de conexao com o endpoint IBICT (%s): %s", base_url, e$message), call. = FALSE)
     }
@@ -286,7 +286,7 @@ parse_vufind_records <- function(records, dbsource = c("bdtd", "oasisbr", "laref
 #' Search and download records from BDTD (IBICT)
 #'
 #' Queries the official REST API of the Biblioteca Digital Brasileira de Teses e
-#' Dissertações (BDTD / IBICT), retrieves metadata records for doctoral theses and
+#' Dissertaes (BDTD / IBICT), retrieves metadata records for doctoral theses and
 #' master's dissertations, and parses them into a standardized `bibliometrixDB` data frame.
 #'
 #' @param query Character. Search terms or query expression (e.g. `"inteligencia artificial"`).
@@ -430,7 +430,7 @@ download_oasisbr <- function(query,
 #' Search and download records from LA Referencia
 #'
 #' Queries the official REST API of LA Referencia (Red Federada de Repositorios
-#' Institucionales de Publicaciones Científicas), retrieving metadata records
+#' Institucionales de Publicaciones Cientficas), retrieving metadata records
 #' across 12 Latin American national repository networks, and parses them into
 #' a standardized `bibliometrixDB` data frame.
 #'
@@ -443,6 +443,13 @@ download_oasisbr <- function(query,
 #' @param normalize_authors Logical. If `TRUE` (default), normalizes author names.
 #' @return A `data.frame` with class `c("bibliometrixDB", "data.frame")` containing LA Referencia records.
 #' @export
+#' @examples
+#' \donttest{
+#' tryCatch({
+#'   df <- download_lareferencia("salud publica", limit = 3L, progress = FALSE, timeout = 10)
+#'   head(df[, c("AU", "TI", "PY")])
+#' }, error = function(e) message("Service temporarily unavailable."))
+#' }
 download_lareferencia <- function(query,
                                   limit = 50L,
                                   years = NULL,

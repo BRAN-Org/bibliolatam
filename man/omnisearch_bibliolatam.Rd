@@ -44,3 +44,12 @@ BDTD, Oasisbr, and LA Referencia via VuFind API), parses and harmonizes their me
 into canonical \code{bibliometrixDB} format, and performs automated cross-database deduplication
 and metadata fusion using \code{\link[=merge_bibliolatam]{merge_bibliolatam()}}.
 }
+
+\examples{
+\donttest{
+tryCatch({
+  df <- omnisearch_bibliolatam("agroecologia", sources = "scielo", limit_per_source = 2L, progress = FALSE, timeout = 10)
+  head(df[, c("AU", "TI", "PY", "DB")])
+}, error = function(e) message("Service temporarily unavailable."))
+}
+}

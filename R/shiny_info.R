@@ -5,6 +5,13 @@
 #' @return A Shiny tagList containing the UI elements.
 #' @keywords internal
 #' @export
+#' @examples
+#' if (interactive()) {
+#'   library(shiny)
+#'   ui <- fluidPage(bibliolatamInfoUI())
+#'   server <- function(input, output, session) {}
+#'   shinyApp(ui, server)
+#' }
 bibliolatamInfoUI <- function() {
   shiny::tagList(
     shiny::fluidRow(
@@ -21,7 +28,7 @@ bibliolatamInfoUI <- function() {
               style = "font-weight: bold; color: #2c3e50; margin: 0 0 8px 0; display: inline-block;"
             ),
             shiny::tags$span(
-              "v0.1.0",
+              "v1.0.0",
               class = "label label-primary",
               style = "margin-left: 10px; font-size: 14px; vertical-align: middle;"
             ),

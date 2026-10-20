@@ -6,6 +6,15 @@
 #' @return A Shiny tagList containing the UI elements.
 #' @keywords internal
 #' @export
+#' @examples
+#' if (interactive()) {
+#'   library(shiny)
+#'   ui <- fluidPage(oasisbrUI())
+#'   server <- function(input, output, session) {
+#'     oasisbrServer(input, output, session)
+#'   }
+#'   shinyApp(ui, server)
+#' }
 oasisbrUI <- function() {
   shiny::tagList(
     shiny::fluidRow(
@@ -234,10 +243,20 @@ oasisbrUI <- function() {
 #' @param input Shiny input object.
 #' @param output Shiny output object.
 #' @param session Shiny session object.
-#' @param values ReactiveValues object from biblioshiny containing global state.
+#' @param values ReactiveValues object from biblioshiny containing global state (optional).
+#' @return An observer handle or NULL.
 #' @keywords internal
 #' @export
-oasisbrServer <- function(input, output, session, values) {
+#' @examples
+#' if (interactive()) {
+#'   library(shiny)
+#'   ui <- fluidPage(oasisbrUI())
+#'   server <- function(input, output, session) {
+#'     oasisbrServer(input, output, session)
+#'   }
+#'   shinyApp(ui, server)
+#' }
+oasisbrServer <- function(input, output, session, values = NULL) {
   oasisbr_data <- shiny::reactiveVal(NULL)
 
   # Check if data is available for preview
@@ -453,50 +472,64 @@ oasisbrServer <- function(input, output, session, values) {
     df <- oasisbr_data()
     shiny::req(df)
 
-    # Initialize biblioshiny global values
-    initial_fn <- get0("initial", envir = parent.frame(), mode = "function")
-    if (is.function(initial_fn)) {
-      values <- initial_fn(values)
-    }
+    is_biblioshiny <- is.function(get0("initial", envir = parent.frame(), mode = "function")) ||
+                      is.function(get0("mergeKeywords", envir = parent.frame(), mode = "function"))
 
-    M <- df
-    merge_fn <- get0("mergeKeywords", envir = parent.frame(), mode = "function")
-    if (is.function(merge_fn)) {
-      M <- merge_fn(M, force = FALSE)
-    }
+    if (is_biblioshiny && !is.null(values)) {
+      initial_fn <- get0("initial", envir = parent.frame(), mode = "function")
+      if (is.function(initial_fn)) {
+        values <- initial_fn(values)
+      }
 
-    values$data_source <- "Oasisbr"
-    values$M <- M
-    values$Morig <- M
+      M <- df
+      merge_fn <- get0("mergeKeywords", envir = parent.frame(), mode = "function")
+      if (is.function(merge_fn)) {
+        M <- merge_fn(M, force = FALSE)
+      }
 
-    wc_fn <- get0("wcTable", envir = parent.frame(), mode = "function")
-    if (is.function(wc_fn)) {
-      values$SCdf <- wc_fn(M)
-    }
-    co_fn <- get0("countryTable", envir = parent.frame(), mode = "function")
-    if (is.function(co_fn)) {
-      values$COdf <- co_fn(M)
-    }
+      values$data_source <- "Oasisbr"
+      values$M <- M
+      values$Morig <- M
 
-    values$Histfield <- "NA"
-    values$results <- list("NA")
+      wc_fn <- get0("wcTable", envir = parent.frame(), mode = "function")
+      if (is.function(wc_fn)) {
+        values$SCdf <- wc_fn(M)
+      }
+      co_fn <- get0("countryTable", envir = parent.frame(), mode = "function")
+      if (is.function(co_fn)) {
+        values$COdf <- co_fn(M)
+      }
 
-    if (ncol(values$M) > 1) {
-      values$rest_sidebar <- TRUE
-    }
+      values$Histfield <- "NA"
+      values$results <- list("NA")
 
-    shiny::showNotification(
-      "Oasisbr collection loaded into Biblioshiny! Analysis menus are now unlocked.",
-      type = "message",
-      duration = 6
-    )
+      if (ncol(values$M) > 1) {
+        values$rest_sidebar <- TRUE
+      }
 
-    modal_api <- get0("missingModalAPI", envir = parent.frame(), mode = "function")
-    modal_std <- get0("missingModal", envir = parent.frame(), mode = "function")
-    if (is.function(modal_api)) {
-      shiny::showModal(modal_api(session))
-    } else if (is.function(modal_std)) {
-      shiny::showModal(modal_std(session))
+      shiny::showNotification(
+        "Oasisbr collection loaded into Biblioshiny! Analysis menus are now unlocked.",
+        type = "message",
+        duration = 6
+      )
+
+      modal_api <- get0("missingModalAPI", envir = parent.frame(), mode = "function")
+      modal_std <- get0("missingModal", envir = parent.frame(), mode = "function")
+      if (is.function(modal_api)) {
+        shiny::showModal(modal_api(session))
+      } else if (is.function(modal_std)) {
+        shiny::showModal(modal_std(session))
+      }
+    } else {
+      if (!is.null(values) && (is.environment(values) || inherits(values, "reactivevalues"))) {
+        values$M <- df
+        values$Morig <- df
+      }
+      shiny::showNotification(
+        "Oasisbr collection processed and ready! Use the export buttons below to save .RData or .CSV.",
+        type = "message",
+        duration = 5
+      )
     }
   })
 

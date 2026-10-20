@@ -14,3 +14,14 @@ Renders the Oasisbr (IBICT) open-access collection panel
 compatible with the biblioshiny AdminLTE layout.
 }
 \keyword{internal}
+
+\examples{
+if (interactive()) {
+  library(shiny)
+  ui <- fluidPage(oasisbrUI())
+  server <- function(input, output, session) {
+    oasisbrServer(input, output, session)
+  }
+  shinyApp(ui, server)
+}
+}
