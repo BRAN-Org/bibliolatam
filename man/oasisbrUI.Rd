@@ -4,7 +4,10 @@
 \alias{oasisbrUI}
 \title{Oasisbr UI Component for Biblioshiny}
 \usage{
-oasisbrUI()
+oasisbrUI(lang = "en")
+}
+\arguments{
+\item{lang}{Character. Interface language: "en", "pt", or "es". Default is "en".}
 }
 \value{
 A Shiny tagList containing the UI elements.

@@ -4,7 +4,10 @@
 \alias{bibliolatamMergeUI}
 \title{Bibliolatam Merge UI Component for Biblioshiny}
 \usage{
-bibliolatamMergeUI()
+bibliolatamMergeUI(lang = "en")
+}
+\arguments{
+\item{lang}{Character. Interface language: "en", "pt", or "es". Default is "en".}
 }
 \value{
 A Shiny tagList containing UI elements.

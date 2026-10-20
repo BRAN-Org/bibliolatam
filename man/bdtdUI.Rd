@@ -4,7 +4,10 @@
 \alias{bdtdUI}
 \title{BDTD UI Component for Biblioshiny}
 \usage{
-bdtdUI()
+bdtdUI(lang = "en")
+}
+\arguments{
+\item{lang}{Character. Interface language: "en", "pt", or "es". Default is "en".}
 }
 \value{
 A Shiny tagList containing the UI elements.

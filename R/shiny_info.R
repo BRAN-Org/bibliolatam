@@ -2,6 +2,7 @@
 #'
 #' Renders the information and documentation tab for Bibliolatam inside biblioshiny.
 #'
+#' @param lang Character. Interface language: "en", "pt", or "es". Default is "en".
 #' @return A Shiny tagList containing the UI elements.
 #' @keywords internal
 #' @export
@@ -12,7 +13,7 @@
 #'   server <- function(input, output, session) {}
 #'   shinyApp(ui, server)
 #' }
-bibliolatamInfoUI <- function() {
+bibliolatamInfoUI <- function(lang = "en") {
   shiny::tagList(
     shiny::fluidRow(
       shiny::column(
@@ -37,8 +38,9 @@ bibliolatamInfoUI <- function() {
               class = "label label-success",
               style = "margin-left: 5px; font-size: 14px; vertical-align: middle;"
             ),
-            shiny::p(
-              "Latin American & Iberian Bibliographic Data Adapter for 'bibliometrix' and 'biblioshiny'.",
+            shiny::tags$p(
+              bl_i18n("info_tagline", lang),
+              `data-i18n` = "info_tagline",
               style = "font-size: 15px; color: #7f8c8d; margin-top: 5px;"
             )
           ),
@@ -46,7 +48,11 @@ bibliolatamInfoUI <- function() {
           # Motivation & Mission Box
           shiny::div(
             style = "margin-bottom: 25px; padding: 15px 20px; background-color: #f8f9fa; border-left: 4px solid #3c8dbc; border-radius: 4px;",
-            shiny::h4("Why bibliolatam?", style = "font-weight: bold; color: #2c3e50; margin-top: 0;"),
+            shiny::tags$h4(
+              bl_i18n("info_why", lang),
+              `data-i18n` = "info_why",
+              style = "font-weight: bold; color: #2c3e50; margin-top: 0;"
+            ),
             shiny::p(
               "Mainstream bibliometric pipelines primarily support commercial North American and European indexes (Scopus, Web of Science, Dimensions, PubMed). ",
               "In Latin America, Spain, and Portugal, a vast portion of high-impact research is published under ",

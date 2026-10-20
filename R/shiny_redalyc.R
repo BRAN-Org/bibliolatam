@@ -2,10 +2,11 @@
 #'
 #' Renders the Redalyc / AmeliCA collection import panel compatible with the biblioshiny layout.
 #'
+#' @param lang Character. Interface language: "en", "pt", or "es". Default is "en".
 #' @return A Shiny tagList containing UI elements.
 #' @keywords internal
 #' @export
-redalycUI <- function() {
+redalycUI <- function(lang = "en") {
   shiny::tagList(
     shiny::fluidRow(
       shiny::column(
@@ -18,12 +19,14 @@ redalycUI <- function() {
           shiny::div(
             style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;",
             shiny::div(
-              shiny::h3(
-                "Redalyc & AmeliCA Collection",
+              shiny::tags$h3(
+                bl_i18n("redalyc_title", lang),
+                `data-i18n` = "redalyc_title",
                 style = "font-weight: bold; margin: 0; color: #2c3e50; display: inline-block;"
               ),
               shiny::tags$span(
-                "Diamond Open Access (Ibero-America)",
+                bl_i18n("redalyc_badge", lang),
+                `data-i18n` = "redalyc_badge",
                 class = "label label-danger",
                 style = "margin-left: 10px; font-size: 12px; vertical-align: middle; background-color: #d35400;"
               )
@@ -33,7 +36,7 @@ redalycUI <- function() {
               shiny::icon("chevron-up"),
               class = "btn-sm btn-default",
               style = "padding: 5px 10px;",
-              title = "Collapse/Expand"
+              title = bl_i18n("btn_collapse", lang)
             )
           ),
 
@@ -55,7 +58,7 @@ redalycUI <- function() {
                   width = 8,
                   shiny::fileInput(
                     "redalycFile",
-                    "Select Redalyc Export File (.bib, .ris, or .csv):",
+                    label = shiny::tags$span(bl_i18n("redalyc_upload_label", lang), `data-i18n` = "redalyc_upload_label"),
                     multiple = FALSE,
                     accept = c(".bib", ".ris", ".txt", ".csv"),
                     width = "100%"
@@ -77,7 +80,7 @@ redalycUI <- function() {
                 style = "margin-top: 10px; display: flex; justify-content: flex-end;",
                 shiny::actionButton(
                   "redalycProcessFile",
-                  "Process Redalyc File",
+                  label = shiny::tags$span(bl_i18n("redalyc_process_btn", lang), `data-i18n` = "redalyc_process_btn"),
                   icon = shiny::icon("cogs"),
                   class = "btn-danger",
                   style = "font-weight: bold; background-color: #d35400; border-color: #ba4a00;"
@@ -139,10 +142,10 @@ redalycUI <- function() {
 #' @param input Shiny input.
 #' @param output Shiny output.
 #' @param session Shiny session.
-#' @param values ReactiveValues global state.
+#' @param values ReactiveValues global state. Default is NULL.
 #' @keywords internal
 #' @export
-redalycServer <- function(input, output, session, values) {
+redalycServer <- function(input, output, session, values = NULL) {
   redalyc_data <- shiny::reactiveVal(NULL)
 
   output$redalycDataAvailable <- shiny::reactive({

@@ -4,7 +4,10 @@
 \alias{redalycUI}
 \title{Redalyc UI Component for Biblioshiny}
 \usage{
-redalycUI()
+redalycUI(lang = "en")
+}
+\arguments{
+\item{lang}{Character. Interface language: "en", "pt", or "es". Default is "en".}
 }
 \value{
 A Shiny tagList containing UI elements.

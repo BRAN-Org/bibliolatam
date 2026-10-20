@@ -3,6 +3,7 @@
 #' Renders the SciELO data collection and import panel compatible with
 #' biblioshiny AdminLTE layout.
 #'
+#' @param lang Character. Interface language: "en", "pt", or "es". Default is "en".
 #' @return A Shiny tagList containing the UI elements.
 #' @keywords internal
 #' @export
@@ -15,7 +16,7 @@
 #'   }
 #'   shinyApp(ui, server)
 #' }
-scieloUI <- function() {
+scieloUI <- function(lang = "en") {
   shiny::tagList(
     shiny::fluidRow(
       shiny::column(
@@ -28,12 +29,14 @@ scieloUI <- function() {
           shiny::div(
             style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;",
             shiny::div(
-              shiny::h3(
-                "SciELO Data Collection",
+              shiny::tags$h3(
+                bl_i18n("scielo_title", lang),
+                `data-i18n` = "scielo_title",
                 style = "font-weight: bold; margin: 0; color: #2c3e50; display: inline-block;"
               ),
               shiny::tags$span(
-                "Diamond Open Access (Latin America & Caribbean)",
+                bl_i18n("scielo_badge", lang),
+                `data-i18n` = "scielo_badge",
                 class = "label label-success",
                 style = "margin-left: 10px; font-size: 12px; vertical-align: middle;"
               )
@@ -43,7 +46,7 @@ scieloUI <- function() {
               shiny::icon("chevron-up"),
               class = "btn-sm btn-default",
               style = "padding: 5px 10px;",
-              title = "Collapse/Expand"
+              title = bl_i18n("btn_collapse", lang)
             )
           ),
 
@@ -51,8 +54,10 @@ scieloUI <- function() {
           shiny::div(
             style = "margin-bottom: 20px; padding: 12px 15px; background-color: #e8f8f5; border-radius: 4px; border-left: 4px solid #00a65a; color: #165b4c;",
             shiny::icon("info-circle", style = "margin-right: 8px; font-size: 16px;"),
-            shiny::strong("Full JATS XML & Cited References (CR): "),
-            "Retrieve or upload full-text NLM/JATS XML articles from SciELO. Reconstructs cited references for bibliographic coupling and co-citation networks."
+            shiny::tags$span(
+              bl_i18n("scielo_banner", lang),
+              `data-i18n` = "scielo_banner"
+            )
           ),
 
           # Main Content
@@ -64,12 +69,14 @@ scieloUI <- function() {
 
               # TAB 1: Online Retrieval by Identifiers
               shiny::tabPanel(
-                title = shiny::tagList(shiny::icon("cloud-download-alt"), " Online Retrieval (DOIs / PIDs)"),
+                title = shiny::tagList(shiny::icon("cloud-download-alt"), shiny::tags$span(bl_i18n("scielo_tab_download", lang), `data-i18n` = "scielo_tab_download")),
                 value = "mode_download",
                 shiny::div(
                   style = "margin-top: 15px; padding: 15px; background-color: #fafbfc; border: 1px solid #e1e4e8; border-radius: 4px;",
                   shiny::tags$label(
-                    "SciELO DOIs, PIDs or URLs (one per line or comma-separated):",
+                    bl_i18n("scielo_input_label", lang),
+                    `data-i18n` = "scielo_input_label",
+                    `for` = "scieloInputIds",
                     style = "font-weight: 600; color: #34495e; margin-bottom: 8px; display: block;"
                   ),
                   shiny::textAreaInput(
@@ -97,7 +104,7 @@ scieloUI <- function() {
                       ),
                       shiny::actionButton(
                         "scieloFetchData",
-                        "Download & Process",
+                        label = shiny::tags$span(bl_i18n("scielo_fetch_btn", lang), `data-i18n` = "scielo_fetch_btn"),
                         icon = shiny::icon("download"),
                         class = "btn-success",
                         style = "margin-left: 8px; font-weight: bold;"
@@ -109,7 +116,7 @@ scieloUI <- function() {
 
               # TAB 2: Offline File Upload
               shiny::tabPanel(
-                title = shiny::tagList(shiny::icon("file-upload"), " Local File Upload"),
+                title = shiny::tagList(shiny::icon("file-upload"), shiny::tags$span(bl_i18n("scielo_tab_upload", lang), `data-i18n` = "scielo_tab_upload")),
                 value = "mode_upload",
                 shiny::div(
                   style = "margin-top: 15px; padding: 15px; background-color: #fafbfc; border: 1px solid #e1e4e8; border-radius: 4px;",
@@ -124,7 +131,7 @@ scieloUI <- function() {
                   ),
                   shiny::fileInput(
                     "scieloFile",
-                    "Upload SciELO File(s):",
+                    label = shiny::tags$span(bl_i18n("scielo_upload_label", lang), `data-i18n` = "scielo_upload_label"),
                     multiple = FALSE,
                     accept = c(".xml", ".zip", ".csv"),
                     width = "100%"
@@ -133,7 +140,7 @@ scieloUI <- function() {
                     style = "text-align: right; margin-top: 10px;",
                     shiny::actionButton(
                       "scieloProcessFile",
-                      "Process Local File",
+                      label = shiny::tags$span(bl_i18n("scielo_process_btn", lang), `data-i18n` = "scielo_process_btn"),
                       icon = shiny::icon("cogs"),
                       class = "btn-primary",
                       style = "font-weight: bold;"
@@ -161,7 +168,13 @@ scieloUI <- function() {
               shiny::div(
                 shiny::downloadButton("scieloDownloadExcel", "Export Excel", class = "btn-sm btn-default"),
                 shiny::downloadButton("scieloDownloadRData", "Export .RData", class = "btn-sm btn-info", style = "margin-left: 5px;"),
-                shiny::actionButton("scieloLoadToApp", "Load into Biblioshiny", icon = shiny::icon("play"), class = "btn-sm btn-success", style = "margin-left: 10px; font-weight: bold;")
+                shiny::actionButton(
+                  "scieloLoadToApp",
+                  label = shiny::tags$span(bl_i18n("scielo_load_app_btn", lang), `data-i18n` = "scielo_load_app_btn"),
+                  icon = shiny::icon("play"),
+                  class = "btn-sm btn-success",
+                  style = "margin-left: 10px; font-weight: bold;"
+                )
               )
             ),
             shiny::uiOutput("scieloSummaryBoxes"),
@@ -318,6 +331,7 @@ scieloServer <- function(input, output, session, values = NULL) {
   output$scieloSummaryBoxes <- shiny::renderUI({
     df <- scielo_data()
     shiny::req(df)
+    lang <- if (!is.null(input$current_lang) && nzchar(input$current_lang)) tolower(input$current_lang) else "en"
 
     n_docs <- nrow(df)
     n_cr <- sum(!is.na(df$CR) & nzchar(df$CR))
@@ -336,7 +350,7 @@ scieloServer <- function(input, output, session, values = NULL) {
           class = "info-box bg-aqua",
           style = "border-radius: 4px; padding: 10px;",
           shiny::div(class = "info-box-content",
-            shiny::span(class = "info-box-text", "DOCUMENTS"),
+            shiny::tags$span(class = "info-box-text", bl_i18n("scielo_box_docs", lang), `data-i18n` = "scielo_box_docs"),
             shiny::span(class = "info-box-number", style = "font-size: 24px; font-weight: bold;", n_docs)
           )
         )
@@ -347,7 +361,7 @@ scieloServer <- function(input, output, session, values = NULL) {
           class = "info-box bg-green",
           style = "border-radius: 4px; padding: 10px;",
           shiny::div(class = "info-box-content",
-            shiny::span(class = "info-box-text", "TIMESPAN"),
+            shiny::tags$span(class = "info-box-text", bl_i18n("scielo_box_timespan", lang), `data-i18n` = "scielo_box_timespan"),
             shiny::span(class = "info-box-number", style = "font-size: 24px; font-weight: bold;", timespan)
           )
         )
@@ -358,7 +372,7 @@ scieloServer <- function(input, output, session, values = NULL) {
           class = "info-box bg-yellow",
           style = "border-radius: 4px; padding: 10px;",
           shiny::div(class = "info-box-content",
-            shiny::span(class = "info-box-text", "CITED REFS (CR)"),
+            shiny::tags$span(class = "info-box-text", bl_i18n("scielo_box_cr", lang), `data-i18n` = "scielo_box_cr"),
             shiny::span(class = "info-box-number", style = "font-size: 24px; font-weight: bold;", sprintf("%s%%", pct_cr))
           )
         )
@@ -369,7 +383,7 @@ scieloServer <- function(input, output, session, values = NULL) {
           class = "info-box bg-purple",
           style = "border-radius: 4px; padding: 10px;",
           shiny::div(class = "info-box-content",
-            shiny::span(class = "info-box-text", "LANGUAGES"),
+            shiny::tags$span(class = "info-box-text", bl_i18n("scielo_box_langs", lang), `data-i18n` = "scielo_box_langs"),
             shiny::span(class = "info-box-number", style = "font-size: 13px;", lang_str)
           )
         )

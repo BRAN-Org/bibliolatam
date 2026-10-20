@@ -3,6 +3,7 @@
 #' Renders the BDTD (IBICT) thesis and dissertation collection panel
 #' compatible with the biblioshiny AdminLTE layout.
 #'
+#' @param lang Character. Interface language: "en", "pt", or "es". Default is "en".
 #' @return A Shiny tagList containing the UI elements.
 #' @keywords internal
 #' @export
@@ -15,7 +16,7 @@
 #'   }
 #'   shinyApp(ui, server)
 #' }
-bdtdUI <- function() {
+bdtdUI <- function(lang = "en") {
   shiny::tagList(
     shiny::fluidRow(
       shiny::column(
@@ -28,12 +29,14 @@ bdtdUI <- function() {
           shiny::div(
             style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;",
             shiny::div(
-              shiny::h3(
-                "BDTD Collection",
+              shiny::tags$h3(
+                bl_i18n("bdtd_title", lang),
+                `data-i18n` = "bdtd_title",
                 style = "font-weight: bold; margin: 0; color: #2c3e50; display: inline-block;"
               ),
               shiny::tags$span(
-                "IBICT (Theses & Dissertations)",
+                bl_i18n("bdtd_badge", lang),
+                `data-i18n` = "bdtd_badge",
                 class = "label label-primary",
                 style = "margin-left: 10px; font-size: 12px; vertical-align: middle;"
               )
@@ -43,7 +46,7 @@ bdtdUI <- function() {
               shiny::icon("chevron-up"),
               class = "btn-sm btn-default",
               style = "padding: 5px 10px;",
-              title = "Collapse/Expand"
+              title = bl_i18n("btn_collapse", lang)
             )
           ),
 
@@ -51,8 +54,10 @@ bdtdUI <- function() {
           shiny::div(
             style = "margin-bottom: 20px; padding: 12px 15px; background-color: #ebf5fb; border-radius: 4px; border-left: 4px solid #0073b7; color: #1b4f72;",
             shiny::icon("university", style = "margin-right: 8px; font-size: 16px;"),
-            shiny::strong("Brazilian Digital Library of Theses and Dissertations (BDTD): "),
-            "Search online via the official IBICT VuFind API or upload tabular export files (CSV, TSV). Maps graduate programs and universities to Source (SO), advisors to Corresponding Author (RP), and classifies degrees into Theses and Dissertations."
+            shiny::tags$span(
+              bl_i18n("bdtd_banner", lang),
+              `data-i18n` = "bdtd_banner"
+            )
           ),
 
           # Main Content with Pills
@@ -64,25 +69,39 @@ bdtdUI <- function() {
 
               # TAB 1: Online Search & Retrieval
               shiny::tabPanel(
-                title = shiny::tagList(shiny::icon("cloud-download-alt"), " Online Search & Retrieval"),
+                title = shiny::tagList(shiny::icon("cloud-download-alt"), shiny::tags$span(bl_i18n("bdtd_tab_online", lang), `data-i18n` = "bdtd_tab_online")),
                 value = "mode_download",
                 shiny::div(
                   style = "margin-top: 15px; padding: 15px; background-color: #fafbfc; border: 1px solid #e1e4e8; border-radius: 4px;",
                   shiny::fluidRow(
                     shiny::column(
                       width = 8,
-                      shiny::textInput(
-                        "bdtdSearchQuery",
-                        "Search Query (Keywords, Title, Author, or Subject):",
-                        placeholder = "Ex: inteligencia artificial, sustentabilidade, educacao inclusiva",
-                        width = "100%"
+                      shiny::tags$label(
+                        bl_i18n("bdtd_query_label", lang),
+                        `data-i18n` = "bdtd_query_label",
+                        `for` = "bdtdSearchQuery",
+                        style = "font-weight: 600; color: #34495e; margin-bottom: 5px; display: block;"
+                      ),
+                      shiny::tags$input(
+                        id = "bdtdSearchQuery",
+                        type = "text",
+                        class = "form-control",
+                        placeholder = bl_i18n("bdtd_query_ph", lang),
+                        `data-i18n-ph` = "bdtd_query_ph",
+                        style = "width: 100%;"
                       )
                     ),
                     shiny::column(
                       width = 4,
+                      shiny::tags$label(
+                        bl_i18n("bdtd_limit_label", lang),
+                        `data-i18n` = "bdtd_limit_label",
+                        `for` = "bdtdSearchLimit",
+                        style = "font-weight: 600; color: #34495e; margin-bottom: 5px; display: block;"
+                      ),
                       shiny::numericInput(
                         "bdtdSearchLimit",
-                        "Max Records to Retrieve:",
+                        label = NULL,
                         value = 50,
                         min = 10,
                         max = 500,
@@ -94,9 +113,14 @@ bdtdUI <- function() {
                   shiny::fluidRow(
                     shiny::column(
                       width = 6,
+                      shiny::tags$label(
+                        bl_i18n("bdtd_filter_label", lang),
+                        `data-i18n` = "bdtd_filter_label",
+                        style = "font-weight: 600; color: #34495e; margin-bottom: 5px; display: block;"
+                      ),
                       shiny::radioButtons(
                         "bdtdOnlineDegreeFilter",
-                        "Filter Degree / Document Type:",
+                        label = NULL,
                         choices = c(
                           "All (Theses & Dissertations)" = "all",
                           "Only Theses (Doutorado)" = "thesis",
@@ -110,7 +134,7 @@ bdtdUI <- function() {
                       width = 6,
                       shiny::checkboxInput(
                         "bdtdOnlineNormalizeAuthors",
-                        "Normalize Brazilian author and advisor names",
+                        shiny::tags$span(bl_i18n("bdtd_normalize_label", lang), `data-i18n` = "bdtd_normalize_label"),
                         value = TRUE
                       )
                     )
@@ -119,7 +143,7 @@ bdtdUI <- function() {
                     style = "margin-top: 10px; display: flex; justify-content: flex-end;",
                     shiny::actionButton(
                       "bdtdFetchOnline",
-                      "Search & Retrieve from BDTD",
+                      label = shiny::tags$span(bl_i18n("bdtd_fetch_btn", lang), `data-i18n` = "bdtd_fetch_btn"),
                       icon = shiny::icon("search"),
                       class = "btn-primary",
                       style = "font-weight: bold;"
@@ -130,7 +154,7 @@ bdtdUI <- function() {
 
               # TAB 2: Local File Upload
               shiny::tabPanel(
-                title = shiny::tagList(shiny::icon("folder-open"), " Local File Upload"),
+                title = shiny::tagList(shiny::icon("folder-open"), shiny::tags$span(bl_i18n("bdtd_tab_upload", lang), `data-i18n` = "bdtd_tab_upload")),
                 value = "mode_upload",
                 shiny::div(
                   style = "margin-top: 15px; padding: 15px; background-color: #fafbfc; border: 1px solid #e1e4e8; border-radius: 4px;",
@@ -139,7 +163,7 @@ bdtdUI <- function() {
                       width = 6,
                       shiny::fileInput(
                         "bdtdFile",
-                        "Select BDTD Export File (CSV or TSV):",
+                        label = shiny::tags$span(bl_i18n("bdtd_upload_label", lang), `data-i18n` = "bdtd_upload_label"),
                         multiple = FALSE,
                         accept = c(".csv", ".tsv", ".txt"),
                         width = "100%"
@@ -147,9 +171,14 @@ bdtdUI <- function() {
                     ),
                     shiny::column(
                       width = 6,
+                      shiny::tags$label(
+                        bl_i18n("bdtd_filter_label", lang),
+                        `data-i18n` = "bdtd_filter_label",
+                        style = "font-weight: 600; color: #34495e; margin-bottom: 5px; display: block;"
+                      ),
                       shiny::radioButtons(
                         "bdtdDegreeFilter",
-                        "Filter Degree / Document Type:",
+                        label = NULL,
                         choices = c(
                           "All (Theses & Dissertations)" = "all",
                           "Only Theses (Doutorado)" = "thesis",
@@ -171,7 +200,7 @@ bdtdUI <- function() {
                     ),
                     shiny::actionButton(
                       "bdtdProcessFile",
-                      "Process BDTD File",
+                      label = shiny::tags$span(bl_i18n("bdtd_process_btn", lang), `data-i18n` = "bdtd_process_btn"),
                       icon = shiny::icon("cogs"),
                       class = "btn-primary",
                       style = "font-weight: bold;"

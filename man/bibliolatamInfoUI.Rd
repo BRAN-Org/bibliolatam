@@ -4,7 +4,10 @@
 \alias{bibliolatamInfoUI}
 \title{Bibliolatam Info UI Component for Biblioshiny}
 \usage{
-bibliolatamInfoUI()
+bibliolatamInfoUI(lang = "en")
+}
+\arguments{
+\item{lang}{Character. Interface language: "en", "pt", or "es". Default is "en".}
 }
 \value{
 A Shiny tagList containing the UI elements.

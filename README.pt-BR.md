@@ -3,6 +3,7 @@
 <p align="left">
   <a href="README.md"><img src="docs/assets/badge-english.svg" alt="English Version" height="28" /></a>
   <a href="README.pt-BR.md"><img src="docs/assets/badge-portugues.svg" alt="Versão em Português" height="28" /></a>
+  <a href="README.es.md"><img src="docs/assets/badge-espanol.svg" alt="Versión en Español" height="28" /></a>
 </p>
 
 `bibliolatam` é um pacote complementar em R projetado para conectar a literatura científica de acesso aberto da América Latina aos fluxos de análise bibliométrica e cienciométrica do [`bibliometrix`](https://github.com/massimoaria/bibliometrix).

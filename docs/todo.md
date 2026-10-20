@@ -42,3 +42,12 @@
 - [x] Sanitização de caracteres acentuados corrompidos (mojibake)
 - [x] Elaboração do `cran-comments.md` documentando ambientes de teste e resultados de check
 - [x] Elaboração de vignette instrutiva em `vignettes/introduction-to-bibliolatam.Rmd`
+
+---
+
+## Fase 5: Internacionalização (i18n) & Suporte Trilíngue
+- [x] Módulo central de internacionalização (`R/i18n.R`) com suporte a Inglês (`en`), Português (`pt`) e Espanhol (`es`)
+- [x] Seletor dinâmico de idiomas no cabeçalho do `run_app()` com preservação do estado de formulários
+- [x] Parametrização `lang` em todos os componentes de UI (`scieloUI`, `bdtdUI`, `oasisbrUI`, etc.)
+- [x] Documentação completa em Espanhol (`README.es.md`) e badges trilíngues de navegação em todos os READMEs
+- [x] Suíte de testes automatizados para internacionalização (`test-i18n.R`) com 391 testes aprovados

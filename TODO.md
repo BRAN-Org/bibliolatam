@@ -32,3 +32,9 @@
 
 ## Developer Tooling & Agent Guidelines
 - [x] Create `AGENTS.md`: repository architecture, code standards, and execution protocols for AI coding agents
+
+## Internationalization (i18n) & Multilingual Documentation
+- [x] Dedicated trilingual engine (`R/i18n.R`) supporting English (`en`), Portuguese (`pt`), and Spanish (`es`)
+- [x] Dynamic in-app language switcher in `run_app()` header preserving form inputs
+- [x] Full Spanish documentation (`README.es.md`) and trilingual navigation badges across all README files
+- [x] Unit test coverage for translations and localized UI components (`test-i18n.R`)

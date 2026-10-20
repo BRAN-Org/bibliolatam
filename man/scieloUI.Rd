@@ -4,7 +4,10 @@
 \alias{scieloUI}
 \title{SciELO UI Component for Biblioshiny}
 \usage{
-scieloUI()
+scieloUI(lang = "en")
+}
+\arguments{
+\item{lang}{Character. Interface language: "en", "pt", or "es". Default is "en".}
 }
 \value{
 A Shiny tagList containing the UI elements.

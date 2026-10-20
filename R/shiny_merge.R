@@ -2,10 +2,11 @@
 #'
 #' Renders the Cross-Database Deduplication & Merge panel compatible with biblioshiny.
 #'
+#' @param lang Character. Interface language: "en", "pt", or "es". Default is "en".
 #' @return A Shiny tagList containing UI elements.
 #' @keywords internal
 #' @export
-bibliolatamMergeUI <- function() {
+bibliolatamMergeUI <- function(lang = "en") {
   shiny::tagList(
     shiny::fluidRow(
       shiny::column(
@@ -18,12 +19,14 @@ bibliolatamMergeUI <- function() {
           shiny::div(
             style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;",
             shiny::div(
-              shiny::h3(
-                "Cross-Database Merge & Deduplication",
+              shiny::tags$h3(
+                bl_i18n("merge_title", lang),
+                `data-i18n` = "merge_title",
                 style = "font-weight: bold; margin: 0; color: #2c3e50; display: inline-block;"
               ),
               shiny::tags$span(
-                "Bibliolatam Engine",
+                bl_i18n("merge_badge", lang),
+                `data-i18n` = "merge_badge",
                 class = "label label-primary",
                 style = "margin-left: 10px; font-size: 12px; vertical-align: middle; background-color: #605ca8;"
               )
@@ -33,7 +36,7 @@ bibliolatamMergeUI <- function() {
               shiny::icon("chevron-up"),
               class = "btn-sm btn-default",
               style = "padding: 5px 10px;",
-              title = "Collapse/Expand"
+              title = bl_i18n("btn_collapse", lang)
             )
           ),
 
@@ -200,10 +203,10 @@ load_any_latam_file <- function(file_path) {
 #' @param input Shiny input.
 #' @param output Shiny output.
 #' @param session Shiny session.
-#' @param values ReactiveValues global state.
+#' @param values ReactiveValues global state. Default is NULL.
 #' @keywords internal
 #' @export
-bibliolatamMergeServer <- function(input, output, session, values) {
+bibliolatamMergeServer <- function(input, output, session, values = NULL) {
   merged_dataset <- shiny::reactiveVal(NULL)
 
   output$bibliolatamMergeDataAvailable <- shiny::reactive({

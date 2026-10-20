@@ -4,7 +4,10 @@
 \alias{omnisearchUI}
 \title{Omnisearch UI Component for Biblioshiny}
 \usage{
-omnisearchUI()
+omnisearchUI(lang = "en")
+}
+\arguments{
+\item{lang}{Character. Interface language: "en", "pt", or "es". Default is "en".}
 }
 \value{
 A Shiny tagList containing UI elements.

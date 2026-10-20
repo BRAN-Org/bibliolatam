@@ -7,7 +7,8 @@
 run_app(
   port = getOption("shiny.port"),
   host = getOption("shiny.host", "127.0.0.1"),
-  launch.browser = interactive()
+  launch.browser = interactive(),
+  default_lang = c("en", "pt", "es")
 )
 }
 \arguments{
@@ -16,13 +17,16 @@ run_app(
 \item{host}{Character. The IPv4 address that the application should listen on. Default is "127.0.0.1".}
 
 \item{launch.browser}{Logical. If TRUE, the system's default web browser will be launched. Default is interactive().}
+
+\item{default_lang}{Character. Default interface language: "en" (English), "pt" (Portuguese), or "es" (Spanish). Default is "en".}
 }
 \value{
 A Shiny app object.
 }
 \description{
 Launches an interactive Shiny application integrating all Latin American
-bibliographic data collectors, parsers, and merging tools.
+bibliographic data collectors, parsers, and merging tools with full
+trilingual support (English, Portuguese, Spanish).
 }
 \examples{
 if (interactive()) {
