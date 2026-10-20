@@ -134,6 +134,15 @@ BL_I18N_DICT <- list(
   merge_source2_label = list(en = "Secondary Dataset (Base 2):", pt = "Base Secundaria (Base 2):", es = "Base Secundaria (Base 2):"),
   merge_btn = list(en = "Merge and Deduplicate Datasets", pt = "Unificar e Deduplicar Bases", es = "Fusionar y Deduplicar Bases"),
 
+  # Previews & Diagnostics
+  scielo_preview_title = list(en = "Dataset Preview & Quality Summary", pt = "Previa do Conjunto de Dados e Resumo de Qualidade", es = "Vista Previa del Conjunto de Datos y Resumen de Calidad"),
+  bdtd_preview_title = list(en = "BDTD Collection Preview & Metrics", pt = "Previa da Coleta BDTD e Metricas", es = "Vista Previa de la Coleccion BDTD y Metricas"),
+  oasisbr_preview_title = list(en = "Oasisbr Collection Preview & Metrics", pt = "Previa da Coleta Oasisbr e Metricas", es = "Vista Previa de la Coleccion Oasisbr y Metricas"),
+  redalyc_preview_title = list(en = "Redalyc Collection Preview & Metrics", pt = "Previa da Coleta Redalyc e Metricas", es = "Vista Previa de la Coleccion Redalyc y Metricas"),
+  merge_d1_title = list(en = "Dataset 1 (Primary / Base)", pt = "Conjunto de Dados 1 (Primario / Base)", es = "Conjunto de Datos 1 (Primario / Base)"),
+  merge_d2_title = list(en = "Dataset 2 (To Merge & Fuse)", pt = "Conjunto de Dados 2 (Para Unificar e Fundir)", es = "Conjunto de Datos 2 (Para Fusionar y Unificar)"),
+  merge_metrics_title = list(en = "Merged Collection Metrics & Diagnostics", pt = "Metricas e Diagnosticos da Coleta Unificada", es = "Metricas y Diagnosticos de la Coleccion Fusionada"),
+
   # About
   info_title = list(en = "bibliolatam", pt = "bibliolatam", es = "bibliolatam"),
   info_tagline = list(
@@ -142,6 +151,107 @@ BL_I18N_DICT <- list(
     es = "Adaptador de Datos Bibliograficos Latinoamericanos e Ibericos para 'bibliometrix' y 'biblioshiny'."
   ),
   info_why = list(en = "Why bibliolatam?", pt = "Por que o bibliolatam?", es = "Por que bibliolatam?"),
+  info_why_p1 = list(
+    en = "Mainstream bibliometric pipelines primarily support commercial North American and European indexes (Scopus, Web of Science, Dimensions, PubMed). In Latin America, Spain, and Portugal, a vast portion of high-impact research is published under <strong>Diamond Open Access</strong> repositories (SciELO, Redalyc) or preserved in national graduate thesis libraries (BDTD/Oasisbr, LA Referencia).",
+    pt = "Os principais fluxos de trabalho bibliometricos atendem primordialmente a indices comerciais norte-americanos e europeus (Scopus, Web of Science, Dimensions, PubMed). Na America Latina, Espanha e Portugal, uma parcela substancial da pesquisa de alto impacto e publicada em repositorios de <strong>Acesso Aberto Diamante</strong> (SciELO, Redalyc) ou preservada em bibliotecas nacionais de teses e dissertacoes (BDTD/Oasisbr, LA Referencia).",
+    es = "Los principales flujos de trabajo bibliometricos atienden primordialmente a indices comerciales norteamericanos y europeos (Scopus, Web of Science, Dimensions, PubMed). En America Latina, Espana y Portugal, una parte sustancial de la investigacion de alto impacto se publica en repositorios de <strong>Acceso Abierto Diamante</strong> (SciELO, Redalyc) o se preserva en bibliotecas nacionales de tesis y disertaciones (BDTD/Oasisbr, LA Referencia)."
+  ),
+  info_why_p2 = list(
+    en = "Because <code>bibliometrix</code> limits its built-in parsers to global multidisciplinary databases to keep maintenance sustainable (Issue #689), <strong>bibliolatam</strong> acts as an official bridge. It parses raw XML, CSV, and OAI-PMH records from Latin American platforms, normalizes regional author naming patterns (Brazilian generational suffixes and Hispanic compound surnames), and injects standardized <code>bibliometrixDB</code> data frames directly into the analysis engine.",
+    pt = "Como o <code>bibliometrix</code> restringe seus parsers nativos a bases globais multidisciplinares para manter sua sustentabilidade (Issue #689), o <strong>bibliolatam</strong> atua como uma ponte oficial. Ele processa registros brutos em XML, CSV e OAI-PMH de plataformas latino-americanas, normaliza padroes regionais de nomes de autores (aglutinacoes geracionais brasileiras e sobrenomes compostos hispanicos) e injeta data frames padronizados do <code>bibliometrixDB</code> diretamente no motor de analise.",
+    es = "Dado que <code>bibliometrix</code> restringe sus analizadores nativos a bases globales multidisciplinares para mantener la sostenibilidad (Issue #689), <strong>bibliolatam</strong> actua como un puente oficial. Procesa registros brutos en XML, CSV y OAI-PMH de plataformas latinoamericanas, normaliza patrones regionales de nombres de autores (sufijos generacionales brasilenos y apellidos compuestos hispanos) e inyecta data frames estandarizados de <code>bibliometrixDB</code> directamente en el motor de analisis."
+  ),
+  info_repos_title = list(
+    en = "Supported & Planned Regional Repositories",
+    pt = "Repositorios Regionais Suportados e Planejados",
+    es = "Repositorios Regionales Soportados y Planificados"
+  ),
+  info_badge_active = list(en = "ACTIVE", pt = "ATIVO", es = "ACTIVO"),
+  info_scielo_desc = list(
+    en = "Scientific Electronic Library Online. Multidisciplinary diamond OA network across 16 countries. Full NLM/JATS XML parsing with cited references (CR) extraction and direct DOI/PID download engine.",
+    pt = "Scientific Electronic Library Online. Rede multidisciplinar de acesso aberto diamante presente em 16 paises. Processamento completo de XML NLM/JATS com extracao de referencias citadas (CR) e mecanismo de download direto por DOI/PID.",
+    es = "Scientific Electronic Library Online. Red multidisciplinar de acceso abierto diamante en 16 paises. Procesamiento completo de XML NLM/JATS con extraccion de referencias citadas (CR) y motor de descarga directa por DOI/PID."
+  ),
+  info_bdtd_desc = list(
+    en = "Brazilian Digital Library of Theses and Dissertations (IBICT). Online API search and tabular parsing for theses (Doutorado) and dissertations (Mestrado), graduate programs, and advisor mapping.",
+    pt = "Biblioteca Digital Brasileira de Teses e Dissertacoes (IBICT). Busca online via API e analise tabular de teses (Doutorado) e dissertacoes (Mestrado), programas de pos-graduacao e mapeamento de orientadores.",
+    es = "Biblioteca Digital Brasilena de Tesis y Disertaciones (IBICT). Busqueda en linea por API y analisis tabular de tesis (Doctorado) y disertaciones (Maestria), programas de posgrado y mapeo de asesores."
+  ),
+  info_oasisbr_desc = list(
+    en = "Brazilian Open Access Portal (IBICT). Online search and tabular parsing for multidisciplinary production: articles, theses, books, and conference proceedings across institutional repositories.",
+    pt = "Portal Brasileiro de Publicacoes Cientificas em Acesso Aberto (IBICT). Busca online e analise tabular de producao multidisciplinar: artigos, teses, livros e anais em repositorios institucionais.",
+    es = "Portal Brasileno de Publicaciones Cientificas en Acceso Abierto (IBICT). Busqueda en linea y analisis tabular de produccion multidisciplinaria: articulos, tesis, libros y memorias en repositorios institucionales."
+  ),
+  info_spell_desc = list(
+    en = "Scientific Periodicals Electronic Library. Specialized index by ANPAD for Business Administration, Accounting, Economics, and Public Management.",
+    pt = "Scientific Periodicals Electronic Library. Indice especializado da ANPAD para Administracao, Contabilidade, Economia e Gestao Publica.",
+    es = "Scientific Periodicals Electronic Library. Indice especializado de ANPAD para Administracion, Contabilidad, Economia y Gestion Publica."
+  ),
+  info_redalyc_desc = list(
+    en = "Network of Scientific Journals from Latin America and the Caribbean, Spain and Portugal (UAEMex). Parses BibTeX, RIS, and CSV formats with Hispanic compound author name resolution.",
+    pt = "Rede de Periodicos Cientificos da America Latina e Caribe, Espanha e Portugal (UAEMex). Analise de formatos BibTeX, RIS e CSV com resolucao de sobrenomes compostos hispanicos.",
+    es = "Red de Revistas Cientificas de America Latina y el Caribe, Espana y Portugal (UAEMex). Analisis de formatos BibTeX, RIS y CSV con resolucion de apellidos compuestos hispanos."
+  ),
+  info_lareferencia_desc = list(
+    en = "Federated Network of Institutional Repositories of Scientific Publications. Continental aggregator connecting university research outputs from 12 Latin American nations with live VuFind API integration.",
+    pt = "Rede Federada de Repositorios Institucionais de Publicacoes Cientificas. Agregador continental integrando a producao cientifica universitaria de 12 paises latino-americanos via API VuFind.",
+    es = "Red Federada de Repositorios Institucionales de Publicaciones Cientificas. Agregador continental que integra la produccion cientifica universitaria de 12 paises latinoamericanos mediante API VuFind."
+  ),
+  info_omnisearch_box_title = list(
+    en = "Omnisearch Engine (SciELO + BDTD + Oasisbr + LA Referencia)",
+    pt = "Mecanismo Omnisearch (SciELO + BDTD + Oasisbr + LA Referencia)",
+    es = "Motor Omnisearch (SciELO + BDTD + Oasisbr + LA Referencia)"
+  ),
+  info_omnisearch_desc = list(
+    en = "Unified 1-click discovery engine across peer-reviewed journals, national graduate thesis archives, and open access repositories across Latin America with automated DOI and fuzzy title deduplication.",
+    pt = "Mecanismo unificado de busca em 1 clique abrangendo periodicos revisados por pares, bancos nacionais de teses e repositorios de acesso aberto na America Latina, com deduplicacao automatica por DOI e titulo aproximado.",
+    es = "Motor unificado de busqueda en 1 clic que abarca revistas revisadas por pares, repositorios nacionales de tesis y archivos de acceso abierto en America Latina, con deduplicacion automatica por DOI y titulo aproximado."
+  ),
+  info_gov_title = list(
+    en = "Principles & Governance",
+    pt = "Principios e Governanca",
+    es = "Principios y Gobernanza"
+  ),
+  info_gov_fair_title = list(
+    en = "FAIR Principles: ",
+    pt = "Principios FAIR: ",
+    es = "Principios FAIR: "
+  ),
+  info_gov_fair_desc = list(
+    en = "Findable, Accessible, Interoperable, and Reusable data standards for regional science.",
+    pt = "Padroes de dados Localizaveis, Acessiveis, Interoperaveis e Reutilizaveis para a ciencia regional.",
+    es = "Estandares de datos Localizables, Accesibles, Interoperables y Reutilizables para la ciencia regional."
+  ),
+  info_gov_boai_title = list(
+    en = "BOAI Adherence: ",
+    pt = "Adesao a BOAI: ",
+    es = "Adhesion a BOAI: "
+  ),
+  info_gov_boai_desc = list(
+    en = "Committed to the Budapest Open Access Initiative and non-commercial scientific communication.",
+    pt = "Compromisso com a Iniciativa de Acesso Aberto de Budapeste e comunicacao cientifica nao-comercial.",
+    es = "Compromiso con la Iniciativa de Acceso Abierto de Budapest y la comunicacion cientifica no comercial."
+  ),
+  info_gov_license_title = list(
+    en = "Dual Licensing: ",
+    pt = "Licenciamento Duplo: ",
+    es = "Licenciamiento Doble: "
+  ),
+  info_gov_license_desc = list(
+    en = "Source code licensed under GNU GPL-3.0. Metadata fixtures protected under CC BY-NC-SA 4.0 with Anti-AI commercial ingestion restrictions.",
+    pt = "Codigo-fonte sob licenca GNU GPL-3.0. Amostras de metadados sob licenca CC BY-NC-SA 4.0 com restricoes contra ingestao comercial por IA.",
+    es = "Codigo fuente bajo licencia GNU GPL-3.0. Muestras de metadatos bajo licencia CC BY-NC-SA 4.0 con restricciones contra ingestion comercial por IA."
+  ),
+  info_gov_dev_title = list(
+    en = "Open Development: ",
+    pt = "Desenvolvimento Aberto: ",
+    es = "Desarrollo Abierto: "
+  ),
+  info_gov_dev_repo = list(
+    en = "GitHub Repository (BRAN-Org/bibliolatam)",
+    pt = "Repositorio no GitHub (BRAN-Org/bibliolatam)",
+    es = "Repositorio en GitHub (BRAN-Org/bibliolatam)"
+  ),
   info_fair = list(en = "FAIR Principles & Regional Sovereignty", pt = "Principios FAIR e Soberania Regional", es = "Principios FAIR y Soberania Regional"),
 
   # Common
@@ -228,6 +338,14 @@ bl_i18n_script <- function() {
       var k = el.getAttribute("data-i18n");
       if (dict[k] && dict[k][lang]) {
         el.textContent = dict[k][lang];
+      }
+    });
+
+    // Translate DOM elements with data-i18n-html
+    document.querySelectorAll("[data-i18n-html]").forEach(function(el) {
+      var k = el.getAttribute("data-i18n-html");
+      if (dict[k] && dict[k][lang]) {
+        el.innerHTML = dict[k][lang];
       }
     });
 

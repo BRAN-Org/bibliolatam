@@ -93,10 +93,16 @@ test_that("UI functions accept lang parameter and render localized text across a
   expect_true(grepl("Fusion y Deduplicacion Entre Bases", as.character(ui_merge_es)))
 
   # Info (About)
+  info_en <- bibliolatamInfoUI(lang = "en")
   info_pt <- bibliolatamInfoUI(lang = "pt")
   info_es <- bibliolatamInfoUI(lang = "es")
+  expect_true(grepl("Why bibliolatam?", as.character(info_en)))
   expect_true(grepl("Por que o bibliolatam?", as.character(info_pt)))
   expect_true(grepl("Por que bibliolatam?", as.character(info_es)))
+  expect_true(grepl("Supported &amp; Planned Regional Repositories", as.character(info_en)))
+  expect_true(grepl("Repositorios Regionais Suportados e Planejados", as.character(info_pt)))
+  expect_true(grepl("Repositorios Regionales Soportados y Planificados", as.character(info_es)))
+  expect_true(grepl("data-i18n-html", as.character(info_pt)))
 })
 
 test_that("bl_i18n_script generates valid script tag containing dictionary", {
@@ -108,4 +114,5 @@ test_that("bl_i18n_script generates valid script tag containing dictionary", {
   expect_true(grepl("window.bibliolatam_dict", script_str))
   expect_true(grepl("setBibliolatamLang", script_str))
   expect_true(grepl("localStorage", script_str))
+  expect_true(grepl("data-i18n-html", script_str))
 })

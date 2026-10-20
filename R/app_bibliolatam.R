@@ -46,13 +46,13 @@ run_app <- function(port = getOption("shiny.port"),
         )
       )
     ),
-    shiny::tabPanel("Omnisearch", omnisearchUI(lang = default_lang)),
-    shiny::tabPanel("SciELO", scieloUI(lang = default_lang)),
-    shiny::tabPanel("BDTD", bdtdUI(lang = default_lang)),
-    shiny::tabPanel("Oasisbr", oasisbrUI(lang = default_lang)),
-    shiny::tabPanel("Redalyc", redalycUI(lang = default_lang)),
-    shiny::tabPanel("Merge & Deduplicate", bibliolatamMergeUI(lang = default_lang)),
-    shiny::tabPanel("About", bibliolatamInfoUI(lang = default_lang))
+    shiny::tabPanel(bl_i18n("tab_omnisearch", default_lang), omnisearchUI(lang = default_lang)),
+    shiny::tabPanel(bl_i18n("tab_scielo", default_lang), scieloUI(lang = default_lang)),
+    shiny::tabPanel(bl_i18n("tab_bdtd", default_lang), bdtdUI(lang = default_lang)),
+    shiny::tabPanel(bl_i18n("tab_oasisbr", default_lang), oasisbrUI(lang = default_lang)),
+    shiny::tabPanel(bl_i18n("tab_redalyc", default_lang), redalycUI(lang = default_lang)),
+    shiny::tabPanel(bl_i18n("tab_merge", default_lang), bibliolatamMergeUI(lang = default_lang)),
+    shiny::tabPanel(bl_i18n("tab_about", default_lang), bibliolatamInfoUI(lang = default_lang))
   )
 
   server <- function(input, output, session) {

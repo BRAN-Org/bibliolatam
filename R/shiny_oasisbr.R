@@ -214,7 +214,7 @@ oasisbrUI <- function(lang = "en") {
             style = "background-color: #ffffff; border-top: 3px solid #00a65a; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);",
             shiny::div(
               style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;",
-              shiny::h4("Oasisbr Collection Preview & Metrics", style = "font-weight: bold; margin: 0; color: #2c3e50;"),
+              shiny::h4(bl_i18n("oasisbr_preview_title", lang), `data-i18n` = "oasisbr_preview_title", style = "font-weight: bold; margin: 0; color: #2c3e50;"),
               shiny::div(
                 shiny::downloadButton("oasisbrDownloadCSV", "Export CSV", class = "btn-sm btn-default"),
                 shiny::downloadButton("oasisbrDownloadRData", "Export .RData", class = "btn-sm btn-info", style = "margin-left: 5px;"),
