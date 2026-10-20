@@ -4,7 +4,7 @@
 \alias{oasisbrServer}
 \title{Oasisbr Server Logic for Biblioshiny}
 \usage{
-oasisbrServer(input, output, session, values)
+oasisbrServer(input, output, session, values = NULL)
 }
 \arguments{
 \item{input}{Shiny input object.}
@@ -15,7 +15,22 @@ oasisbrServer(input, output, session, values)
 
 \item{values}{ReactiveValues object from biblioshiny containing global state.}
 }
+
+\value{
+An observer handle or NULL.
+}
 \description{
 Connects Oasisbr UI events with package parsers and the biblioshiny reactive state.
 }
 \keyword{internal}
+
+\examples{
+if (interactive()) {
+  library(shiny)
+  ui <- fluidPage(oasisbrUI())
+  server <- function(input, output, session) {
+    oasisbrServer(input, output, session)
+  }
+  shinyApp(ui, server)
+}
+}

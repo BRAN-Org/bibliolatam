@@ -4,7 +4,10 @@
 \alias{scieloUI}
 \title{SciELO UI Component for Biblioshiny}
 \usage{
-scieloUI()
+scieloUI(lang = "en")
+}
+\arguments{
+\item{lang}{Character. Interface language: "en", "pt", or "es". Default is "en".}
 }
 \value{
 A Shiny tagList containing the UI elements.
@@ -14,3 +17,14 @@ Renders the SciELO data collection and import panel compatible with
 biblioshiny AdminLTE layout.
 }
 \keyword{internal}
+
+\examples{
+if (interactive()) {
+  library(shiny)
+  ui <- fluidPage(scieloUI())
+  server <- function(input, output, session) {
+    scieloServer(input, output, session)
+  }
+  shinyApp(ui, server)
+}
+}

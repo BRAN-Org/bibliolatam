@@ -34,3 +34,18 @@ Merges two bibliographic datasets (e.g. SciELO, Oasisbr, SPELL, BDTD, or Redalyc
 identifies cross-database duplicates through canonical DOI resolution and normalized
 title fuzzy matching, and fuses complementary metadata fields into a unified corpus.
 }
+
+\examples{
+df1 <- data.frame(
+  AU = "SILVA J", TI = "Open access in Brazil",
+  SO = "Journal A", PY = 2022, DI = "10.1590/test1",
+  stringsAsFactors = FALSE
+)
+df2 <- data.frame(
+  AU = "SILVA J", TI = "Open access in Brazil",
+  SO = "Journal A", PY = 2022, DI = "10.1590/test1",
+  stringsAsFactors = FALSE
+)
+merged <- merge_bibliolatam(as_bibliometrix(df1, "scielo"), as_bibliometrix(df2, "bdtd"))
+nrow(merged)
+}

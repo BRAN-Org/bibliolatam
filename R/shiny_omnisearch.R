@@ -2,10 +2,11 @@
 #'
 #' Renders the Latin American scientific Omnisearch panel compatible with biblioshiny.
 #'
+#' @param lang Character. Interface language: "en", "pt", or "es". Default is "en".
 #' @return A Shiny tagList containing UI elements.
 #' @keywords internal
 #' @export
-omnisearchUI <- function() {
+omnisearchUI <- function(lang = "en") {
   shiny::tagList(
     shiny::fluidRow(
       shiny::column(
@@ -18,12 +19,14 @@ omnisearchUI <- function() {
           shiny::div(
             style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;",
             shiny::div(
-              shiny::h3(
-                "Latin American Omnisearch Engine",
+              shiny::tags$h3(
+                bl_i18n("omni_title", lang),
+                `data-i18n` = "omni_title",
                 style = "font-weight: bold; margin: 0; color: #2c3e50; display: inline-block;"
               ),
               shiny::tags$span(
-                "Federated Multi-Source Discovery",
+                bl_i18n("omni_badge", lang),
+                `data-i18n` = "omni_badge",
                 class = "label label-success",
                 style = "margin-left: 10px; font-size: 12px; vertical-align: middle; background-color: #00a65a;"
               )
@@ -33,7 +36,7 @@ omnisearchUI <- function() {
               shiny::icon("chevron-up"),
               class = "btn-sm btn-default",
               style = "padding: 5px 10px;",
-              title = "Collapse/Expand"
+              title = bl_i18n("btn_collapse", lang)
             )
           ),
 
@@ -41,8 +44,10 @@ omnisearchUI <- function() {
           shiny::div(
             style = "margin-bottom: 20px; padding: 12px 15px; background-color: #f0f9f4; border-radius: 4px; border-left: 4px solid #00a65a; color: #1e5235;",
             shiny::icon("globe", style = "margin-right: 8px; font-size: 16px;"),
-            shiny::strong("Unified Latin American Search: "),
-            "Query SciELO, BDTD, Oasisbr, and LA Referencia simultaneously in a single operation. The engine queries each official repository, normalizes records into canonical bibliometrix format, and automatically fuses and deduplicates duplicate entries."
+            shiny::tags$span(
+              bl_i18n("omni_banner", lang),
+              `data-i18n` = "omni_banner"
+            )
           ),
 
           # Content
@@ -51,18 +56,32 @@ omnisearchUI <- function() {
             shiny::fluidRow(
               shiny::column(
                 width = 6,
-                shiny::textInput(
-                  "omniQuery",
-                  "Search Query / Termos de Busca:",
-                  placeholder = "e.g. \"inteligencia artificial\" OR \"saude coletiva\"",
-                  width = "100%"
+                shiny::tags$label(
+                  bl_i18n("omni_query", lang),
+                  `data-i18n` = "omni_query",
+                  `for` = "omniQuery",
+                  style = "font-weight: 600; color: #34495e; margin-bottom: 5px; display: block;"
+                ),
+                shiny::tags$input(
+                  id = "omniQuery",
+                  type = "text",
+                  class = "form-control",
+                  placeholder = bl_i18n("omni_query_ph", lang),
+                  `data-i18n-ph` = "omni_query_ph",
+                  style = "width: 100%;"
                 )
               ),
               shiny::column(
                 width = 2,
+                shiny::tags$label(
+                  bl_i18n("omni_year_start", lang),
+                  `data-i18n` = "omni_year_start",
+                  `for` = "omniYearStart",
+                  style = "font-weight: 600; color: #34495e; margin-bottom: 5px; display: block;"
+                ),
                 shiny::numericInput(
                   "omniYearStart",
-                  "De (Ano Inicio):",
+                  label = NULL,
                   value = NA,
                   min = 1900,
                   max = 2030,
@@ -71,9 +90,15 @@ omnisearchUI <- function() {
               ),
               shiny::column(
                 width = 2,
+                shiny::tags$label(
+                  bl_i18n("omni_year_end", lang),
+                  `data-i18n` = "omni_year_end",
+                  `for` = "omniYearEnd",
+                  style = "font-weight: 600; color: #34495e; margin-bottom: 5px; display: block;"
+                ),
                 shiny::numericInput(
                   "omniYearEnd",
-                  "Ate (Ano Fim):",
+                  label = NULL,
                   value = NA,
                   min = 1900,
                   max = 2030,
@@ -82,9 +107,15 @@ omnisearchUI <- function() {
               ),
               shiny::column(
                 width = 2,
+                shiny::tags$label(
+                  bl_i18n("omni_limit", lang),
+                  `data-i18n` = "omni_limit",
+                  `for` = "omniLimit",
+                  style = "font-weight: 600; color: #34495e; margin-bottom: 5px; display: block;"
+                ),
                 shiny::numericInput(
                   "omniLimit",
-                  "Max por base:",
+                  label = NULL,
                   value = 50,
                   min = 5,
                   max = 300,
@@ -94,11 +125,17 @@ omnisearchUI <- function() {
               )
             ),
             shiny::fluidRow(
+              style = "margin-top: 15px;",
               shiny::column(
                 width = 7,
+                shiny::tags$label(
+                  bl_i18n("omni_sources", lang),
+                  `data-i18n` = "omni_sources",
+                  style = "font-weight: 600; color: #34495e; margin-bottom: 5px; display: block;"
+                ),
                 shiny::checkboxGroupInput(
                   "omniSources",
-                  "Target Databases:",
+                  label = NULL,
                   choices = c(
                     "SciELO (Journal Articles)" = "scielo",
                     "BDTD (Theses & Dissertations)" = "bdtd",
@@ -112,15 +149,15 @@ omnisearchUI <- function() {
               shiny::column(
                 width = 5,
                 shiny::div(
-                  style = "margin-top: 15px;",
+                  style = "margin-top: 5px;",
                   shiny::checkboxInput(
                     "omniDeduplicate",
-                    "Automated Cross-Database Deduplication & Fusion",
+                    shiny::tags$span(bl_i18n("omni_dedup", lang), `data-i18n` = "omni_dedup"),
                     value = TRUE
                   ),
                   shiny::checkboxInput(
                     "omniEnrichCR",
-                    "Enrich SciELO with Cited References (JATS XML)",
+                    shiny::tags$span(bl_i18n("omni_enrich_cr", lang), `data-i18n` = "omni_enrich_cr"),
                     value = FALSE
                   )
                 )
@@ -130,7 +167,7 @@ omnisearchUI <- function() {
               style = "margin-top: 15px; margin-bottom: 15px; text-align: right;",
               shiny::actionButton(
                 "omniSearchBtn",
-                "Buscar e Carregar no Biblioshiny",
+                label = shiny::tags$span(bl_i18n("omni_search_btn", lang), `data-i18n` = "omni_search_btn"),
                 icon = shiny::icon("search"),
                 class = "btn-primary btn-lg",
                 style = "background-color: #00a65a; border-color: #008d4c; font-weight: bold;"
@@ -169,6 +206,14 @@ omnisearchServer <- function(input, output, session, values = NULL) {
   omni_data <- shiny::reactiveVal(NULL)
   omni_stats <- shiny::reactiveVal(NULL)
 
+  get_lang <- function() {
+    if (!is.null(input$current_lang) && nzchar(input$current_lang)) {
+      tolower(input$current_lang)
+    } else {
+      "en"
+    }
+  }
+
   # Toggle panel
   shiny::observeEvent(input$omnisearchTogglePanel, {
     shiny::updateActionButton(
@@ -181,15 +226,16 @@ omnisearchServer <- function(input, output, session, values = NULL) {
 
   # Search execution
   shiny::observeEvent(input$omniSearchBtn, {
+    lang <- get_lang()
     q <- trimws(input$omniQuery)
     if (!nzchar(q)) {
-      shiny::showNotification("Por favor, digite um termo de busca antes de pesquisar.", type = "warning")
+      shiny::showNotification(bl_i18n("omni_warn_empty_query", lang), type = "warning")
       return()
     }
 
     srcs <- input$omniSources
     if (length(srcs) == 0L) {
-      shiny::showNotification("Selecione ao menos uma base para consulta.", type = "warning")
+      shiny::showNotification(bl_i18n("omni_err_select_base", lang), type = "warning")
       return()
     }
 
@@ -207,8 +253,8 @@ omnisearchServer <- function(input, output, session, values = NULL) {
       years_arg <- c(ys, ye)
     }
 
-    shiny::withProgress(message = "Omnisearch Latino-Americano", value = 0.1, {
-      shiny::incProgress(0.2, detail = "Consultando repositorios selecionados...")
+    shiny::withProgress(message = bl_i18n("omni_prog_title", lang), value = 0.1, {
+      shiny::incProgress(0.2, detail = bl_i18n("omni_prog_querying", lang))
 
       df_result <- tryCatch(
         {
@@ -223,21 +269,21 @@ omnisearchServer <- function(input, output, session, values = NULL) {
           )
         },
         error = function(e) {
-          shiny::showNotification(sprintf("Erro durante a consulta: %s", e$message), type = "error")
+          shiny::showNotification(sprintf(bl_i18n("omni_err_during_query", lang), e$message), type = "error")
           NULL
         }
       )
 
-      shiny::incProgress(0.5, detail = "Harmonizando metadados...")
+      shiny::incProgress(0.5, detail = bl_i18n("omni_prog_harmonizing", lang))
 
       if (is.null(df_result) || nrow(df_result) == 0L) {
-        shiny::showNotification("Nenhum registro encontrado para esta consulta nas bases selecionadas.", type = "warning")
+        shiny::showNotification(bl_i18n("omni_warn_no_results", lang), type = "warning")
         omni_data(NULL)
         omni_stats(NULL)
         return()
       }
 
-      shiny::incProgress(0.2, detail = "Finalizando e integrando com o Biblioshiny...")
+      shiny::incProgress(0.2, detail = bl_i18n("omni_prog_finalizing", lang))
 
       omni_data(df_result)
 
@@ -261,12 +307,12 @@ omnisearchServer <- function(input, output, session, values = NULL) {
       )
       omni_stats(stat_obj)
 
-      # Carregar diretamente no Biblioshiny
+      # Inserir no Biblioshiny se aplicavel
       if (!is.null(values)) {
         values$M <- df_result
       }
       shiny::showNotification(
-        sprintf("Sucesso! %d registros unificados carregados na sessao ativa do Biblioshiny.", nrow(df_result)),
+        sprintf(bl_i18n("omni_success_loaded", lang), nrow(df_result)),
         type = "message",
         duration = 5
       )
@@ -277,6 +323,7 @@ omnisearchServer <- function(input, output, session, values = NULL) {
   output$omniMetricsCards <- shiny::renderUI({
     st <- omni_stats()
     if (is.null(st)) return(NULL)
+    lang <- get_lang()
 
     shiny::fluidRow(
       style = "margin-top: 15px; margin-bottom: 15px;",
@@ -284,7 +331,7 @@ omnisearchServer <- function(input, output, session, values = NULL) {
         width = 3,
         shiny::div(
           style = "background-color: #00a65a; color: #ffffff; padding: 15px; border-radius: 4px; text-align: center;",
-          shiny::h4("Total Harmonizado", style = "margin: 0; font-weight: bold;"),
+          shiny::h4(bl_i18n("omni_stat_total", lang), style = "margin: 0; font-weight: bold;", `data-i18n` = "omni_stat_total"),
           shiny::h2(st$total, style = "margin: 5px 0 0 0; font-weight: bold;")
         )
       ),
@@ -292,7 +339,7 @@ omnisearchServer <- function(input, output, session, values = NULL) {
         width = 3,
         shiny::div(
           style = "background-color: #3c8dbc; color: #ffffff; padding: 15px; border-radius: 4px; text-align: center;",
-          shiny::h4("Autores Unicos", style = "margin: 0; font-weight: bold;"),
+          shiny::h4(bl_i18n("omni_stat_authors", lang), style = "margin: 0; font-weight: bold;", `data-i18n` = "omni_stat_authors"),
           shiny::h2(st$unique_authors, style = "margin: 5px 0 0 0; font-weight: bold;")
         )
       ),
@@ -300,7 +347,7 @@ omnisearchServer <- function(input, output, session, values = NULL) {
         width = 3,
         shiny::div(
           style = "background-color: #f39c12; color: #ffffff; padding: 15px; border-radius: 4px; text-align: center;",
-          shiny::h4("Periodo (Anos)", style = "margin: 0; font-weight: bold;"),
+          shiny::h4(bl_i18n("omni_stat_timespan", lang), style = "margin: 0; font-weight: bold;", `data-i18n` = "omni_stat_timespan"),
           shiny::h2(st$timespan, style = "margin: 5px 0 0 0; font-weight: bold; font-size: 20px; line-height: 38px;")
         )
       ),
@@ -308,7 +355,7 @@ omnisearchServer <- function(input, output, session, values = NULL) {
         width = 3,
         shiny::div(
           style = "background-color: #605ca8; color: #ffffff; padding: 15px; border-radius: 4px; text-align: center;",
-          shiny::h4("Fontes Ativas", style = "margin: 0; font-weight: bold;"),
+          shiny::h4(bl_i18n("omni_stat_sources", lang), style = "margin: 0; font-weight: bold;", `data-i18n` = "omni_stat_sources"),
           shiny::p(st$sources, style = "margin: 5px 0 0 0; font-size: 13px; font-weight: bold;")
         )
       )
@@ -318,7 +365,12 @@ omnisearchServer <- function(input, output, session, values = NULL) {
   output$omniPreviewHeader <- shiny::renderUI({
     df <- omni_data()
     if (is.null(df) || nrow(df) == 0L) return(NULL)
-    shiny::h4("Previa dos Resultados Harmonizados:", style = "font-weight: bold; color: #2c3e50;")
+    lang <- get_lang()
+    shiny::tags$h4(
+      bl_i18n("omni_preview_title", lang),
+      `data-i18n` = "omni_preview_title",
+      style = "font-weight: bold; color: #2c3e50;"
+    )
   })
 
   output$omniPreviewTable <- shiny::renderUI({
@@ -337,22 +389,23 @@ omnisearchServer <- function(input, output, session, values = NULL) {
   output$omniLoadSection <- shiny::renderUI({
     df <- omni_data()
     if (is.null(df) || nrow(df) == 0L) return(NULL)
+    lang <- get_lang()
 
     shiny::div(
       style = "margin-top: 15px; display: flex; justify-content: flex-end; gap: 10px;",
       shiny::downloadButton(
         "omniDownloadCSV",
-        "Baixar CSV",
+        label = shiny::tags$span(bl_i18n("download_csv", lang), `data-i18n` = "download_csv"),
         class = "btn-info btn-sm"
       ),
       shiny::downloadButton(
         "omniDownloadRData",
-        "Exportar .RData",
+        label = shiny::tags$span(bl_i18n("export_rdata", lang), `data-i18n` = "export_rdata"),
         class = "btn-success btn-sm"
       ),
       shiny::actionButton(
         "omniReloadBiblioshinyBtn",
-        "Recarregar no Biblioshiny",
+        label = shiny::tags$span(bl_i18n("reload_biblioshiny", lang), `data-i18n` = "reload_biblioshiny"),
         icon = shiny::icon("sync"),
         class = "btn-default btn-sm"
       )
@@ -376,21 +429,25 @@ omnisearchServer <- function(input, output, session, values = NULL) {
       paste0("omnisearch_results_", format(Sys.Date(), "%Y%m%d"), ".RData")
     },
     content = function(file) {
-      df <- omni_data()
-      if (!is.null(df)) {
-        M <- df
+      M <- omni_data()
+      if (!is.null(M)) {
         save(M, file = file)
       }
     }
   )
 
+  # Push to Biblioshiny manually
   shiny::observeEvent(input$omniReloadBiblioshinyBtn, {
     df <- omni_data()
-    if (!is.null(df)) {
+    lang <- get_lang()
+    if (!is.null(df) && nrow(df) > 0L) {
       if (!is.null(values)) {
         values$M <- df
       }
-      shiny::showNotification("Dados recarregados com sucesso na sessao do Biblioshiny!", type = "message")
+      shiny::showNotification(
+        sprintf(bl_i18n("omni_success_loaded", lang), nrow(df)),
+        type = "message"
+      )
     }
   })
 }

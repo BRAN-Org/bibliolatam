@@ -1,0 +1,114 @@
+---
+title: "Introduction to bibliolatam: Latin American Bibliographic Data Parsers"
+author: "Gabriel Gama, BRAN Org"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to bibliolatam: Latin American Bibliographic Data Parsers}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## 1. Overview
+
+`bibliolatam` is an R package designed to bridge Latin American and Iberian diamond open-access literature into mainstream bibliometric pipelines (`bibliometrix` and `biblioshiny`).
+
+While major commercial bibliometric indexes (such as Web of Science and Scopus) under-represent regional scholarship, platforms like **SciELO**, **Redalyc**, **BDTD** (theses and dissertations), **Oasisbr**, and **LA Referencia** host millions of peer-reviewed articles and research outputs. `bibliolatam` provides robust parsers, author normalization engines, and API clients to adapt these heterogeneous outputs into canonical `bibliometrixDB` objects.
+
+---
+
+## 2. Author Name Normalization
+
+Latin American author naming patterns frequently include generational suffixes (*Junior*, *Filho*, *Neto*, *Sobrinho*) and compound particles (*da*, *de*, *do*, *del*, *van*). Traditional parsers often split these incorrectly.
+
+`normalize_authors()` standardizes names into the canonical `SOBRENOME INICIAIS` format while preserving suffixes:
+
+```{r setup}
+library(bibliolatam)
+
+# Single author with suffix and particle
+normalize_authors("Jose da Silva Junior")
+
+# Multiple authors separated by semicolons
+normalize_authors("Batista Filho, Jose Rodrigues; Perez Gomez, Maria del Carmen")
+
+# Vector of author strings
+authors_vec <- c("Gama, Gabriel", "Antonio Carlos Neto", "Maria das Gracas Souza")
+normalize_authors(authors_vec)
+```
+
+---
+
+## 3. Parsing Local Files
+
+`bibliolatam` includes dedicated offline parsers with automated delimiter and encoding detection:
+
+- `read_scielo()`: Tabular CSV/TSV exports from SciELO.
+- `read_scielo_jats()`: Full-text NLM/JATS XML articles, reconstructing cited references (`CR`).
+- `read_spell()`: Administration and accounting exports from SPELL / ANPAD.
+- `read_bdtd()` / `read_oasisbr()`: Brazilian theses, dissertations, and institutional repository records.
+- `read_redalyc()`: BibTeX, RIS, or CSV exports from Redalyc / AmeliCA.
+
+Example reading a bundled sample:
+
+```{r parsing}
+sample_scielo <- system.file("extdata", "scielo_sample.csv", package = "bibliolatam")
+if (nzchar(sample_scielo)) {
+  df <- read_scielo(sample_scielo, convert = TRUE)
+  head(df[, c("AU", "TI", "SO", "PY", "DB")])
+}
+```
+
+---
+
+## 4. The `bibliometrixDB` Data Contract
+
+All converters enforce the `bibliometrixDB` class contract via `as_bibliometrix()`, ensuring full compatibility with `bibliometrix::biblioAnalysis()`:
+
+```{r convert}
+raw_df <- data.frame(
+  AU = c("SILVA J; SANTOS M", "GAMA G"),
+  TI = c("Science in Latin America", "Open Access Ecosystems"),
+  SO = c("Revista de Saude Publica", "Ciencia da Informacao"),
+  PY = c(2022, 2023),
+  DI = c("10.1590/test1", "10.1590/test2"),
+  stringsAsFactors = FALSE
+)
+
+bdf <- as_bibliometrix(raw_df, dbsource = "scielo")
+class(bdf)
+head(bdf$SR)
+```
+
+---
+
+## 5. Merging & Deduplication
+
+When combining records from multiple regional platforms (e.g. SciELO and Oasisbr), `merge_bibliolatam()` resolves entities using DOI matching and Levenshtein title distance:
+
+```{r merge}
+df1 <- as_bibliometrix(raw_df[1, , drop = FALSE], dbsource = "scielo")
+df2 <- as_bibliometrix(raw_df[1, , drop = FALSE], dbsource = "oasisbr")
+
+merged <- merge_bibliolatam(df1, df2, match_by = c("doi", "title"), verbose = FALSE)
+nrow(merged)
+```
+
+---
+
+## 6. Standalone Interactive Application
+
+`bibliolatam` provides a complete standalone Shiny web interface integrating all search, download, parsing, and merging capabilities:
+
+```r
+if (interactive()) {
+  bibliolatam::run_app()
+}
+```

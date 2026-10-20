@@ -4,7 +4,7 @@
 \alias{redalycServer}
 \title{Redalyc Server Logic for Biblioshiny}
 \usage{
-redalycServer(input, output, session, values)
+redalycServer(input, output, session, values = NULL)
 }
 \arguments{
 \item{input}{Shiny input.}
@@ -15,7 +15,22 @@ redalycServer(input, output, session, values)
 
 \item{values}{ReactiveValues global state.}
 }
+
+\value{
+An observer handle or NULL.
+}
 \description{
 Redalyc Server Logic for Biblioshiny
 }
 \keyword{internal}
+
+\examples{
+if (interactive()) {
+  library(shiny)
+  ui <- fluidPage(redalycUI())
+  server <- function(input, output, session) {
+    redalycServer(input, output, session)
+  }
+  shinyApp(ui, server)
+}
+}

@@ -17,3 +17,11 @@ Converts diverse author string formats (e.g. 'Sobrenome, Nome', 'Nome Sobrenome'
 with generational suffixes like Junior, Filho, Neto) into the canonical
 WoS/bibliometrix format: \verb{SOBRENOME INICIAIS; ...}.
 }
+
+\examples{
+# Single string with multiple authors
+normalize_authors("Batista Filho, Jose Rodrigues; Perez Gomez, Maria del Carmen")
+
+# Vector of author strings
+normalize_authors(c("Silva, Joao", "Santos Junior, Mario", "Maria da Silva"))
+}

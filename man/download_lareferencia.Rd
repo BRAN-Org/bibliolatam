@@ -36,3 +36,12 @@ Institucionales de Publicaciones Científicas), retrieving metadata records
 across 12 Latin American national repository networks, and parses them into
 a standardized \code{bibliometrixDB} data frame.
 }
+
+\examples{
+\donttest{
+tryCatch({
+  df <- download_lareferencia("salud publica", limit = 3L, progress = FALSE, timeout = 10)
+  head(df[, c("AU", "TI", "PY")])
+}, error = function(e) message("Service temporarily unavailable."))
+}
+}

@@ -25,5 +25,27 @@ test_that("bibliolatamInfoUI returns valid Shiny UI structure with documentation
   expect_true(grepl("BDTD", ui_char))
   expect_true(grepl("Oasisbr", ui_char))
   expect_true(grepl("FAIR Principles", ui_char))
+  expect_true(grepl("data-i18n-html", ui_char))
 })
 
+test_that("bibliolatamInfoUI supports Portuguese and Spanish localization", {
+  skip_if_not_installed("shiny")
+
+  # Portuguese
+  ui_pt <- as.character(bibliolatamInfoUI(lang = "pt"))
+  expect_true(grepl("bibliolatam", ui_pt))
+  expect_true(grepl("Por que o bibliolatam?", ui_pt))
+  expect_true(grepl("Repositorios Regionais", ui_pt))
+  expect_true(grepl("Principios FAIR", ui_pt))
+  expect_true(grepl("Adesao a BOAI", ui_pt))
+  expect_true(grepl("data-i18n-html", ui_pt))
+
+  # Spanish
+  ui_es <- as.character(bibliolatamInfoUI(lang = "es"))
+  expect_true(grepl("bibliolatam", ui_es))
+  expect_true(grepl("Por que bibliolatam?", ui_es))
+  expect_true(grepl("Repositorios Regionales", ui_es))
+  expect_true(grepl("Principios FAIR", ui_es))
+  expect_true(grepl("Adhesion a BOAI", ui_es))
+  expect_true(grepl("data-i18n-html", ui_es))
+})

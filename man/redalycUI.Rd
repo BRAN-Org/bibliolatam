@@ -4,7 +4,10 @@
 \alias{redalycUI}
 \title{Redalyc UI Component for Biblioshiny}
 \usage{
-redalycUI()
+redalycUI(lang = "en")
+}
+\arguments{
+\item{lang}{Character. Interface language: "en", "pt", or "es". Default is "en".}
 }
 \value{
 A Shiny tagList containing UI elements.
@@ -13,3 +16,14 @@ A Shiny tagList containing UI elements.
 Renders the Redalyc / AmeliCA collection import panel compatible with the biblioshiny layout.
 }
 \keyword{internal}
+
+\examples{
+if (interactive()) {
+  library(shiny)
+  ui <- fluidPage(redalycUI())
+  server <- function(input, output, session) {
+    redalycServer(input, output, session)
+  }
+  shinyApp(ui, server)
+}
+}

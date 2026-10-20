@@ -4,7 +4,10 @@
 \alias{bibliolatamInfoUI}
 \title{Bibliolatam Info UI Component for Biblioshiny}
 \usage{
-bibliolatamInfoUI()
+bibliolatamInfoUI(lang = "en")
+}
+\arguments{
+\item{lang}{Character. Interface language: "en", "pt", or "es". Default is "en".}
 }
 \value{
 A Shiny tagList containing the UI elements.
@@ -13,3 +16,12 @@ A Shiny tagList containing the UI elements.
 Renders the information and documentation tab for Bibliolatam inside biblioshiny.
 }
 \keyword{internal}
+
+\examples{
+if (interactive()) {
+  library(shiny)
+  ui <- fluidPage(bibliolatamInfoUI())
+  server <- function(input, output, session) {}
+  shinyApp(ui, server)
+}
+}

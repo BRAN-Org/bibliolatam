@@ -2,10 +2,18 @@
 #'
 #' Renders the information and documentation tab for Bibliolatam inside biblioshiny.
 #'
+#' @param lang Character. Interface language: "en", "pt", or "es". Default is "en".
 #' @return A Shiny tagList containing the UI elements.
 #' @keywords internal
 #' @export
-bibliolatamInfoUI <- function() {
+#' @examples
+#' if (interactive()) {
+#'   library(shiny)
+#'   ui <- fluidPage(bibliolatamInfoUI())
+#'   server <- function(input, output, session) {}
+#'   shinyApp(ui, server)
+#' }
+bibliolatamInfoUI <- function(lang = "en") {
   shiny::tagList(
     shiny::fluidRow(
       shiny::column(
@@ -21,7 +29,7 @@ bibliolatamInfoUI <- function() {
               style = "font-weight: bold; color: #2c3e50; margin: 0 0 8px 0; display: inline-block;"
             ),
             shiny::tags$span(
-              "v0.1.0",
+              "v1.0.0",
               class = "label label-primary",
               style = "margin-left: 10px; font-size: 14px; vertical-align: middle;"
             ),
@@ -30,8 +38,9 @@ bibliolatamInfoUI <- function() {
               class = "label label-success",
               style = "margin-left: 5px; font-size: 14px; vertical-align: middle;"
             ),
-            shiny::p(
-              "Latin American & Iberian Bibliographic Data Adapter for 'bibliometrix' and 'biblioshiny'.",
+            shiny::tags$p(
+              bl_i18n("info_tagline", lang),
+              `data-i18n` = "info_tagline",
               style = "font-size: 15px; color: #7f8c8d; margin-top: 5px;"
             )
           ),
@@ -39,23 +48,27 @@ bibliolatamInfoUI <- function() {
           # Motivation & Mission Box
           shiny::div(
             style = "margin-bottom: 25px; padding: 15px 20px; background-color: #f8f9fa; border-left: 4px solid #3c8dbc; border-radius: 4px;",
-            shiny::h4("Why bibliolatam?", style = "font-weight: bold; color: #2c3e50; margin-top: 0;"),
-            shiny::p(
-              "Mainstream bibliometric pipelines primarily support commercial North American and European indexes (Scopus, Web of Science, Dimensions, PubMed). ",
-              "In Latin America, Spain, and Portugal, a vast portion of high-impact research is published under ",
-              shiny::strong("Diamond Open Access"),
-              " repositories (SciELO, Redalyc) or preserved in national graduate thesis libraries (BDTD/Oasisbr, LA Referencia)."
+            shiny::tags$h4(
+              bl_i18n("info_why", lang),
+              `data-i18n` = "info_why",
+              style = "font-weight: bold; color: #2c3e50; margin-top: 0;"
             ),
-            shiny::p(
-              "Because ", shiny::code("bibliometrix"), " limits its built-in parsers to global multidisciplinary databases to keep maintenance sustainable (Issue #689), ",
-              shiny::strong("bibliolatam"), " acts as an official bridge. It parses raw XML, CSV, and OAI-PMH records from Latin American platforms, ",
-              "normalizes regional author naming patterns (Brazilian generational suffixes and Hispanic compound surnames), ",
-              "and injects standardized ", shiny::code("bibliometrixDB"), " data frames directly into the analysis engine."
+            shiny::tags$p(
+              shiny::HTML(bl_i18n("info_why_p1", lang)),
+              `data-i18n-html` = "info_why_p1"
+            ),
+            shiny::tags$p(
+              shiny::HTML(bl_i18n("info_why_p2", lang)),
+              `data-i18n-html` = "info_why_p2"
             )
           ),
 
           # Database Coverage Grid
-          shiny::h4("Supported & Planned Regional Repositories", style = "font-weight: bold; color: #2c3e50; margin-bottom: 15px;"),
+          shiny::h4(
+            bl_i18n("info_repos_title", lang),
+            `data-i18n` = "info_repos_title",
+            style = "font-weight: bold; color: #2c3e50; margin-bottom: 15px;"
+          ),
           shiny::fluidRow(
             # SciELO
             shiny::column(
@@ -63,11 +76,11 @@ bibliolatamInfoUI <- function() {
               shiny::div(
                 style = "border: 1px solid #e1e4e8; border-radius: 6px; padding: 15px; background: #fff; min-height: 200px; margin-bottom: 15px;",
                 shiny::div(
-                  shiny::span(class = "label label-success", "ACTIVE"),
+                  shiny::span(class = "label label-success", bl_i18n("info_badge_active", lang), `data-i18n` = "info_badge_active"),
                   shiny::h4("SciELO", style = "font-weight: bold; margin-top: 8px; color: #16a085;"),
                   shiny::p(
-                    "Scientific Electronic Library Online. Multidisciplinary diamond OA network across 16 countries. ",
-                    "Full NLM/JATS XML parsing with cited references (CR) extraction and direct DOI/PID download engine."
+                    bl_i18n("info_scielo_desc", lang),
+                    `data-i18n` = "info_scielo_desc"
                   )
                 )
               )
@@ -78,11 +91,11 @@ bibliolatamInfoUI <- function() {
               shiny::div(
                 style = "border: 1px solid #e1e4e8; border-radius: 6px; padding: 15px; background: #fff; min-height: 200px; margin-bottom: 15px;",
                 shiny::div(
-                  shiny::span(class = "label label-success", "ACTIVE"),
+                  shiny::span(class = "label label-success", bl_i18n("info_badge_active", lang), `data-i18n` = "info_badge_active"),
                   shiny::h4("BDTD", style = "font-weight: bold; margin-top: 8px; color: #2980b9;"),
                   shiny::p(
-                    "Brazilian Digital Library of Theses and Dissertations (IBICT). ",
-                    "Online API search and tabular parsing for theses (Doutorado) and dissertations (Mestrado), graduate programs, and advisor mapping."
+                    bl_i18n("info_bdtd_desc", lang),
+                    `data-i18n` = "info_bdtd_desc"
                   )
                 )
               )
@@ -93,11 +106,11 @@ bibliolatamInfoUI <- function() {
               shiny::div(
                 style = "border: 1px solid #e1e4e8; border-radius: 6px; padding: 15px; background: #fff; min-height: 200px; margin-bottom: 15px;",
                 shiny::div(
-                  shiny::span(class = "label label-success", "ACTIVE"),
+                  shiny::span(class = "label label-success", bl_i18n("info_badge_active", lang), `data-i18n` = "info_badge_active"),
                   shiny::h4("Oasisbr", style = "font-weight: bold; margin-top: 8px; color: #e67e22;"),
                   shiny::p(
-                    "Brazilian Open Access Portal (IBICT). ",
-                    "Online search and tabular parsing for multidisciplinary production: articles, theses, books, and conference proceedings across institutional repositories."
+                    bl_i18n("info_oasisbr_desc", lang),
+                    `data-i18n` = "info_oasisbr_desc"
                   )
                 )
               )
@@ -111,41 +124,41 @@ bibliolatamInfoUI <- function() {
               shiny::div(
                 style = "border: 1px solid #e1e4e8; border-radius: 6px; padding: 15px; background: #fff; min-height: 180px; margin-bottom: 15px;",
                 shiny::div(
-                  shiny::span(class = "label label-success", "ACTIVE"),
+                  shiny::span(class = "label label-success", bl_i18n("info_badge_active", lang), `data-i18n` = "info_badge_active"),
                   shiny::h4("SPELL / ANPAD", style = "font-weight: bold; margin-top: 8px; color: #8e44ad;"),
                   shiny::p(
-                    "Scientific Periodicals Electronic Library. Specialized index by ANPAD for Business Administration, Accounting, Economics, and Public Management."
+                    bl_i18n("info_spell_desc", lang),
+                    `data-i18n` = "info_spell_desc"
                   )
                 )
               )
-            )
-          ),
-
-          shiny::fluidRow(
+            ),
             # Redalyc
             shiny::column(
-              width = 6,
+              width = 4,
               shiny::div(
-                style = "border: 1px solid #e1e4e8; border-radius: 6px; padding: 15px; background: #fff; min-height: 160px; margin-bottom: 15px;",
+                style = "border: 1px solid #e1e4e8; border-radius: 6px; padding: 15px; background: #fff; min-height: 180px; margin-bottom: 15px;",
                 shiny::div(
-                  shiny::span(class = "label label-success", "ACTIVE"),
+                  shiny::span(class = "label label-success", bl_i18n("info_badge_active", lang), `data-i18n` = "info_badge_active"),
                   shiny::h4("Redalyc / AmeliCA", style = "font-weight: bold; margin-top: 8px; color: #d35400;"),
                   shiny::p(
-                    "Network of Scientific Journals from Latin America and the Caribbean, Spain and Portugal (UAEMex). Parses BibTeX, RIS, and CSV formats with Hispanic compound author name resolution."
+                    bl_i18n("info_redalyc_desc", lang),
+                    `data-i18n` = "info_redalyc_desc"
                   )
                 )
               )
             ),
             # LA Referencia
             shiny::column(
-              width = 6,
+              width = 4,
               shiny::div(
-                style = "border: 1px solid #e1e4e8; border-radius: 6px; padding: 15px; background: #fff; min-height: 160px; margin-bottom: 15px;",
+                style = "border: 1px solid #e1e4e8; border-radius: 6px; padding: 15px; background: #fff; min-height: 180px; margin-bottom: 15px;",
                 shiny::div(
-                  shiny::span(class = "label label-success", "ACTIVE"),
+                  shiny::span(class = "label label-success", bl_i18n("info_badge_active", lang), `data-i18n` = "info_badge_active"),
                   shiny::h4("LA Referencia", style = "font-weight: bold; margin-top: 8px; color: #c0392b;"),
                   shiny::p(
-                    "Federated Network of Institutional Repositories of Scientific Publications. Continental aggregator connecting university research outputs from 12 Latin American nations with live VuFind API integration."
+                    bl_i18n("info_lareferencia_desc", lang),
+                    `data-i18n` = "info_lareferencia_desc"
                   )
                 )
               )
@@ -159,10 +172,11 @@ bibliolatamInfoUI <- function() {
               shiny::div(
                 style = "border: 1px solid #b7eb8f; border-radius: 6px; padding: 15px; background: #f6ffed; margin-bottom: 15px;",
                 shiny::div(
-                  shiny::span(class = "label label-success", "ACTIVE"),
-                  shiny::h4("Omnisearch Engine (SciELO + BDTD + Oasisbr + LA Referencia)", style = "font-weight: bold; margin-top: 8px; color: #389e0d;"),
+                  shiny::span(class = "label label-success", bl_i18n("info_badge_active", lang), `data-i18n` = "info_badge_active"),
+                  shiny::h4(bl_i18n("info_omnisearch_box_title", lang), `data-i18n` = "info_omnisearch_box_title", style = "font-weight: bold; margin-top: 8px; color: #389e0d;"),
                   shiny::p(
-                    "Unified 1-click discovery engine across peer-reviewed journals, national graduate thesis archives, and open access repositories across Latin America with automated DOI and fuzzy title deduplication."
+                    bl_i18n("info_omnisearch_desc", lang),
+                    `data-i18n` = "info_omnisearch_desc"
                   )
                 )
               )
@@ -172,13 +186,34 @@ bibliolatamInfoUI <- function() {
           # Scientific Principles & Governance
           shiny::div(
             style = "margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;",
-            shiny::h4("Principles & Governance", style = "font-weight: bold; color: #2c3e50; margin-bottom: 10px;"),
+            shiny::h4(
+              bl_i18n("info_gov_title", lang),
+              `data-i18n` = "info_gov_title",
+              style = "font-weight: bold; color: #2c3e50; margin-bottom: 10px;"
+            ),
             shiny::tags$ul(
               style = "color: #555; line-height: 1.8;",
-              shiny::tags$li(shiny::strong("FAIR Principles: "), "Findable, Accessible, Interoperable, and Reusable data standards for regional science."),
-              shiny::tags$li(shiny::strong("BOAI Adherence: "), "Committed to the Budapest Open Access Initiative and non-commercial scientific communication."),
-              shiny::tags$li(shiny::strong("Dual Licensing: "), "Source code licensed under GNU GPL-3.0. Metadata fixtures protected under CC BY-NC-SA 4.0 with Anti-AI commercial ingestion restrictions."),
-              shiny::tags$li(shiny::strong("Open Development: "), shiny::tags$a(href = "https://github.com/BRAN-Org/bibliolatam", target = "_blank", "GitHub Repository (BRAN-Org/bibliolatam)"))
+              shiny::tags$li(
+                shiny::strong(bl_i18n("info_gov_fair_title", lang), `data-i18n` = "info_gov_fair_title"),
+                shiny::span(bl_i18n("info_gov_fair_desc", lang), `data-i18n` = "info_gov_fair_desc")
+              ),
+              shiny::tags$li(
+                shiny::strong(bl_i18n("info_gov_boai_title", lang), `data-i18n` = "info_gov_boai_title"),
+                shiny::span(bl_i18n("info_gov_boai_desc", lang), `data-i18n` = "info_gov_boai_desc")
+              ),
+              shiny::tags$li(
+                shiny::strong(bl_i18n("info_gov_license_title", lang), `data-i18n` = "info_gov_license_title"),
+                shiny::span(bl_i18n("info_gov_license_desc", lang), `data-i18n` = "info_gov_license_desc")
+              ),
+              shiny::tags$li(
+                shiny::strong(bl_i18n("info_gov_dev_title", lang), `data-i18n` = "info_gov_dev_title"),
+                shiny::tags$a(
+                  href = "https://github.com/BRAN-Org/bibliolatam",
+                  target = "_blank",
+                  bl_i18n("info_gov_dev_repo", lang),
+                  `data-i18n` = "info_gov_dev_repo"
+                )
+              )
             )
           )
         )

@@ -18,3 +18,17 @@ Invisibly returns the normalized path of the saved file.
 Saves the bibliometric data frame as an \code{.RData} file ready to be loaded
 directly in the \code{biblioshiny} web interface under 'Data -> Load bibliometrix RData'.
 }
+
+\examples{
+df <- data.frame(
+  AU = "SILVA J",
+  TI = "Bibliometrics Test",
+  SO = "Journal of Scientometrics",
+  PY = 2023,
+  stringsAsFactors = FALSE
+)
+bdf <- as_bibliometrix(df, dbsource = "scielo")
+tmp <- tempfile(fileext = ".RData")
+export_biblioshiny(bdf, tmp)
+unlink(tmp)
+}

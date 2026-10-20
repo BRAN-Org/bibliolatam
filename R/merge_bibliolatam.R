@@ -46,6 +46,19 @@ normalize_title_str <- function(titles) {
 #' @return A `data.frame` with class `c("bibliometrixDB", "data.frame")` containing the deduplicated
 #'   and merged collection.
 #' @export
+#' @examples
+#' df1 <- data.frame(
+#'   AU = "SILVA J", TI = "Open access in Brazil",
+#'   SO = "Journal A", PY = 2022, DI = "10.1590/test1",
+#'   stringsAsFactors = FALSE
+#' )
+#' df2 <- data.frame(
+#'   AU = "SILVA J", TI = "Open access in Brazil",
+#'   SO = "Journal A", PY = 2022, DI = "10.1590/test1",
+#'   stringsAsFactors = FALSE
+#' )
+#' merged <- merge_bibliolatam(as_bibliometrix(df1, "scielo"), as_bibliometrix(df2, "bdtd"))
+#' nrow(merged)
 merge_bibliolatam <- function(df1,
                               df2,
                               match_by = c("doi", "title"),
@@ -179,14 +192,14 @@ merge_bibliolatam <- function(df1,
         if (!is.null(val2) && !is.na(val2) && nzchar(trimws(as.character(val2)))) {
           fused_row[[col]][1] <- val2
         }
-      } else if (col == "CR") {
-        # Se ambos tem Cited References (CR), combina e deduplica
+      } else if (col %in% c("CR", "DE")) {
+        # Se ambos tem Cited References (CR) ou Keywords (DE), combina e deduplica
         refs1 <- unlist(strsplit(as.character(val1), ";\\s*"))
         refs2 <- if (!is.na(val2)) unlist(strsplit(as.character(val2), ";\\s*")) else character(0L)
         all_refs <- unique(c(trimws(refs1), trimws(refs2)))
         all_refs <- all_refs[nzchar(all_refs)]
         if (length(all_refs) > 0L) {
-          fused_row$CR[1] <- paste(all_refs, collapse = "; ")
+          fused_row[[col]][1] <- paste(all_refs, collapse = "; ")
         }
       }
     }

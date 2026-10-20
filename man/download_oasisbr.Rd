@@ -35,3 +35,12 @@ Queries the official REST API of the Portal Brasileiro de Acesso Aberto (Oasisbr
 retrieves metadata records across scientific articles, theses, books, and conference papers,
 and parses them into a standardized \code{bibliometrixDB} data frame.
 }
+
+\examples{
+\donttest{
+tryCatch({
+  df <- download_oasisbr("energia solar", limit = 3L, progress = FALSE, timeout = 10)
+  head(df[, c("AU", "TI", "PY")])
+}, error = function(e) message("Service temporarily unavailable."))
+}
+}

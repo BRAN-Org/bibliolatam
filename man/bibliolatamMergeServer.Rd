@@ -4,7 +4,7 @@
 \alias{bibliolatamMergeServer}
 \title{Bibliolatam Merge Server Logic for Biblioshiny}
 \usage{
-bibliolatamMergeServer(input, output, session, values)
+bibliolatamMergeServer(input, output, session, values = NULL)
 }
 \arguments{
 \item{input}{Shiny input.}
@@ -15,7 +15,22 @@ bibliolatamMergeServer(input, output, session, values)
 
 \item{values}{ReactiveValues global state.}
 }
+
+\value{
+An observer handle or NULL.
+}
 \description{
 Bibliolatam Merge Server Logic for Biblioshiny
 }
 \keyword{internal}
+
+\examples{
+if (interactive()) {
+  library(shiny)
+  ui <- fluidPage(bibliolatamMergeUI())
+  server <- function(input, output, session) {
+    bibliolatamMergeServer(input, output, session)
+  }
+  shinyApp(ui, server)
+}
+}

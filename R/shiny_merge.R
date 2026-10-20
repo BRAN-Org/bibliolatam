@@ -2,10 +2,11 @@
 #'
 #' Renders the Cross-Database Deduplication & Merge panel compatible with biblioshiny.
 #'
+#' @param lang Character. Interface language: "en", "pt", or "es". Default is "en".
 #' @return A Shiny tagList containing UI elements.
 #' @keywords internal
 #' @export
-bibliolatamMergeUI <- function() {
+bibliolatamMergeUI <- function(lang = "en") {
   shiny::tagList(
     shiny::fluidRow(
       shiny::column(
@@ -18,12 +19,14 @@ bibliolatamMergeUI <- function() {
           shiny::div(
             style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;",
             shiny::div(
-              shiny::h3(
-                "Cross-Database Merge & Deduplication",
+              shiny::tags$h3(
+                bl_i18n("merge_title", lang),
+                `data-i18n` = "merge_title",
                 style = "font-weight: bold; margin: 0; color: #2c3e50; display: inline-block;"
               ),
               shiny::tags$span(
-                "Bibliolatam Engine",
+                bl_i18n("merge_badge", lang),
+                `data-i18n` = "merge_badge",
                 class = "label label-primary",
                 style = "margin-left: 10px; font-size: 12px; vertical-align: middle; background-color: #605ca8;"
               )
@@ -33,7 +36,7 @@ bibliolatamMergeUI <- function() {
               shiny::icon("chevron-up"),
               class = "btn-sm btn-default",
               style = "padding: 5px 10px;",
-              title = "Collapse/Expand"
+              title = bl_i18n("btn_collapse", lang)
             )
           ),
 
@@ -53,7 +56,7 @@ bibliolatamMergeUI <- function() {
               shiny::fluidRow(
                 shiny::column(
                   width = 6,
-                  shiny::h4("Dataset 1 (Primary / Base)", style = "font-weight: bold; color: #2c3e50; margin-top: 0;"),
+                  shiny::h4(bl_i18n("merge_d1_title", lang), `data-i18n` = "merge_d1_title", style = "font-weight: bold; color: #2c3e50; margin-top: 0;"),
                   shiny::radioButtons(
                     "mergeSource1",
                     "Choose Source for Dataset 1:",
@@ -70,7 +73,7 @@ bibliolatamMergeUI <- function() {
                 ),
                 shiny::column(
                   width = 6,
-                  shiny::h4("Dataset 2 (To Merge & Fuse)", style = "font-weight: bold; color: #2c3e50; margin-top: 0;"),
+                  shiny::h4(bl_i18n("merge_d2_title", lang), `data-i18n` = "merge_d2_title", style = "font-weight: bold; color: #2c3e50; margin-top: 0;"),
                   shiny::fileInput(
                     "mergeFile2",
                     "Select Dataset 2 File (.csv, .RData, .tsv, .bib, .ris):",
@@ -129,7 +132,7 @@ bibliolatamMergeUI <- function() {
             style = "background-color: #ffffff; border-top: 3px solid #00a65a; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);",
             shiny::div(
               style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;",
-              shiny::h4("Merged Collection Metrics & Diagnostics", style = "font-weight: bold; margin: 0; color: #2c3e50;"),
+              shiny::h4(bl_i18n("merge_metrics_title", lang), `data-i18n` = "merge_metrics_title", style = "font-weight: bold; margin: 0; color: #2c3e50;"),
               shiny::div(
                 shiny::downloadButton("mergeDownloadCSV", "Export CSV", class = "btn-sm btn-default"),
                 shiny::downloadButton("mergeDownloadRData", "Export .RData", class = "btn-sm btn-info", style = "margin-left: 5px;"),
@@ -200,10 +203,10 @@ load_any_latam_file <- function(file_path) {
 #' @param input Shiny input.
 #' @param output Shiny output.
 #' @param session Shiny session.
-#' @param values ReactiveValues global state.
+#' @param values ReactiveValues global state. Default is NULL.
 #' @keywords internal
 #' @export
-bibliolatamMergeServer <- function(input, output, session, values) {
+bibliolatamMergeServer <- function(input, output, session, values = NULL) {
   merged_dataset <- shiny::reactiveVal(NULL)
 
   output$bibliolatamMergeDataAvailable <- shiny::reactive({
@@ -374,49 +377,64 @@ bibliolatamMergeServer <- function(input, output, session, values) {
     df <- merged_dataset()
     shiny::req(df)
 
-    initial_fn <- get0("initial", envir = parent.frame(), mode = "function")
-    if (is.function(initial_fn)) {
-      values <- initial_fn(values)
-    }
+    is_biblioshiny <- is.function(get0("initial", envir = parent.frame(), mode = "function")) ||
+                      is.function(get0("mergeKeywords", envir = parent.frame(), mode = "function"))
 
-    M <- df
-    merge_fn <- get0("mergeKeywords", envir = parent.frame(), mode = "function")
-    if (is.function(merge_fn)) {
-      M <- merge_fn(M, force = FALSE)
-    }
+    if (is_biblioshiny && !is.null(values)) {
+      initial_fn <- get0("initial", envir = parent.frame(), mode = "function")
+      if (is.function(initial_fn)) {
+        values <- initial_fn(values)
+      }
 
-    values$data_source <- "Bibliolatam_Merged"
-    values$M <- M
-    values$Morig <- M
+      M <- df
+      merge_fn <- get0("mergeKeywords", envir = parent.frame(), mode = "function")
+      if (is.function(merge_fn)) {
+        M <- merge_fn(M, force = FALSE)
+      }
 
-    wc_fn <- get0("wcTable", envir = parent.frame(), mode = "function")
-    if (is.function(wc_fn)) {
-      values$SCdf <- wc_fn(M)
-    }
-    co_fn <- get0("countryTable", envir = parent.frame(), mode = "function")
-    if (is.function(co_fn)) {
-      values$COdf <- co_fn(M)
-    }
+      values$data_source <- "Bibliolatam_Merged"
+      values$M <- M
+      values$Morig <- M
 
-    values$Histfield <- "NA"
-    values$results <- list("NA")
+      wc_fn <- get0("wcTable", envir = parent.frame(), mode = "function")
+      if (is.function(wc_fn)) {
+        values$SCdf <- wc_fn(M)
+      }
+      co_fn <- get0("countryTable", envir = parent.frame(), mode = "function")
+      if (is.function(co_fn)) {
+        values$COdf <- co_fn(M)
+      }
 
-    if (ncol(values$M) > 1) {
-      values$rest_sidebar <- TRUE
-    }
+      values$Histfield <- "NA"
+      values$results <- list("NA")
 
-    shiny::showNotification(
-      "Merged collection loaded into Biblioshiny! Analysis menus are now unlocked.",
-      type = "message",
-      duration = 6
-    )
+      if (ncol(values$M) > 1) {
+        values$rest_sidebar <- TRUE
+      }
 
-    modal_api <- get0("missingModalAPI", envir = parent.frame(), mode = "function")
-    modal_std <- get0("missingModal", envir = parent.frame(), mode = "function")
-    if (is.function(modal_api)) {
-      shiny::showModal(modal_api(session))
-    } else if (is.function(modal_std)) {
-      shiny::showModal(modal_std(session))
+      shiny::showNotification(
+        "Merged collection loaded into Biblioshiny! Analysis menus are now unlocked.",
+        type = "message",
+        duration = 6
+      )
+
+      modal_api <- get0("missingModalAPI", envir = parent.frame(), mode = "function")
+      modal_std <- get0("missingModal", envir = parent.frame(), mode = "function")
+      if (is.function(modal_api)) {
+        shiny::showModal(modal_api(session))
+      } else if (is.function(modal_std)) {
+        shiny::showModal(modal_std(session))
+      }
+    } else {
+      if (!is.null(values) && (is.environment(values) || inherits(values, "reactivevalues"))) {
+        values$M <- df
+        values$Morig <- df
+      }
+      shiny::showNotification(
+        "Merged collection processed and ready! Use the export buttons below to save .RData or .CSV.",
+        type = "message",
+        duration = 5
+      )
     }
   })
 

@@ -3,10 +3,20 @@
 #' Renders the Oasisbr (IBICT) open-access collection panel
 #' compatible with the biblioshiny AdminLTE layout.
 #'
+#' @param lang Character. Interface language: "en", "pt", or "es". Default is "en".
 #' @return A Shiny tagList containing the UI elements.
 #' @keywords internal
 #' @export
-oasisbrUI <- function() {
+#' @examples
+#' if (interactive()) {
+#'   library(shiny)
+#'   ui <- fluidPage(oasisbrUI())
+#'   server <- function(input, output, session) {
+#'     oasisbrServer(input, output, session)
+#'   }
+#'   shinyApp(ui, server)
+#' }
+oasisbrUI <- function(lang = "en") {
   shiny::tagList(
     shiny::fluidRow(
       shiny::column(
@@ -19,12 +29,14 @@ oasisbrUI <- function() {
           shiny::div(
             style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;",
             shiny::div(
-              shiny::h3(
-                "Oasisbr Collection",
+              shiny::tags$h3(
+                bl_i18n("oasisbr_title", lang),
+                `data-i18n` = "oasisbr_title",
                 style = "font-weight: bold; margin: 0; color: #2c3e50; display: inline-block;"
               ),
               shiny::tags$span(
-                "IBICT (Brazilian Open Access Portal)",
+                bl_i18n("oasisbr_badge", lang),
+                `data-i18n` = "oasisbr_badge",
                 class = "label label-warning",
                 style = "margin-left: 10px; font-size: 12px; vertical-align: middle; background-color: #e67e22;"
               )
@@ -34,7 +46,7 @@ oasisbrUI <- function() {
               shiny::icon("chevron-up"),
               class = "btn-sm btn-default",
               style = "padding: 5px 10px;",
-              title = "Collapse/Expand"
+              title = bl_i18n("btn_collapse", lang)
             )
           ),
 
@@ -42,8 +54,10 @@ oasisbrUI <- function() {
           shiny::div(
             style = "margin-bottom: 20px; padding: 12px 15px; background-color: #fef5e7; border-radius: 4px; border-left: 4px solid #e67e22; color: #7d440b;",
             shiny::icon("globe-americas", style = "margin-right: 8px; font-size: 16px;"),
-            shiny::strong("National Open Access Aggregator: "),
-            "Search online via the official Oasisbr VuFind API or upload tabular export files (CSV, TSV). Aggregates multidisciplinary production across Brazilian institutional repositories, including articles, theses, dissertations, books, and conference proceedings."
+            shiny::tags$span(
+              bl_i18n("oasisbr_banner", lang),
+              `data-i18n` = "oasisbr_banner"
+            )
           ),
 
           # Main Content with Pills
@@ -55,25 +69,33 @@ oasisbrUI <- function() {
 
               # TAB 1: Online Search & Retrieval
               shiny::tabPanel(
-                title = shiny::tagList(shiny::icon("cloud-download-alt"), " Online Search & Retrieval"),
+                title = shiny::tagList(shiny::icon("cloud-download-alt"), shiny::tags$span(bl_i18n("oasisbr_tab_online", lang), `data-i18n` = "oasisbr_tab_online")),
                 value = "mode_download",
                 shiny::div(
                   style = "margin-top: 15px; padding: 15px; background-color: #fafbfc; border: 1px solid #e1e4e8; border-radius: 4px;",
                   shiny::fluidRow(
                     shiny::column(
                       width = 8,
-                      shiny::textInput(
-                        "oasisbrSearchQuery",
-                        "Search Query (Keywords, Title, Author, or Subject):",
-                        placeholder = "Ex: biotecnologia, transicao energetica, saude coletiva",
-                        width = "100%"
+                      shiny::tags$label(
+                        bl_i18n("oasisbr_query_label", lang),
+                        `data-i18n` = "oasisbr_query_label",
+                        `for` = "oasisbrSearchQuery",
+                        style = "font-weight: 600; color: #34495e; margin-bottom: 5px; display: block;"
+                      ),
+                      shiny::tags$input(
+                        id = "oasisbrSearchQuery",
+                        type = "text",
+                        class = "form-control",
+                        placeholder = "e.g. artificial intelligence, biotechnology, public health",
+                        `data-i18n-ph` = "omni_query_ph",
+                        style = "width: 100%;"
                       )
                     ),
                     shiny::column(
                       width = 4,
                       shiny::numericInput(
                         "oasisbrSearchLimit",
-                        "Max Records to Retrieve:",
+                        label = "Max Records to Retrieve:",
                         value = 50,
                         min = 10,
                         max = 500,
@@ -87,7 +109,7 @@ oasisbrUI <- function() {
                       width = 6,
                       shiny::selectInput(
                         "oasisbrOnlineDocTypeFilter",
-                        "Filter Document Type (DT):",
+                        label = "Filter Document Type (DT):",
                         choices = c(
                           "All Types" = "all",
                           "Journal Articles" = "ARTICLE",
@@ -115,7 +137,7 @@ oasisbrUI <- function() {
                     style = "margin-top: 10px; display: flex; justify-content: flex-end;",
                     shiny::actionButton(
                       "oasisbrFetchOnline",
-                      "Search & Retrieve from Oasisbr",
+                      label = shiny::tags$span(bl_i18n("oasisbr_fetch_btn", lang), `data-i18n` = "oasisbr_fetch_btn"),
                       icon = shiny::icon("search"),
                       class = "btn-warning",
                       style = "font-weight: bold; color: #fff; background-color: #e67e22; border-color: #d35400;"
@@ -126,7 +148,7 @@ oasisbrUI <- function() {
 
               # TAB 2: Local File Upload
               shiny::tabPanel(
-                title = shiny::tagList(shiny::icon("folder-open"), " Local File Upload"),
+                title = shiny::tagList(shiny::icon("folder-open"), shiny::tags$span(bl_i18n("oasisbr_tab_upload", lang), `data-i18n` = "oasisbr_tab_upload")),
                 value = "mode_upload",
                 shiny::div(
                   style = "margin-top: 15px; padding: 15px; background-color: #fafbfc; border: 1px solid #e1e4e8; border-radius: 4px;",
@@ -135,7 +157,7 @@ oasisbrUI <- function() {
                       width = 6,
                       shiny::fileInput(
                         "oasisbrFile",
-                        "Select Oasisbr Export File (CSV or TSV):",
+                        label = shiny::tags$span(bl_i18n("oasisbr_tab_upload", lang), `data-i18n` = "oasisbr_tab_upload"),
                         multiple = FALSE,
                         accept = c(".csv", ".tsv", ".txt"),
                         width = "100%"
@@ -145,7 +167,7 @@ oasisbrUI <- function() {
                       width = 6,
                       shiny::selectInput(
                         "oasisbrDocTypeFilter",
-                        "Filter Document Type:",
+                        label = "Filter Document Type:",
                         choices = c(
                           "All Types" = "all",
                           "Theses & Dissertations" = "THESIS_DISSERTATION",
@@ -168,7 +190,7 @@ oasisbrUI <- function() {
                     ),
                     shiny::actionButton(
                       "oasisbrProcessFile",
-                      "Process Oasisbr File",
+                      label = shiny::tags$span(bl_i18n("oasisbr_process_btn", lang), `data-i18n` = "oasisbr_process_btn"),
                       icon = shiny::icon("cogs"),
                       class = "btn-warning",
                       style = "font-weight: bold; color: #fff; background-color: #e67e22; border-color: #d35400;"
@@ -192,7 +214,7 @@ oasisbrUI <- function() {
             style = "background-color: #ffffff; border-top: 3px solid #00a65a; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);",
             shiny::div(
               style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;",
-              shiny::h4("Oasisbr Collection Preview & Metrics", style = "font-weight: bold; margin: 0; color: #2c3e50;"),
+              shiny::h4(bl_i18n("oasisbr_preview_title", lang), `data-i18n` = "oasisbr_preview_title", style = "font-weight: bold; margin: 0; color: #2c3e50;"),
               shiny::div(
                 shiny::downloadButton("oasisbrDownloadCSV", "Export CSV", class = "btn-sm btn-default"),
                 shiny::downloadButton("oasisbrDownloadRData", "Export .RData", class = "btn-sm btn-info", style = "margin-left: 5px;"),
@@ -234,10 +256,20 @@ oasisbrUI <- function() {
 #' @param input Shiny input object.
 #' @param output Shiny output object.
 #' @param session Shiny session object.
-#' @param values ReactiveValues object from biblioshiny containing global state.
+#' @param values ReactiveValues object from biblioshiny containing global state (optional).
+#' @return An observer handle or NULL.
 #' @keywords internal
 #' @export
-oasisbrServer <- function(input, output, session, values) {
+#' @examples
+#' if (interactive()) {
+#'   library(shiny)
+#'   ui <- fluidPage(oasisbrUI())
+#'   server <- function(input, output, session) {
+#'     oasisbrServer(input, output, session)
+#'   }
+#'   shinyApp(ui, server)
+#' }
+oasisbrServer <- function(input, output, session, values = NULL) {
   oasisbr_data <- shiny::reactiveVal(NULL)
 
   # Check if data is available for preview
@@ -453,50 +485,64 @@ oasisbrServer <- function(input, output, session, values) {
     df <- oasisbr_data()
     shiny::req(df)
 
-    # Initialize biblioshiny global values
-    initial_fn <- get0("initial", envir = parent.frame(), mode = "function")
-    if (is.function(initial_fn)) {
-      values <- initial_fn(values)
-    }
+    is_biblioshiny <- is.function(get0("initial", envir = parent.frame(), mode = "function")) ||
+                      is.function(get0("mergeKeywords", envir = parent.frame(), mode = "function"))
 
-    M <- df
-    merge_fn <- get0("mergeKeywords", envir = parent.frame(), mode = "function")
-    if (is.function(merge_fn)) {
-      M <- merge_fn(M, force = FALSE)
-    }
+    if (is_biblioshiny && !is.null(values)) {
+      initial_fn <- get0("initial", envir = parent.frame(), mode = "function")
+      if (is.function(initial_fn)) {
+        values <- initial_fn(values)
+      }
 
-    values$data_source <- "Oasisbr"
-    values$M <- M
-    values$Morig <- M
+      M <- df
+      merge_fn <- get0("mergeKeywords", envir = parent.frame(), mode = "function")
+      if (is.function(merge_fn)) {
+        M <- merge_fn(M, force = FALSE)
+      }
 
-    wc_fn <- get0("wcTable", envir = parent.frame(), mode = "function")
-    if (is.function(wc_fn)) {
-      values$SCdf <- wc_fn(M)
-    }
-    co_fn <- get0("countryTable", envir = parent.frame(), mode = "function")
-    if (is.function(co_fn)) {
-      values$COdf <- co_fn(M)
-    }
+      values$data_source <- "Oasisbr"
+      values$M <- M
+      values$Morig <- M
 
-    values$Histfield <- "NA"
-    values$results <- list("NA")
+      wc_fn <- get0("wcTable", envir = parent.frame(), mode = "function")
+      if (is.function(wc_fn)) {
+        values$SCdf <- wc_fn(M)
+      }
+      co_fn <- get0("countryTable", envir = parent.frame(), mode = "function")
+      if (is.function(co_fn)) {
+        values$COdf <- co_fn(M)
+      }
 
-    if (ncol(values$M) > 1) {
-      values$rest_sidebar <- TRUE
-    }
+      values$Histfield <- "NA"
+      values$results <- list("NA")
 
-    shiny::showNotification(
-      "Oasisbr collection loaded into Biblioshiny! Analysis menus are now unlocked.",
-      type = "message",
-      duration = 6
-    )
+      if (ncol(values$M) > 1) {
+        values$rest_sidebar <- TRUE
+      }
 
-    modal_api <- get0("missingModalAPI", envir = parent.frame(), mode = "function")
-    modal_std <- get0("missingModal", envir = parent.frame(), mode = "function")
-    if (is.function(modal_api)) {
-      shiny::showModal(modal_api(session))
-    } else if (is.function(modal_std)) {
-      shiny::showModal(modal_std(session))
+      shiny::showNotification(
+        "Oasisbr collection loaded into Biblioshiny! Analysis menus are now unlocked.",
+        type = "message",
+        duration = 6
+      )
+
+      modal_api <- get0("missingModalAPI", envir = parent.frame(), mode = "function")
+      modal_std <- get0("missingModal", envir = parent.frame(), mode = "function")
+      if (is.function(modal_api)) {
+        shiny::showModal(modal_api(session))
+      } else if (is.function(modal_std)) {
+        shiny::showModal(modal_std(session))
+      }
+    } else {
+      if (!is.null(values) && (is.environment(values) || inherits(values, "reactivevalues"))) {
+        values$M <- df
+        values$Morig <- df
+      }
+      shiny::showNotification(
+        "Oasisbr collection processed and ready! Use the export buttons below to save .RData or .CSV.",
+        type = "message",
+        duration = 5
+      )
     }
   })
 

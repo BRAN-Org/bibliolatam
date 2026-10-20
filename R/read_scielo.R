@@ -6,6 +6,12 @@
 #' @param convert Logical. If TRUE, directly wraps output with `as_bibliometrix(..., dbsource = "scielo")`. Default is TRUE.
 #' @return A data frame formatted with standard bibliometric tags.
 #' @export
+#' @examples
+#' sample_file <- system.file("extdata", "scielo_sample.csv", package = "bibliolatam")
+#' if (nzchar(sample_file)) {
+#'   df <- read_scielo(sample_file, convert = TRUE)
+#'   head(df[, c("AU", "TI", "PY", "SO")])
+#' }
 read_scielo <- function(file, convert = TRUE) {
   if (!is.character(file) || length(file) != 1L || !file.exists(file)) {
     stop("Arquivo nao encontrado ou caminho invalido.", call. = FALSE)

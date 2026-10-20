@@ -4,9 +4,16 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/), e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
-## [1.0.0] - 2026-10-07
+## [1.0.0] - 2026-10-20
 
 ### Added
+- Lançador oficial da aplicação standalone interativa (`run_app`) com navegação por abas integrando Omnisearch, SciELO, BDTD, Oasisbr, Redalyc, Merge e Sobre.
+- Suporte a execução dual-mode nos módulos de servidor do Shiny com detecção dinâmica `is_biblioshiny` e resiliência com fallback para exportação (.RData/.CSV) fora do biblioshiny (`values = NULL`).
+- Vetorização completa de `normalize_authors()` aceitando vetores de strings de autores de qualquer extensão.
+- Cobertura de 100% de exemplos (`@examples`) e retornos (`@return`) na documentação Roxygen em todas as 30 funções exportadas.
+- Inclusão de `cran-comments.md` na raiz para o processo de submissão ao CRAN.
+- Elaboração de vignette instrutiva completa em `vignettes/introduction-to-bibliolatam.Rmd`.
+- Declaração de `jsonlite`, `utils` e `tools` em `Imports:` no `DESCRIPTION`.
 - Estrutura inicial do pacote R `bibliolatam` com compatibilidade planejada para `bibliometrix`.
 - Conversor canônico `as_bibliometrix()` com geração automática de tags `SR`, `SR_FULL`, `JI`, `J9` e validação de contrato `bibliometrixDB`.
 - Parser tabular SPELL / ANPAD (`read_spell`) com detecção automática de delimitadores e normalização de autores.

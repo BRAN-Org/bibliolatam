@@ -43,3 +43,12 @@ retrieving metadata records for peer-reviewed journal articles across SciELO col
 (Brazil, Colombia, Mexico, Chile, Argentina, etc.), and parses them into a standardized
 \code{bibliometrixDB} data frame.
 }
+
+\examples{
+\donttest{
+tryCatch({
+  df <- download_scielo_search("dengue", limit = 3L, progress = FALSE, timeout = 10)
+  head(df[, c("AU", "TI", "PY")])
+}, error = function(e) message("Service temporarily unavailable."))
+}
+}

@@ -9,6 +9,12 @@
 #' @param convert Logical. If TRUE, directly wraps output with `as_bibliometrix(..., dbsource = "scielo")`. Default is TRUE.
 #' @return A data frame formatted with standard bibliometric tags including `CR`.
 #' @export
+#' @examples
+#' sample_xml <- system.file("extdata", "scielo_sample.xml", package = "bibliolatam")
+#' if (nzchar(sample_xml)) {
+#'   df <- read_scielo_jats(sample_xml, convert = TRUE)
+#'   head(df[, c("AU", "TI", "PY", "CR")])
+#' }
 read_scielo_jats <- function(path, convert = TRUE) {
   if (!is.character(path) || length(path) != 1L || !file.exists(path)) {
     stop("Arquivo ou diretorio nao encontrado ou caminho invalido.", call. = FALSE)
@@ -77,7 +83,7 @@ read_scielo_jats <- function(path, convert = TRUE) {
   out
 }
 
-# Helper interno para extrair nós via regex resiliente sem dependência externa pesada
+# Helper interno para extrair ns via regex resiliente sem dependncia externa pesada
 extract_first_tag <- function(text, tag_name) {
   pattern <- sprintf("<%s\\b[^>]*>(.*?)</%s>", tag_name, tag_name)
   m <- regexec(pattern, text, perl = TRUE)
@@ -104,7 +110,7 @@ parse_single_scielo_jats <- function(file) {
   if (!grepl("<article\\b", xml_text, ignore.case = TRUE)) {
     return(null_or_empty_scielo())
   }
-  # Isola nó front para metadados do artigo
+  # Isola n front para metadados do artigo
   m_front <- regexec("<front\\b[^>]*>(.*?)</front>", xml_text, perl = TRUE)
   reg_front <- regmatches(xml_text, m_front)[[1]]
   front_text <- if (length(reg_front) >= 2) reg_front[2] else xml_text
@@ -226,7 +232,7 @@ parse_single_scielo_jats <- function(file) {
   bp <- extract_first_tag(front_text, "fpage")
   ep <- extract_first_tag(front_text, "lpage")
 
-  # 10. Afiliações (C1)
+  # 10. Afiliaes (C1)
   m_aff <- gregexpr("<aff\\b[^>]*>(.*?)</aff>", front_text, perl = TRUE)
   aff_matches <- regmatches(front_text, m_aff)[[1]]
   c1 <- if (length(aff_matches) > 0) {

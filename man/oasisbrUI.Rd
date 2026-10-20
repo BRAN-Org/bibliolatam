@@ -4,7 +4,10 @@
 \alias{oasisbrUI}
 \title{Oasisbr UI Component for Biblioshiny}
 \usage{
-oasisbrUI()
+oasisbrUI(lang = "en")
+}
+\arguments{
+\item{lang}{Character. Interface language: "en", "pt", or "es". Default is "en".}
 }
 \value{
 A Shiny tagList containing the UI elements.
@@ -14,3 +17,14 @@ Renders the Oasisbr (IBICT) open-access collection panel
 compatible with the biblioshiny AdminLTE layout.
 }
 \keyword{internal}
+
+\examples{
+if (interactive()) {
+  library(shiny)
+  ui <- fluidPage(oasisbrUI())
+  server <- function(input, output, session) {
+    oasisbrServer(input, output, session)
+  }
+  shinyApp(ui, server)
+}
+}

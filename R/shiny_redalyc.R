@@ -2,10 +2,11 @@
 #'
 #' Renders the Redalyc / AmeliCA collection import panel compatible with the biblioshiny layout.
 #'
+#' @param lang Character. Interface language: "en", "pt", or "es". Default is "en".
 #' @return A Shiny tagList containing UI elements.
 #' @keywords internal
 #' @export
-redalycUI <- function() {
+redalycUI <- function(lang = "en") {
   shiny::tagList(
     shiny::fluidRow(
       shiny::column(
@@ -18,12 +19,14 @@ redalycUI <- function() {
           shiny::div(
             style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;",
             shiny::div(
-              shiny::h3(
-                "Redalyc & AmeliCA Collection",
+              shiny::tags$h3(
+                bl_i18n("redalyc_title", lang),
+                `data-i18n` = "redalyc_title",
                 style = "font-weight: bold; margin: 0; color: #2c3e50; display: inline-block;"
               ),
               shiny::tags$span(
-                "Diamond Open Access (Ibero-America)",
+                bl_i18n("redalyc_badge", lang),
+                `data-i18n` = "redalyc_badge",
                 class = "label label-danger",
                 style = "margin-left: 10px; font-size: 12px; vertical-align: middle; background-color: #d35400;"
               )
@@ -33,7 +36,7 @@ redalycUI <- function() {
               shiny::icon("chevron-up"),
               class = "btn-sm btn-default",
               style = "padding: 5px 10px;",
-              title = "Collapse/Expand"
+              title = bl_i18n("btn_collapse", lang)
             )
           ),
 
@@ -55,7 +58,7 @@ redalycUI <- function() {
                   width = 8,
                   shiny::fileInput(
                     "redalycFile",
-                    "Select Redalyc Export File (.bib, .ris, or .csv):",
+                    label = shiny::tags$span(bl_i18n("redalyc_upload_label", lang), `data-i18n` = "redalyc_upload_label"),
                     multiple = FALSE,
                     accept = c(".bib", ".ris", ".txt", ".csv"),
                     width = "100%"
@@ -77,7 +80,7 @@ redalycUI <- function() {
                 style = "margin-top: 10px; display: flex; justify-content: flex-end;",
                 shiny::actionButton(
                   "redalycProcessFile",
-                  "Process Redalyc File",
+                  label = shiny::tags$span(bl_i18n("redalyc_process_btn", lang), `data-i18n` = "redalyc_process_btn"),
                   icon = shiny::icon("cogs"),
                   class = "btn-danger",
                   style = "font-weight: bold; background-color: #d35400; border-color: #ba4a00;"
@@ -99,7 +102,7 @@ redalycUI <- function() {
             style = "background-color: #ffffff; border-top: 3px solid #00a65a; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);",
             shiny::div(
               style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;",
-              shiny::h4("Redalyc Collection Preview & Metrics", style = "font-weight: bold; margin: 0; color: #2c3e50;"),
+              shiny::h4(bl_i18n("redalyc_preview_title", lang), `data-i18n` = "redalyc_preview_title", style = "font-weight: bold; margin: 0; color: #2c3e50;"),
               shiny::div(
                 shiny::downloadButton("redalycDownloadCSV", "Export CSV", class = "btn-sm btn-default"),
                 shiny::downloadButton("redalycDownloadRData", "Export .RData", class = "btn-sm btn-info", style = "margin-left: 5px;"),
@@ -139,10 +142,10 @@ redalycUI <- function() {
 #' @param input Shiny input.
 #' @param output Shiny output.
 #' @param session Shiny session.
-#' @param values ReactiveValues global state.
+#' @param values ReactiveValues global state. Default is NULL.
 #' @keywords internal
 #' @export
-redalycServer <- function(input, output, session, values) {
+redalycServer <- function(input, output, session, values = NULL) {
   redalyc_data <- shiny::reactiveVal(NULL)
 
   output$redalycDataAvailable <- shiny::reactive({
@@ -263,49 +266,64 @@ redalycServer <- function(input, output, session, values) {
     df <- redalyc_data()
     shiny::req(df)
 
-    initial_fn <- get0("initial", envir = parent.frame(), mode = "function")
-    if (is.function(initial_fn)) {
-      values <- initial_fn(values)
-    }
+    is_biblioshiny <- is.function(get0("initial", envir = parent.frame(), mode = "function")) ||
+                      is.function(get0("mergeKeywords", envir = parent.frame(), mode = "function"))
 
-    M <- df
-    merge_fn <- get0("mergeKeywords", envir = parent.frame(), mode = "function")
-    if (is.function(merge_fn)) {
-      M <- merge_fn(M, force = FALSE)
-    }
+    if (is_biblioshiny && !is.null(values)) {
+      initial_fn <- get0("initial", envir = parent.frame(), mode = "function")
+      if (is.function(initial_fn)) {
+        values <- initial_fn(values)
+      }
 
-    values$data_source <- "Redalyc"
-    values$M <- M
-    values$Morig <- M
+      M <- df
+      merge_fn <- get0("mergeKeywords", envir = parent.frame(), mode = "function")
+      if (is.function(merge_fn)) {
+        M <- merge_fn(M, force = FALSE)
+      }
 
-    wc_fn <- get0("wcTable", envir = parent.frame(), mode = "function")
-    if (is.function(wc_fn)) {
-      values$SCdf <- wc_fn(M)
-    }
-    co_fn <- get0("countryTable", envir = parent.frame(), mode = "function")
-    if (is.function(co_fn)) {
-      values$COdf <- co_fn(M)
-    }
+      values$data_source <- "Redalyc"
+      values$M <- M
+      values$Morig <- M
 
-    values$Histfield <- "NA"
-    values$results <- list("NA")
+      wc_fn <- get0("wcTable", envir = parent.frame(), mode = "function")
+      if (is.function(wc_fn)) {
+        values$SCdf <- wc_fn(M)
+      }
+      co_fn <- get0("countryTable", envir = parent.frame(), mode = "function")
+      if (is.function(co_fn)) {
+        values$COdf <- co_fn(M)
+      }
 
-    if (ncol(values$M) > 1) {
-      values$rest_sidebar <- TRUE
-    }
+      values$Histfield <- "NA"
+      values$results <- list("NA")
 
-    shiny::showNotification(
-      "Redalyc collection loaded into Biblioshiny! Analysis menus are now unlocked.",
-      type = "message",
-      duration = 6
-    )
+      if (ncol(values$M) > 1) {
+        values$rest_sidebar <- TRUE
+      }
 
-    modal_api <- get0("missingModalAPI", envir = parent.frame(), mode = "function")
-    modal_std <- get0("missingModal", envir = parent.frame(), mode = "function")
-    if (is.function(modal_api)) {
-      shiny::showModal(modal_api(session))
-    } else if (is.function(modal_std)) {
-      shiny::showModal(modal_std(session))
+      shiny::showNotification(
+        "Redalyc collection loaded into Biblioshiny! Analysis menus are now unlocked.",
+        type = "message",
+        duration = 6
+      )
+
+      modal_api <- get0("missingModalAPI", envir = parent.frame(), mode = "function")
+      modal_std <- get0("missingModal", envir = parent.frame(), mode = "function")
+      if (is.function(modal_api)) {
+        shiny::showModal(modal_api(session))
+      } else if (is.function(modal_std)) {
+        shiny::showModal(modal_std(session))
+      }
+    } else {
+      if (!is.null(values) && (is.environment(values) || inherits(values, "reactivevalues"))) {
+        values$M <- df
+        values$Morig <- df
+      }
+      shiny::showNotification(
+        "Redalyc collection processed and ready! Use the export buttons below to save .RData or .CSV.",
+        type = "message",
+        duration = 5
+      )
     }
   })
 

@@ -2,12 +2,31 @@
 #'
 #' Converts diverse author string formats (e.g. 'Sobrenome, Nome', 'Nome Sobrenome',
 #' with generational suffixes like Junior, Filho, Neto) into the canonical
-#' WoS/bibliometrix format: `SOBRENOME INICIAIS; ...`.
+#' WoS/bibliometrix format: `SOBRENOME INICIAIS; ...`. Supports both scalar strings
+#' and character vectors.
 #'
-#' @param au_str Character string containing one or multiple author names separated by semicolons.
-#' @return A normalized character string, or `NA_character_` if empty.
+#' @param au_str Character vector or scalar string containing one or multiple author names
+#'   separated by semicolons.
+#' @return A normalized character vector of the same length as `au_str`, with `NA_character_`
+#'   for empty or missing entries.
 #' @export
+#' @examples
+#' # Single string with multiple authors
+#' normalize_authors("Batista Filho, Jose Rodrigues; Perez Gomez, Maria del Carmen")
+#'
+#' # Vector of author strings
+#' normalize_authors(c("Silva, Joao", "Santos Junior, Mario", "Maria da Silva"))
 normalize_authors <- function(au_str) {
+  if (is.null(au_str) || length(au_str) == 0L) {
+    return(character(0L))
+  }
+  if (length(au_str) > 1L) {
+    return(vapply(au_str, normalize_single_author, character(1L), USE.NAMES = FALSE))
+  }
+  normalize_single_author(au_str)
+}
+
+normalize_single_author <- function(au_str) {
   if (is.na(au_str) || !nzchar(trimws(au_str))) {
     return(NA_character_)
   }
