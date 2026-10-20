@@ -45,10 +45,19 @@ test_that("normalize_authors ignora particulas minusculas nas iniciais", {
   expect_equal(normalize_authors("Vincent van Gogh"), "GOGH V")
 })
 
+test_that("normalize_authors lida com sobrenomes hispanicos hifenizados", {
+  expect_equal(normalize_authors("Garcia-Marquez, Gabriel"), "GARCIA-MARQUEZ G")
+  expect_equal(normalize_authors("Lopez-Herrera, Antonio"), "LOPEZ-HERRERA A")
+  expect_equal(normalize_authors("Sanchez-Vazquez, Adolfo"), "SANCHEZ-VAZQUEZ A")
+})
+
 test_that("normalize_authors lida com multiplos autores e espacamento sujo", {
   raw_mult <- "Silva, Carlos ; ; Santos, Mariana Costa ;  Oliveira, Lucas "
   res <- normalize_authors(raw_mult)
   expect_equal(res, "SILVA C; SANTOS MC; OLIVEIRA L")
+
+  # Com ponto e virgula no final
+  expect_equal(normalize_authors("Silva, Carlos;"), "SILVA C")
 })
 
 test_that("normalize_authors suporta vetores de caracteres diretamente", {
@@ -56,4 +65,7 @@ test_that("normalize_authors suporta vetores de caracteres diretamente", {
   expected_vec <- c("GAMA G", "SILVA JUNIOR J", "PLATAO", NA_character_, NA_character_)
   res <- normalize_authors(input_vec)
   expect_equal(res, expected_vec)
+
+  # Vetor todo vazio
+  expect_equal(normalize_authors(c(NA_character_, NA_character_)), c(NA_character_, NA_character_))
 })

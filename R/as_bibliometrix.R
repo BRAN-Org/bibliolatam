@@ -49,8 +49,8 @@ as_bibliometrix <- function(df, dbsource = c("spell", "scielo", "bdtd", "oasisbr
   }
 
   # bibliometrix quebra em plot/rede se PY ou TC vierem como character
-  df$PY <- suppressWarnings(as.numeric(df$PY))
-  df$TC <- suppressWarnings(as.numeric(df$TC))
+  df$PY <- suppressWarnings(as.numeric(as.character(df$PY)))
+  df$TC <- suppressWarnings(as.numeric(as.character(df$TC)))
   df$TC[is.na(df$TC)] <- 0
 
   # garante que colunas de texto nao fiquem como factor

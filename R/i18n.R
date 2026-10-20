@@ -155,6 +155,10 @@ BL_I18N_DICT <- list(
 #' @return Translated character string.
 #' @keywords internal
 bl_i18n <- function(key, lang = "en") {
+  if (is.null(key) || !is.character(key) || length(key) == 0L || !nzchar(key[1])) {
+    return(key)
+  }
+
   if (is.null(lang) || !nzchar(lang)) {
     lang <- "en"
   }
