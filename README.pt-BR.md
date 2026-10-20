@@ -6,7 +6,7 @@
   <a href="README.es.md"><img src="docs/assets/badge-espanol.svg" alt="Versión en Español" height="28" /></a>
 </p>
 
-`bibliolatam` é um pacote complementar em R projetado para conectar a literatura científica de acesso aberto da América Latina aos fluxos de análise bibliométrica e cienciométrica do [`bibliometrix`](https://github.com/massimoaria/bibliometrix).
+`bibliolatam` é um pacote em R projetado para conectar a literatura científica de acesso aberto da América Latina, Caribe e Península Ibérica tanto a fluxos de análise independentes (**Modo Standalone**) quanto ao ecossistema cienciométrico do [`bibliometrix`](https://github.com/massimoaria/bibliometrix) e [`biblioshiny`](https://github.com/massimoaria/bibliometrix).
 
 ---
 
@@ -14,13 +14,80 @@
 
 A maioria dos fluxos bibliométricos tradicionais foi construída assumindo bases de dados comerciais e proprietárias do Norte Global (Web of Science, Scopus). Contudo, a produção científica na América Latina e Caribe é historicamente distribuída em modelos não-comerciais de **Acesso Aberto Diamante** (como SciELO, Redalyc e SPELL) e preservada em repositórios nacionais de teses e dissertações (como BDTD e Oasisbr no Brasil, e a federação LA Referencia em 12 países).
 
-Como o núcleo do `bibliometrix` deliberadamente restringe seus conversores nativos às grandes bases internacionais para manter a manutenção sustentável (conforme documentado na [issue #689 do bibliometrix](https://github.com/massimoaria/bibliometrix/issues/689)), o `bibliolatam` atua como um adaptador externo modular. Ele analisa arquivos exportados e consulta APIs REST públicas dessas plataformas, harmoniza os metadados heterogêneos no formato canônico da classe S3 `bibliometrixDB` e oferece integração reativa direta com o `biblioshiny`.
+Como o núcleo do `bibliometrix` deliberadamente restringe seus conversores nativos às grandes bases internacionais para manter a manutenção sustentável (conforme documentado na [issue #689 do bibliometrix](https://github.com/massimoaria/bibliometrix/issues/689)), o `bibliolatam` atua como uma ponte modular e flexível. Ele permite coletar, desduplicar, normalizar e exportar esses dados de maneira **100% autônoma** ou convertê-los no formato canônico da classe S3 `bibliometrixDB` para análises avançadas de redes e cienciometria.
+
+---
+
+## Dois Modos de Operação: Standalone ou Integrado
+
+O `bibliolatam` foi desenhado para ser totalmente desacoplado. Você pode utilizá-lo de duas formas:
+
+### 1. Modo Standalone (Independente)
+* **Sem dependência do `bibliometrix`**: Funciona apenas com o R base e pacotes leves (`shiny`, `jsonlite`, `utils`, `tools`).
+* **Aplicação Web Própria (`run_app()`)**: Inclui uma interface gráfica interativa completa com **suporte trilíngue em tempo real** (🇬🇧 Inglês, 🇧🇷 Português e 🇪🇸 Espanhol).
+* **Coleta e Ingestão Flexível**: Baixa dados diretamente de APIs públicas (SciELO, BDTD, Oasisbr, LA Referencia) ou processa arquivos locais (JATS XML, CSV, TSV, RIS, BibTeX).
+* **Normalização e Desduplicação**: Normaliza autores brasileiros e hispânicos e funde bases com resolução de duplicatas por DOI e título fuzzy.
+* **Exportação Universal**: Exporta datasets harmonizados diretamente para `.csv` ou `.RData` para uso no R, Python, Excel, VOSviewer ou Gephi.
+
+### 2. Modo Integrado (com `bibliometrix` & `biblioshiny`)
+* **Contrato Canônico S3 `bibliometrixDB`**: Converte e valida todos os campos (`TI`, `AU`, `SO`, `PY`, `CR`, `DE`, `DI`, etc.) para conformidade imediata com as rotinas do `bibliometrix`.
+* **Análises Cientométricas Avançadas**: Execução de `biblioAnalysis()`, leis bibliométricas (Bradford, Lotka), mapeamento temático e redes de coautoria.
+* **Redes de Co-citação e Acoplamento**: Ativado pela extração completa de referências citadas (`CR`) de artigos SciELO em JATS XML.
+* **Extensão Nativa do Biblioshiny**: Injeção em 1 clique na sessão ativa (`values$M`) dentro do `biblioshiny` ou importação de arquivos `.RData`.
+
+---
+
+## Comparativo de Recursos por Modo de Uso
+
+| Capacidade / Recurso | Modo Standalone (`bibliolatam`) | Modo Integrado (`bibliolatam` + `bibliometrix`) |
+|:---|:---:|:---:|
+| **Requer `bibliometrix` instalado?** | ❌ Não (Apenas R + Shiny/jsonlite) | ✅ Sim (`bibliometrix` >= 4.0.0) |
+| **Aplicação Web Interativa** | ✅ `bibliolatam::run_app()` (Trilíngue EN/PT/ES) | ✅ Interface do `biblioshiny` |
+| **Busca Federada Online (Omnisearch)** | ✅ Sim (SciELO, BDTD, Oasisbr, LA Referencia) | ✅ Sim |
+| **Ingestão de Arquivos Locais (XML/CSV/RIS/BibTeX)** | ✅ Sim | ✅ Sim |
+| **Extração de Referências Citadas (`CR`)** | ✅ Sim (XML JATS SciELO) | ✅ Sim |
+| **Normalização de Autores Regionais** | ✅ Sim (`normalize_authors`) | ✅ Sim |
+| **Desduplicação e Fusão entre Bases** | ✅ Sim (`merge_bibliolatam`) | ✅ Sim |
+| **Exportação Direta para CSV e .RData** | ✅ Sim | ✅ Sim |
+| **Análise Bibliométrica (`biblioAnalysis`, Bradford)** | ❌ Requer bibliometrix | ✅ Sim |
+| **Redes de Co-citação e Acoplamento (`biblioNetwork`)** | ❌ Requer bibliometrix | ✅ Sim |
+| **Mapas Temáticos e Estrutura Conceitual** | ❌ Requer bibliometrix | ✅ Sim |
+
+---
+
+## Arquitetura e Fluxo dos Dados
+
+```text
+[ Fontes Latino-Americanas e Ibéricas ]
+├── SciELO          (Arquivos: CSV, JATS XML | APIs: Crossref works, XMLs NLM)
+├── BDTD / Oasisbr  (Arquivos: CSV, TSV      | APIs: IBICT VuFind Solr)
+├── LA Referencia   (APIs: VuFind REST v1 cobrindo 12 redes nacionais)
+├── Redalyc         (Arquivos: BibTeX, RIS, CSV)
+└── SPELL / ANPAD   (Arquivos: CSV)
+         │
+         ▼
+[ Motor bibliolatam (Independente) ]
+├── Clientes REST & Parsers Locais (Paginação, tratamento defensivo de rede)
+├── Normalizador de Autores (Sufixos brasileiros e sobrenomes compostos hispânicos)
+├── Desduplicação & Fusão entre Bases (DOI canônico + similaridade de título fuzzy)
+└── Harmonizador Canônico (`as_bibliometrix`)
+         │
+         ├───▶ [ MODO STANDALONE (Sem bibliometrix) ]
+         │     ├── App Web Próprio: `bibliolatam::run_app()` (Trilíngue: EN, PT, ES)
+         │     ├── Exportação Direta: Arquivos `.csv` e `.RData`
+         │     └── Manipulação em R Base / Tidyverse / Python / VOSviewer / Gephi
+         │
+         └───▶ [ MODO INTEGRADO (Com bibliometrix) ]
+               ├── Análise Cientométrica R: `biblioAnalysis()`, Bradford, Lotka
+               ├── Redes de Conhecimento: Co-citação (CR), Coautoria, Acoplamento
+               └── Interface Biblioshiny: Injeção reativa direta em `values$M`
+```
 
 ---
 
 ## Instalação
 
-Você pode instalar a versão estável diretamente do repositório no GitHub:
+Instale a versão estável de desenvolvimento diretamente do GitHub:
 
 ```r
 # Utilizando o pacote remotes
@@ -34,38 +101,13 @@ pak::pkg_install("BRAN-Org/bibliolatam")
 
 ### Requisitos e Dependências
 
-- **Obrigatório**: R (>= 3.6.0).
-- **Para execução de análises**: `bibliometrix` (>= 4.0.0).
-- **Para consultas a APIs REST e interface web**: `jsonlite`, `shiny`.
+- **Obrigatório para o núcleo**: R (>= 3.6.0), `jsonlite`, `utils`, `tools`.
+- **Para a aplicação web interativa própria (`run_app()`)**: `shiny`.
+- **Para análises cientométricas e redes (opcional)**: `bibliometrix` (>= 4.0.0).
 
 ---
 
-## Arquitetura e Fluxo dos Dados
-
-```text
-[ Fontes Latino-Americanas ]
-├── SciELO          (Arquivos: CSV, JATS XML | APIs: Crossref works, XMLs NLM)
-├── BDTD / Oasisbr  (Arquivos: CSV, TSV      | APIs: IBICT VuFind Solr)
-├── LA Referencia   (APIs: VuFind REST v1 cobrindo 12 redes nacionais)
-├── Redalyc         (Arquivos: BibTeX, RIS, CSV)
-└── SPELL / ANPAD   (Arquivos: CSV)
-         │
-         ▼
-[ Motor do bibliolatam ]
-├── Parsers Locais e Clientes REST (Tratamento defensivo de rede e paginação)
-├── Normalizador de Autores (Sufixos geracionais: Filho/Neto e nomes hispânicos)
-├── Deduplicação entre Bases (Resolução por DOI exato e título fuzzy)
-└── Harmonizador Canônico (`as_bibliometrix`)
-         │
-         ▼
-[ Objeto bibliometrixDB ]
-├── Scripts R: `biblioAnalysis()`, `biblioNetwork()`, etc.
-└── Interface Gráfica: Injeção direta no `biblioshiny` ou exportação para `.RData`
-```
-
----
-
-## Fontes Suportadas e Modos de Uso
+## Fontes Suportadas e Métodos de Acesso
 
 | Fonte | Escopo Geográfico | Tipologia | Modo de Ingestão | Destaques Técnicos |
 |:---|:---|:---|:---|:---|
@@ -81,17 +123,39 @@ pak::pkg_install("BRAN-Org/bibliolatam")
 
 ## Tutoriais Práticos e Exemplos
 
-### 1. Omnisearch Federado (Busca Online Simultânea)
+### Fluxo 1: Aplicação Web Standalone (Trilíngue)
 
-Consulte múltiplas bases simultaneamente em uma única linha de código, com filtro de anos direto nas APIs e deduplicação automática:
+O `bibliolatam` inclui sua própria aplicação web interativa em Shiny. Não requer `bibliometrix` para ser executada:
 
 ```r
 library(bibliolatam)
-library(bibliometrix)
 
-# Consulta unificada em SciELO, BDTD, Oasisbr e LA Referencia
-resultados <- omnisearch_bibliolatam(
-  query = "energia solar",
+# Inicia o aplicativo interativo no seu navegador padrão
+run_app()
+
+# Ou configurando porta e idioma inicial (en, pt ou es)
+run_app(port = 7860, default_lang = "pt")
+```
+
+**Recursos do Aplicativo Standalone:**
+* **Seletor de Idiomas em Tempo Real**: Alterne entre 🇬🇧 English, 🇧🇷 Português e 🇪🇸 Español diretamente no cabeçalho sem perder o estado dos formulários ou termos digitados.
+* **Módulo Omnisearch**: Consulte SciELO, BDTD, Oasisbr e LA Referencia simultaneamente com filtros de ano, limites e desduplicação automática.
+* **Portais Específicos**: Abas dedicadas para SciELO (busca por DOIs/PIDs ou upload JATS XML), BDTD (filtro de mestrado/doutorado), Oasisbr e Redalyc.
+* **Unificação e Fusão**: Interface visual para carregar duas bases e aplicar desduplicação por similaridade.
+* **Exportação Direta**: Baixe datasets harmonizados em `.csv` ou `.RData` com um clique.
+
+---
+
+### Fluxo 2: Modo Standalone via Scripts R (Sem bibliometrix)
+
+Você pode realizar buscas, extrações e desduplicações em lote usando apenas funções do `bibliolatam`:
+
+```r
+library(bibliolatam)
+
+# 1. Busca federada em 4 bases simultaneamente
+dados_unificados <- omnisearch_bibliolatam(
+  query = "inteligencia artificial saude",
   sources = c("scielo", "bdtd", "oasisbr", "lareferencia"),
   limit_per_source = 50,
   years = c(2020, 2024),
@@ -99,90 +163,68 @@ resultados <- omnisearch_bibliolatam(
   progress = TRUE
 )
 
-# Executa as análises do bibliometrix diretamente
-analise <- biblioAnalysis(resultados)
-summary(analise)
+# 2. Verificar resumo dos dados coletados
+table(dados_unificados$DB)
+
+# 3. Exportar diretamente para CSV para análise em qualquer ferramenta
+write.csv(dados_unificados, "pesquisa_saude_latam.csv", row.names = FALSE)
 ```
 
-### 2. Busca Automatizada via APIs REST Específicas
+---
 
-Consulte repositórios específicos diretamente via R, sem necessidade de baixar arquivos pelo navegador:
+### Fluxo 3: Modo Integrado com bibliometrix (Análises Cientométricas)
 
-```r
-library(bibliolatam)
-
-# 1. Teses e dissertações brasileiras na BDTD
-teses <- download_bdtd(
-  query = "inteligencia artificial saude",
-  limit = 50,
-  years = c(2021, 2024)
-)
-
-# 2. Artigos do SciELO enriquecidos com Referências Citadas (CR) via JATS XML
-artigos <- download_scielo_search(
-  query = "vacina dengue",
-  limit = 30,
-  years = c(2020, 2024),
-  enrich_references = TRUE
-)
-
-# 3. Repositórios de 12 países via LA Referencia
-paises_latinos <- download_lareferencia(
-  query = "mudancas climaticas",
-  limit = 50,
-  years = c(2019, 2024)
-)
-```
-
-### 3. Leitura de Arquivos Exportados dos Portais
-
-Para coletas amplas realizadas diretamente na interface web dos portais oficiais:
+Quando o pacote `bibliometrix` está instalado, todo dataset gerado pelo `bibliolatam` é reconhecido nativamente como um objeto `bibliometrixDB`:
 
 ```r
 library(bibliolatam)
 library(bibliometrix)
 
-# SciELO: CSV exportado ou XML NLM/JATS
-df_scielo <- read_scielo("scielo_busca.csv")
-df_jats   <- read_scielo_jats("artigo_scielo.xml")
+# Coletar artigos do SciELO enriquecidos com referências citadas (CR)
+scielo_corpus <- download_scielo_search(
+  query = "vacina dengue",
+  limit = 40,
+  years = c(2018, 2024),
+  enrich_references = TRUE
+)
 
-# BDTD / Oasisbr: Exportações em CSV ou TSV
-df_bdtd <- read_bdtd("teses_bdtd.csv")
+# 1. Análise bibliométrica global
+analise <- biblioAnalysis(scielo_corpus)
+summary(analise, k = 10)
 
-# Redalyc: Arquivos BibTeX, RIS ou CSV
-df_redalyc <- read_redalyc("redalyc_export.bib")
+# 2. Rede de co-citação de referências (requer CR, presente no SciELO JATS XML)
+rede_cocitacao <- biblioNetwork(
+  scielo_corpus,
+  analysis = "co-citation",
+  network = "references",
+  sep = ";"
+)
+networkPlot(rede_cocitacao, n = 30, type = "fruchterman", size = TRUE)
 
-# SPELL: CSV da ANPAD (Administração/Economia)
-df_spell <- read_spell("spell_artigos.csv")
-
-# Validação e garantia do contrato bibliometrixDB
-M <- as_bibliometrix(df_scielo, dbsource = "scielo")
+# 3. Rede de colaboração entre autores
+rede_coautoria <- biblioNetwork(
+  scielo_corpus,
+  analysis = "collaboration",
+  network = "authors",
+  sep = ";"
+)
+networkPlot(rede_coautoria, n = 30, type = "sphere", Title = "Coautoria")
 ```
 
-### 4. Fusão e Deduplicação entre Bases Heterogêneas
+---
 
-Para unir conjuntos de dados de origens diferentes eliminando redundâncias:
+### Fluxo 4: Modo Integrado com biblioshiny
 
-```r
-library(bibliolatam)
+Você pode usar o `bibliolatam` dentro da interface gráfica oficial do `biblioshiny` de duas formas:
 
-# Unifica duas coleções (ex.: SciELO + Oasisbr)
-# Resolve duplicatas por DOI normalizado e similaridade de título (Levenshtein)
-corpus_unificado <- merge_bibliolatam(df_scielo, df_bdtd, match_by = c("doi", "title"))
-```
-
-### 5. Interface Gráfica no Biblioshiny
-
-1. **Exportação Direta para .RData**:
+1. **Exportação de `.RData` para Carga Manual**:
    ```r
-   export_biblioshiny(resultados, "corpus_latino.RData")
+   export_biblioshiny(dados_unificados, "meu_corpus.RData")
    ```
-   Abra o `biblioshiny::biblioshiny()` -> menu *Data -> Load bibliometrix RData* -> carregue o arquivo gerado.
+   Abra `biblioshiny::biblioshiny()`, acesse o menu *Data -> Load bibliometrix RData* e selecione o arquivo gerado.
 
-2. **Módulos Integrados do Bibliolatam**:
-   Ao executar o Biblioshiny com o `bibliolatam` instalado, utilize o menu lateral **Bibliolatam**:
-   - **Omnisearch**: Pesquisa federada, filtros temporais, cartões métricos, download de CSV/.RData e injeção em 1 clique na sessão ativa (`values$M`).
-   - **Portais Específicos**: SciELO, BDTD, Oasisbr, Redalyc e Mesclagem de Coleções.
+2. **Uso dos Módulos Bibliolatam no Biblioshiny**:
+   Ao iniciar o Biblioshiny em um ambiente onde o `bibliolatam` está instalado, os módulos regionais (`scieloUI`, `bdtdUI`, `omnisearchUI`) ficam acessíveis para carregar dados diretamente na sessão ativa (`values$M`) sem necessidade de salvar arquivos intermediários.
 
 ---
 
@@ -194,31 +236,31 @@ Veja a matriz de compatibilidade com as rotinas do `bibliometrix`:
 
 | Módulo Analítico | Campos Necessários | Fontes Regionais Suportadas | Comportamento Prático |
 |:---|:---|:---|:---|
-| **Produção Anual e Dinâmica** | `PY`, `SO`, `DT` | **Todas** (SciELO, BDTD, Oasisbr, Redalyc, LA Referencia, SPELL) | **100% Funcional**. Produção científica anual, Lei de Bradford e relevância de periódicos/instituições operam nativamente. |
-| **Estrutura Conceitual e Tópicos** | `TI`, `AB`, `DE`, `ID` | **Todas** | **100% Funcional**. Redes de coocorrência de termos, mapas temáticos (`thematicMap`) e análise fatorial (MCA) funcionam perfeitamente. |
-| **Redes Sociais e Colaboração** | `AU`, `C1`, `RP` | **Todas** | **100% Funcional**. Nomes normalizados por `normalize_authors()`. A BDTD mapeia orientadores acadêmicos em `RP`. |
-| **Estrutura Intelectual (Cocitação e Acoplamento)** | `CR` (Cited References) | **SciELO (via JATS XML)** | **Suportado no SciELO**: O parser JATS e o enriquecimento (`enrich_references = TRUE`) reconstroem o `<ref-list>` em `CR`.<br>**Não Disponível em BDTD / LA Referencia / Redalyc CSV**: Essas plataformas não extraem bibliografias de dentro dos PDFs em suas APIs. |
-| **Métricas de Impacto e Citações Globais** | `TC` (Times Cited) | N/A (inicializado como `0`) | **Campo Presente, Métrica Limitada**: APIs abertas públicas não fornecem índices de citação proprietários. `TC` é preenchido com `0` para que o `bibliometrix` não quebre, mas rankings por citação refletirão dados não indexados comercialmente. |
+| **Produção Anual e Crescimento** | `PY`, `SO`, `DT` | **Todas** (SciELO, BDTD, Oasisbr, Redalyc, LA Referencia, SPELL) | **100% Funcional**. Produção científica anual, lei de Bradford e relevância de periódicos funcionam nativamente. |
+| **Estrutura Conceitual e Tópicos** | `TI`, `AB`, `DE`, `ID` | **Todas** | **100% Funcional**. Redes de coocorrência de palavras-chave, mapas temáticos (`thematicMap`) e análise fatorial (MCA) funcionam perfeitamente. |
+| **Redes de Colaboração (Coautoria)** | `AU`, `C1`, `RP` | **Todas** | **100% Funcional**. Normalizado por `normalize_authors()` (trata sufixos de parentesco e sobrenomes hispânicos). BDTD mapeia orientadores acadêmicos em `RP`. |
+| **Estrutura Intelectual (Co-citação e Acoplamento)** | `CR` (Referências Citadas) | **SciELO (via JATS XML)** | **Suportado no SciELO**: `read_scielo_jats()` e `download_scielo_search(enrich_references = TRUE)` reconstroem o `<ref-list>` no campo `CR`.<br>**Não Disponível em BDTD / LA Referencia / Redalyc CSV**: Repositórios não indexam bibliografias completas em formato estruturado. |
+| **Impacto e Citações Recebidas** | `TC` (Times Cited) | N/A (inicializado como `0`) | **Campo Presente, Métrica Limitada**: APIs públicas não fornecem contadores globais de citação proprietários. `TC` é inicializado como `0` para que as rotinas do `bibliometrix` não quebrem, mas ranqueamentos por citação refletirão a ausência desse índice. |
 
 ---
 
-## Contrato de Dados: `bibliometrixDB`
+## Contrato de Metadados: `bibliometrixDB`
 
-Todo data frame gerado pelo `bibliolatam` possui a classe S3 `bibliometrixDB` e obedece às tags padrão do Web of Science:
+Todo data frame gerado pelo `bibliolatam` herda a classe S3 `bibliometrixDB` e padroniza as colunas nas convenções da Web of Science:
 
-- `TI` (Título), `AU` (Autores: `SOBRENOME INICIAIS; ...`), `SO` (Periódico ou Instituição da Tese).
-- `PY` (Ano de publicação, numérico), `DE` (Palavras-chave do autor), `AB` (Resumo), `C1` (Afiliações), `RP` (Orientador/Reprint).
-- `CR` (Referências Citadas), `TC` (Contagem de citações), `DI` (DOI limpo), `DT` (Tipo de documento), `LA` (Idioma).
-- `DB` (Base de dados de origem), `SR` e `SR_FULL` (Referências padrão para rotinas de matrizes), `JI` e `J9` (Abreviações de periódico).
+- `TI` (Título), `AU` (Autores: `SOBRENOME INICIAIS; ...`), `SO` (Periódico / Instituição de Pós-Graduação).
+- `PY` (Ano, numérico), `DE` (Palavras-chave de autor), `AB` (Resumo), `C1` (Afiliações), `RP` (Orientador/Autor correspondente).
+- `CR` (Referências citadas), `TC` (Contagem de citações), `DI` (DOI canônico), `DT` (Tipo de documento), `LA` (Idioma).
+- `DB` (Base de origem), `SR` & `SR_FULL` (Identificadores para matrizes), `JI` & `J9` (Identificadores de periódico).
 
-Campos não presentes na fonte original são preenchidos com `NA` (ou `0` para citações), preservando a integridade dos dados sem invenção de registros.
+Campos não suportados pela fonte são preenchidos como `NA` (ou `0` para citações) de forma transparente, sem fabricação de dados.
 
 ---
 
-## Princípios e Licença
+## Princípios e Licenciamento Duplo
 
-- **[Princípios FAIR](https://www.gofair.foundation/fair-principles)**: Promovendo Encontrabilidade, Acessibilidade, Interoperabilidade e Reusabilidade para a ciência do Sul Global.
-- **[Declaração BOAI](https://www.budapestopenaccessinitiative.org/)**: Compromisso estrito com infraestruturas de Acesso Aberto Diamante.
-- **Licença Dupla**:
-  - **Código-Fonte**: [GNU General Public License v3.0 (GPL-3.0)](https://www.gnu.org/licenses/gpl-3.0.html) - Garantia de software livre com copyleft.
-  - **Dados de Exemplo (`inst/extdata/`)**: [Creative Commons Atribuição-NãoComercial-CompartilhaIgual 4.0 (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/) - Para pesquisa e validação acadêmica.
+- **[Princípios FAIR](https://www.gofair.foundation/fair-principles)**: Localizabilidade, Acessibilidade, Interoperabilidade e Reusabilidade para a ciência do Sul Global.
+- **[BOAI](https://www.budapestopenaccessinitiative.org/)**: Alinhamento estrito à Iniciativa de Acesso Aberto de Budapeste e à comunicação científica não-comercial.
+- **Licenciamento Duplo**:
+  - **Código-Fonte**: [GNU General Public License v3.0 (GPL-3.0)](https://www.gnu.org/licenses/gpl-3.0.html) - Software livre copyleft garantindo abertura contínua.
+  - **Fixtures de Amostra (`inst/extdata/`)**: [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/) - Uso exclusivo para validação acadêmica e testes, com cláusula de proteção contra raspagem para IA comercial.
