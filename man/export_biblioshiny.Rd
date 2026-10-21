@@ -18,7 +18,6 @@ Invisibly returns the normalized path of the saved file.
 Saves the bibliometric data frame as an \code{.RData} file ready to be loaded
 directly in the \code{biblioshiny} web interface under 'Data -> Load bibliometrix RData'.
 }
-
 \examples{
 df <- data.frame(
   AU = "SILVA J",

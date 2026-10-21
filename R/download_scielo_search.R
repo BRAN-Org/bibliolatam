@@ -81,7 +81,7 @@ download_scielo_search <- function(query,
       "&offset=", as.integer(offset)
     )
 
-    h <- c("User-Agent" = "bibliolatam/1.0.0 (mailto:suporte@bran.org)")
+    h <- c("User-Agent" = "bibliolatam/1.0.0 (mailto:gabrielngama@gmail.com)")
 
     conn <- tryCatch(
       url(req_url, open = "rb", headers = h),

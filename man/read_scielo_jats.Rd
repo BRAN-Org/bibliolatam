@@ -20,7 +20,6 @@ Extracts core metadata tags (\code{AU}, \code{TI}, \code{SO}, \code{PY}, \code{A
 and reconstructs the canonical Cited References (\code{CR}) tag from \verb{<ref-list>} for cocitation
 and bibliographic coupling workflows in \code{bibliometrix}.
 }
-
 \examples{
 sample_xml <- system.file("extdata", "scielo_sample.xml", package = "bibliolatam")
 if (nzchar(sample_xml)) {

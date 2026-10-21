@@ -16,14 +16,3 @@ A Shiny tagList containing UI elements.
 Renders the Latin American scientific Omnisearch panel compatible with biblioshiny.
 }
 \keyword{internal}
-
-\examples{
-if (interactive()) {
-  library(shiny)
-  ui <- fluidPage(omnisearchUI())
-  server <- function(input, output, session) {
-    omnisearchServer(input, output, session)
-  }
-  shinyApp(ui, server)
-}
-}

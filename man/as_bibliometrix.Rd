@@ -21,7 +21,6 @@ A data frame with class \code{c("bibliometrixDB", "data.frame")} ready for bibli
 \description{
 Convert raw parsed data to a bibliometrix-compatible object
 }
-
 \examples{
 df <- data.frame(
   AU = "SILVA J; SANTOS M",

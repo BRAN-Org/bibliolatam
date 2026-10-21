@@ -19,9 +19,8 @@ A data frame formatted with standard bibliometric tags.
 }
 \description{
 Reads and standardizes tabular exports (CSV, TSV) from the Biblioteca Digital
-Brasileira de Teses e Dissertações (BDTD) or Oasisbr portal (IBICT).
+Brasileira de Teses e Dissertaes (BDTD) or Oasisbr portal (IBICT).
 }
-
 \examples{
 sample_file <- system.file("extdata", "bdtd_sample.csv", package = "bibliolatam")
 if (nzchar(sample_file)) {

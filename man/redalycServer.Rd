@@ -13,24 +13,9 @@ redalycServer(input, output, session, values = NULL)
 
 \item{session}{Shiny session.}
 
-\item{values}{ReactiveValues global state.}
-}
-
-\value{
-An observer handle or NULL.
+\item{values}{ReactiveValues global state. Default is NULL.}
 }
 \description{
 Redalyc Server Logic for Biblioshiny
 }
 \keyword{internal}
-
-\examples{
-if (interactive()) {
-  library(shiny)
-  ui <- fluidPage(redalycUI())
-  server <- function(input, output, session) {
-    redalycServer(input, output, session)
-  }
-  shinyApp(ui, server)
-}
-}

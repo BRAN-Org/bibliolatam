@@ -11,8 +11,10 @@
 #' @return A Shiny app object.
 #' @export
 #' @examples
+#' \dontrun{
 #' if (interactive()) {
 #'   run_app()
+#' }
 #' }
 run_app <- function(port = getOption("shiny.port"),
                     host = getOption("shiny.host", "127.0.0.1"),

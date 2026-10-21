@@ -43,7 +43,6 @@ retrieving metadata records for peer-reviewed journal articles across SciELO col
 (Brazil, Colombia, Mexico, Chile, Argentina, etc.), and parses them into a standardized
 \code{bibliometrixDB} data frame.
 }
-
 \examples{
 \donttest{
 tryCatch({

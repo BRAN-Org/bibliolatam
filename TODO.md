@@ -21,14 +21,17 @@
 - [x] Standalone interactive Shiny application launcher (`run_app()`)
 
 ## CRAN Submission Readiness
-- [x] Standardize `DESCRIPTION` (`Imports` for `jsonlite`/`utils`/`tools`, valid corporate authorship for BRAN Org, compliant Description text)
+- [x] Standardize `DESCRIPTION` (`Imports` for `jsonlite`/`utils`/`tools`, compliant Description text)
 - [x] Harmonize versioning across code, docs, and HTTP User-Agents (`1.0.0`)
+- [x] Update maintainer details (`Gabriel Gama <gabrielngama@gmail.com>`), ORCID (`0009-0000-3113-9820`), and institutional contribution (`BRAN Org` as `ctb`) across `DESCRIPTION`, `CITATION`, `CITATION.cff`, and `.zenodo.json`
 - [x] Add executable `@examples` to all 28 exported functions in Roxygen documentation
 - [x] Add `@return` / `\value` documentation for all Shiny server modules
 - [x] Sanitize non-ASCII / corrupted mojibake characters in R comments and roxygen tags
 - [x] Make Shiny server modules resilient to standalone mode (`values = NULL` fallback)
 - [x] Create `cran-comments.md` documenting testing environments and check results
 - [x] Create introductory package vignette (`vignettes/introduction-to-bibliolatam.Rmd`)
+- [ ] Pre-flight submission check via Win-Builder (`R-release` and `R-devel`)
+- [ ] Official CRAN submission form submission (`cransubmit`)
 
 ## Developer Tooling & Agent Guidelines
 - [x] Create `AGENTS.md`: repository architecture, code standards, and execution protocols for AI coding agents
@@ -38,3 +41,9 @@
 - [x] Dynamic in-app language switcher in `run_app()` header preserving form inputs
 - [x] Full Spanish documentation (`README.es.md`) and trilingual navigation badges across all README files
 - [x] Unit test coverage for translations and localized UI components (`test-i18n.R`)
+
+## Post-CRAN Roadmap (v1.1.0+)
+- [ ] OpenAlex Latin American harvester backend
+- [ ] Canopy clustering and string distance heuristics for advanced author disambiguation
+- [ ] Automated co-citation and bibliographic coupling graph export for Gephi / Pajek
+
