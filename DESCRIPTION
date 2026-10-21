@@ -2,8 +2,18 @@ Package: bibliolatam
 Title: Latin American Bibliographic Data Parsers for 'bibliometrix'
 Version: 1.0.0
 Authors@R: c(
-    person("Gabriel", "Gama", role = c("aut", "cre"), email = "contato@bran.org"),
-    person(given = "BRAN Org", role = "cph")
+    person(
+      given = "Gabriel",
+      family = "Gama",
+      role = c("aut", "cre", "cph"),
+      email = "gabrielngama@gmail.com",
+      comment = c(ORCID = "0009-0000-3113-9820")
+    ),
+    person(
+      given = "BRAN Org",
+      role = "ctb",
+      comment = "Institutional support and hosting"
+    )
   )
 Description: Provides parsers and conversion pipelines to adapt Latin
     American open-access bibliographic databases (such as SciELO, SPELL,
@@ -25,4 +35,4 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
-Config/roxygen2/version: 8.1.0
+Config/roxygen2/version: 8.1.1

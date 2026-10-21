@@ -19,4 +19,4 @@ There are currently no reverse dependencies (initial release).
 
 ### Notes for CRAN Gatekeepers
 - **Network calls**: Functions querying remote repositories (`download_scielo_search`, `download_bdtd`, `download_oasisbr`, `download_lareferencia`, `omnisearch_bibliolatam`) contain defensive error handling (`tryCatch`) and their unit tests and documentation examples use `skip_on_cran()` and `\donttest{}` to ensure zero internet requests during CRAN package checks.
-- **Corporate copyright**: The organization BRAN Org is declared as copyright holder (`role = "cph"`) using `given = "BRAN Org"` in `Authors@R`.
+- **Authorship and Copyright**: Gabriel Gama is the author, maintainer, and copyright holder (`role = c("aut", "cre", "cph")`). BRAN Org provides institutional and hosting support as a contributor (`role = "ctb"`).

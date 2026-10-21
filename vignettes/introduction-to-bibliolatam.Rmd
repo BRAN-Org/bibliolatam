@@ -1,6 +1,6 @@
 ---
 title: "Introduction to bibliolatam: Latin American Bibliographic Data Parsers"
-author: "Gabriel Gama, BRAN Org"
+author: "Gabriel Gama"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >

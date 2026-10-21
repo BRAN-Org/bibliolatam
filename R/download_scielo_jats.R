@@ -67,7 +67,7 @@ download_scielo_jats <- function(ids,
           url = xml_url,
           destfile = target_file,
           quiet = TRUE,
-          headers = c("User-Agent" = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) bibliolatam/0.1")
+          headers = c("User-Agent" = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) bibliolatam/1.0.0")
         )
         file.exists(target_file) && is_valid_scielo_xml(target_file)
       }, error = function(e) {
@@ -122,7 +122,7 @@ get_headers_with_retry <- function(url, redirect = TRUE, retries = 3L) {
 resolve_via_crossref <- function(doi) {
   tryCatch({
     api_url <- paste0("https://api.crossref.org/works/", doi)
-    con <- url(api_url, headers = c("User-Agent" = "bibliolatam/0.1 (mailto:contato@bran.org)"))
+    con <- url(api_url, headers = c("User-Agent" = "bibliolatam/1.0.0 (mailto:gabrielngama@gmail.com)"))
     on.exit(close(con), add = TRUE)
     txt <- paste(readLines(con, warn = FALSE), collapse = " ")
     if (!grepl("\"resource\"", txt)) return(NULL)
