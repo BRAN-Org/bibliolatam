@@ -20,7 +20,6 @@ supporting BibTeX (\code{.bib}), RIS (\code{.ris}), and tabular CSV/TSV formats.
 Standardizes author names via \code{\link[=normalize_authors]{normalize_authors()}}, maps Hispanic compound surnames,
 and returns a canonical \code{bibliometrixDB} object.
 }
-
 \examples{
 \donttest{
 # When a Redalyc export file (.bib, .ris, or .csv) is available:

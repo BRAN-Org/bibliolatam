@@ -3,6 +3,7 @@
 #' Provides trilingual support (English, Portuguese, Spanish) across all
 #' UI components, notifications, metrics, and exports.
 #'
+#' @name i18n
 #' @keywords internal
 NULL
 

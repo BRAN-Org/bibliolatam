@@ -32,11 +32,10 @@ A \code{data.frame} with class \code{c("bibliometrixDB", "data.frame")} containi
 }
 \description{
 Queries the official REST API of LA Referencia (Red Federada de Repositorios
-Institucionales de Publicaciones Científicas), retrieving metadata records
+Institucionales de Publicaciones Cientficas), retrieving metadata records
 across 12 Latin American national repository networks, and parses them into
 a standardized \code{bibliometrixDB} data frame.
 }
-
 \examples{
 \donttest{
 tryCatch({

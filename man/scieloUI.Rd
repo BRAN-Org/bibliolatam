@@ -16,8 +16,6 @@ A Shiny tagList containing the UI elements.
 Renders the SciELO data collection and import panel compatible with
 biblioshiny AdminLTE layout.
 }
-\keyword{internal}
-
 \examples{
 if (interactive()) {
   library(shiny)
@@ -28,3 +26,4 @@ if (interactive()) {
   shinyApp(ui, server)
 }
 }
+\keyword{internal}

@@ -13,24 +13,9 @@ bibliolatamMergeServer(input, output, session, values = NULL)
 
 \item{session}{Shiny session.}
 
-\item{values}{ReactiveValues global state.}
-}
-
-\value{
-An observer handle or NULL.
+\item{values}{ReactiveValues global state. Default is NULL.}
 }
 \description{
 Bibliolatam Merge Server Logic for Biblioshiny
 }
 \keyword{internal}
-
-\examples{
-if (interactive()) {
-  library(shiny)
-  ui <- fluidPage(bibliolatamMergeUI())
-  server <- function(input, output, session) {
-    bibliolatamMergeServer(input, output, session)
-  }
-  shinyApp(ui, server)
-}
-}

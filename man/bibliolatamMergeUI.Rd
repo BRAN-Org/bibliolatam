@@ -16,14 +16,3 @@ A Shiny tagList containing UI elements.
 Renders the Cross-Database Deduplication & Merge panel compatible with biblioshiny.
 }
 \keyword{internal}
-
-\examples{
-if (interactive()) {
-  library(shiny)
-  ui <- fluidPage(bibliolatamMergeUI())
-  server <- function(input, output, session) {
-    bibliolatamMergeServer(input, output, session)
-  }
-  shinyApp(ui, server)
-}
-}

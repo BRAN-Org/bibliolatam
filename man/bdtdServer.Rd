@@ -13,17 +13,14 @@ bdtdServer(input, output, session, values = NULL)
 
 \item{session}{Shiny session object.}
 
-\item{values}{ReactiveValues object from biblioshiny containing global state.}
+\item{values}{ReactiveValues object from biblioshiny containing global state (optional).}
 }
-
 \value{
 An observer handle or NULL.
 }
 \description{
 Connects BDTD UI events with package parsers and the biblioshiny reactive state.
 }
-\keyword{internal}
-
 \examples{
 if (interactive()) {
   library(shiny)
@@ -34,3 +31,4 @@ if (interactive()) {
   shinyApp(ui, server)
 }
 }
+\keyword{internal}

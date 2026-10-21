@@ -15,8 +15,6 @@ A Shiny tagList containing the UI elements.
 \description{
 Renders the information and documentation tab for Bibliolatam inside biblioshiny.
 }
-\keyword{internal}
-
 \examples{
 if (interactive()) {
   library(shiny)
@@ -25,3 +23,4 @@ if (interactive()) {
   shinyApp(ui, server)
 }
 }
+\keyword{internal}

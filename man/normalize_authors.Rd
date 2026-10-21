@@ -7,17 +7,19 @@
 normalize_authors(au_str)
 }
 \arguments{
-\item{au_str}{Character string containing one or multiple author names separated by semicolons.}
+\item{au_str}{Character vector or scalar string containing one or multiple author names
+separated by semicolons.}
 }
 \value{
-A normalized character string, or \code{NA_character_} if empty.
+A normalized character vector of the same length as \code{au_str}, with \code{NA_character_}
+for empty or missing entries.
 }
 \description{
 Converts diverse author string formats (e.g. 'Sobrenome, Nome', 'Nome Sobrenome',
 with generational suffixes like Junior, Filho, Neto) into the canonical
-WoS/bibliometrix format: \verb{SOBRENOME INICIAIS; ...}.
+WoS/bibliometrix format: \verb{SOBRENOME INICIAIS; ...}. Supports both scalar strings
+and character vectors.
 }
-
 \examples{
 # Single string with multiple authors
 normalize_authors("Batista Filho, Jose Rodrigues; Perez Gomez, Maria del Carmen")

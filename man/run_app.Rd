@@ -29,7 +29,9 @@ bibliographic data collectors, parsers, and merging tools with full
 trilingual support (English, Portuguese, Spanish).
 }
 \examples{
+\dontrun{
 if (interactive()) {
   run_app()
+}
 }
 }

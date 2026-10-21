@@ -15,23 +15,8 @@ omnisearchServer(input, output, session, values = NULL)
 
 \item{values}{Biblioshiny reactive values container.}
 }
-
-\value{
-An observer handle or NULL.
-}
 \description{
 Handles the reactive flow of the Omnisearch engine panel, running multi-source
 queries, updating metrics, previewing harmonized datasets, and pushing results into \code{values$M}.
 }
 \keyword{internal}
-
-\examples{
-if (interactive()) {
-  library(shiny)
-  ui <- fluidPage(omnisearchUI())
-  server <- function(input, output, session) {
-    omnisearchServer(input, output, session)
-  }
-  shinyApp(ui, server)
-}
-}

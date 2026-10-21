@@ -42,12 +42,3 @@ endpoints using standard DOIs, classic PIDs (\code{S...}), or SciELO article URL
 Follows HTTP redirections using base R networking, validates XML payload integrity,
 and optionally parses the downloaded files directly into a \code{bibliometrixDB} data frame.
 }
-
-\examples{
-\donttest{
-tryCatch({
-  df <- download_scielo_jats("10.1590/S0034-8910.2014048004911", timeout = 10)
-  head(df[, c("AU", "TI", "PY")])
-}, error = function(e) message("Service temporarily unavailable."))
-}
-}
