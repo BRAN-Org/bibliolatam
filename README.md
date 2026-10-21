@@ -1,9 +1,9 @@
 # bibliolatam: Latin American Bibliographic Data Adapters for 'bibliometrix'
 
 <p align="left">
-  <a href="README.md"><img src="docs/assets/badge-english.svg" alt="English Version" height="28" /></a>
-  <a href="README.pt-BR.md"><img src="docs/assets/badge-portugues.svg" alt="Versão em Português" height="28" /></a>
-  <a href="README.es.md"><img src="docs/assets/badge-espanol.svg" alt="Versión en Español" height="28" /></a>
+  <a href="https://github.com/BRAN-Org/bibliolatam/blob/main/README.md"><img src="https://raw.githubusercontent.com/BRAN-Org/bibliolatam/main/docs/assets/badge-english.svg" alt="English Version" height="28" /></a>
+  <a href="https://github.com/BRAN-Org/bibliolatam/blob/main/README.pt-BR.md"><img src="https://raw.githubusercontent.com/BRAN-Org/bibliolatam/main/docs/assets/badge-portugues.svg" alt="Versão em Português" height="28" /></a>
+  <a href="https://github.com/BRAN-Org/bibliolatam/blob/main/README.es.md"><img src="https://raw.githubusercontent.com/BRAN-Org/bibliolatam/main/docs/assets/badge-espanol.svg" alt="Versión en Español" height="28" /></a>
 </p>
 
 `bibliolatam` is an R package designed to bridge Latin American, Caribbean, and Iberian open-access scientific repositories both for self-contained exploration (**Standalone Mode**) and for deep scientometric pipelines in [`bibliometrix`](https://github.com/massimoaria/bibliometrix) and [`biblioshiny`](https://github.com/massimoaria/bibliometrix).

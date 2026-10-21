@@ -1,9 +1,9 @@
 # bibliolatam: Adaptadores de Dados Bibliográficos Latino-Americanos para o 'bibliometrix'
 
 <p align="left">
-  <a href="README.md"><img src="docs/assets/badge-english.svg" alt="English Version" height="28" /></a>
-  <a href="README.pt-BR.md"><img src="docs/assets/badge-portugues.svg" alt="Versão em Português" height="28" /></a>
-  <a href="README.es.md"><img src="docs/assets/badge-espanol.svg" alt="Versión en Español" height="28" /></a>
+  <a href="https://github.com/BRAN-Org/bibliolatam/blob/main/README.md"><img src="https://raw.githubusercontent.com/BRAN-Org/bibliolatam/main/docs/assets/badge-english.svg" alt="English Version" height="28" /></a>
+  <a href="https://github.com/BRAN-Org/bibliolatam/blob/main/README.pt-BR.md"><img src="https://raw.githubusercontent.com/BRAN-Org/bibliolatam/main/docs/assets/badge-portugues.svg" alt="Versão em Português" height="28" /></a>
+  <a href="https://github.com/BRAN-Org/bibliolatam/blob/main/README.es.md"><img src="https://raw.githubusercontent.com/BRAN-Org/bibliolatam/main/docs/assets/badge-espanol.svg" alt="Versión en Español" height="28" /></a>
 </p>
 
 `bibliolatam` é um pacote em R projetado para conectar a literatura científica de acesso aberto da América Latina, Caribe e Península Ibérica tanto a fluxos de análise independentes (**Modo Standalone**) quanto ao ecossistema cienciométrico do [`bibliometrix`](https://github.com/massimoaria/bibliometrix) e [`biblioshiny`](https://github.com/massimoaria/bibliometrix).
