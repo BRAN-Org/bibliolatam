@@ -6,6 +6,9 @@
   <a href="https://github.com/BRAN-Org/bibliolatam/blob/main/README.es.md"><img src="https://raw.githubusercontent.com/BRAN-Org/bibliolatam/main/docs/assets/badge-espanol.svg" alt="Versión en Español" height="28" /></a>
 </p>
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23623700.svg)](https://doi.org/10.5281/zenodo.23623700)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 `bibliolatam` es un paquete en R diseñado para conectar la literatura científica de acceso abierto de América Latina, el Caribe y la Península Ibérica tanto a flujos de trabajo autónomos (**Modo Standalone**) como al ecosistema cienciométrico de [`bibliometrix`](https://github.com/massimoaria/bibliometrix) y [`biblioshiny`](https://github.com/massimoaria/bibliometrix).
 
 ---
@@ -264,3 +267,20 @@ Las etiquetas no proporcionadas por la fuente se completan con `NA` (o `0` para 
 - **Licenciamiento Dual**:
   - **Código Fuente**: [GNU General Public License v3.0 (GPL-3.0)](https://www.gnu.org/licenses/gpl-3.0.html) - Software libre copyleft que garantiza la apertura permanente.
   - **Fixtures de Muestra (`inst/extdata/`)**: [Creative Commons Atribución-NoComercial-CompartirIgual 4.0 (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/) - Exclusivamente para validación académica y pruebas, con cláusula de protección contra minería para IA comercial.
+
+---
+
+## Cómo Citar
+
+Si utiliza `bibliolatam` en su investigación o flujos de trabajo cienciométricos, por favor cite:
+
+```bibtex
+@manual{bibliolatam2026,
+  title  = {bibliolatam: Latin American Bibliographic Data Parsers for 'bibliometrix'},
+  author = {Gama, Gabriel and {BRAN Org}},
+  year   = {2026},
+  note   = {R package version 1.0.0},
+  url    = {https://github.com/BRAN-Org/bibliolatam},
+  doi    = {10.5281/zenodo.23623700}
+}
+```

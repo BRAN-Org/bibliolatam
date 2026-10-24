@@ -14,9 +14,10 @@ bibentry(
   year = "2026",
   organization = "BRAN Org",
   url = "https://github.com/BRAN-Org/bibliolatam",
+  doi = "10.5281/zenodo.23623700",
   textVersion = paste(
     "Gama, G. (2026).",
     "bibliolatam: Latin American Bibliographic Data Parsers for 'bibliometrix'.",
-    "R package version 1.0.0. https://github.com/BRAN-Org/bibliolatam"
+    "R package version 1.0.0. DOI: 10.5281/zenodo.23623700. https://github.com/BRAN-Org/bibliolatam"
   )
 )

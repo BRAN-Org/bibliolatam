@@ -5,6 +5,7 @@ version: 1.0.0
 date-released: 2026-10-07
 url: "https://github.com/BRAN-Org/bibliolatam"
 repository-code: "https://github.com/BRAN-Org/bibliolatam"
+doi: "10.5281/zenodo.23623700"
 license: GPL-3.0-or-later
 authors:
   - family-names: Gama
