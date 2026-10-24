@@ -112,3 +112,21 @@ if (interactive()) {
   bibliolatam::run_app()
 }
 ```
+
+---
+
+## 7. Citation
+
+If you use `bibliolatam` in your research, please cite:
+
+```bibtex
+@manual{bibliolatam2026,
+  title  = {bibliolatam: Latin American Bibliographic Data Parsers for 'bibliometrix'},
+  author = {Gama, Gabriel and {BRAN Org}},
+  year   = {2026},
+  note   = {R package version 1.0.0},
+  url    = {https://github.com/BRAN-Org/bibliolatam},
+  doi    = {10.5281/zenodo.23623700}
+}
+```
+
