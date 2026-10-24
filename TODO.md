@@ -24,6 +24,7 @@
 - [x] Standardize `DESCRIPTION` (`Imports` for `jsonlite`/`utils`/`tools`, compliant Description text)
 - [x] Harmonize versioning across code, docs, and HTTP User-Agents (`1.0.0`)
 - [x] Update maintainer details (`Gabriel Gama <gabrielngama@gmail.com>`), ORCID (`0009-0000-3113-9820`), and institutional contribution (`BRAN Org` as `ctb`) across `DESCRIPTION`, `CITATION`, `CITATION.cff`, and `.zenodo.json`
+- [x] Archive package on Zenodo and register permanent DOI (`10.5281/zenodo.23623700`)
 - [x] Add executable `@examples` to all 28 exported functions in Roxygen documentation
 - [x] Add `@return` / `\value` documentation for all Shiny server modules
 - [x] Sanitize non-ASCII / corrupted mojibake characters in R comments and roxygen tags

@@ -38,6 +38,15 @@ bibliolatamInfoUI <- function(lang = "en") {
               class = "label label-success",
               style = "margin-left: 5px; font-size: 14px; vertical-align: middle;"
             ),
+            shiny::tags$a(
+              href = "https://doi.org/10.5281/zenodo.23623700",
+              target = "_blank",
+              shiny::tags$span(
+                "DOI: 10.5281/zenodo.23623700",
+                class = "label label-info",
+                style = "margin-left: 5px; font-size: 14px; vertical-align: middle;"
+              )
+            ),
             shiny::tags$p(
               bl_i18n("info_tagline", lang),
               `data-i18n` = "info_tagline",
@@ -212,6 +221,14 @@ bibliolatamInfoUI <- function(lang = "en") {
                   target = "_blank",
                   bl_i18n("info_gov_dev_repo", lang),
                   `data-i18n` = "info_gov_dev_repo"
+                )
+              ),
+              shiny::tags$li(
+                shiny::strong("DOI: "),
+                shiny::tags$a(
+                  href = "https://doi.org/10.5281/zenodo.23623700",
+                  target = "_blank",
+                  "10.5281/zenodo.23623700"
                 )
               )
             )
