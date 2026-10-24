@@ -22,7 +22,8 @@ Description: Provides parsers and conversion pipelines to adapt Latin
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-URL: https://github.com/BRAN-Org/bibliolatam
+URL: https://github.com/BRAN-Org/bibliolatam,
+    https://doi.org/10.5281/zenodo.23623700
 BugReports: https://github.com/BRAN-Org/bibliolatam/issues
 Imports: 
     jsonlite,
