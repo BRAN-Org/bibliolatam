@@ -2,7 +2,8 @@
 #'
 #' @param file Path to the CSV file exported from SPELL.
 #' @param convert Logical. If TRUE, directly wraps output with `as_bibliometrix()`. Default is TRUE.
-#' @return A data frame formatted with standard bibliometric tags.
+#' @return A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})
+#'   or a standard \code{data.frame} (when \code{convert = FALSE}) containing parsed SPELL/ANPAD article records.
 #' @export
 #' @examples
 #' sample_file <- system.file("extdata", "spell_sample.csv", package = "bibliolatam")

@@ -28,10 +28,19 @@ download_bdtd(
 \item{normalize_authors}{Logical. If \code{TRUE} (default), normalizes author names.}
 }
 \value{
-A \code{data.frame} with class \code{c("bibliometrixDB", "data.frame")} containing BDTD thesis and dissertation records.
+A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})
+or a standard \code{data.frame} (when \code{convert = FALSE}) containing BDTD thesis and dissertation records.
 }
 \description{
 Queries the official REST API of the Biblioteca Digital Brasileira de Teses e
 Dissertaes (BDTD / IBICT), retrieves metadata records for doctoral theses and
 master's dissertations, and parses them into a standardized \code{bibliometrixDB} data frame.
+}
+\examples{
+\donttest{
+tryCatch({
+  df <- download_bdtd("inteligencia artificial", limit = 3L, progress = FALSE)
+  head(df[, c("AU", "TI", "PY")])
+}, error = function(e) message("Service temporarily unavailable."))
+}
 }

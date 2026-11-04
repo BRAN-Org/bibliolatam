@@ -4,7 +4,7 @@
 #' compatible with the biblioshiny AdminLTE layout.
 #'
 #' @param lang Character. Interface language: "en", "pt", or "es". Default is "en".
-#' @return A Shiny tagList containing the UI elements.
+#' @return A Shiny tag list (\code{shiny.tag.list}) containing the HTML layout and widgets for the Oasisbr search and ingestion panel.
 #' @keywords internal
 #' @export
 #' @examples
@@ -257,7 +257,7 @@ oasisbrUI <- function(lang = "en") {
 #' @param output Shiny output object.
 #' @param session Shiny session object.
 #' @param values ReactiveValues object from biblioshiny containing global state (optional).
-#' @return An observer handle or NULL.
+#' @return No return value, called for side effects (registers reactive observers and updates UI outputs for the Oasisbr workflow within the Shiny session).
 #' @keywords internal
 #' @export
 #' @examples

@@ -10,7 +10,7 @@ oasisbrUI(lang = "en")
 \item{lang}{Character. Interface language: "en", "pt", or "es". Default is "en".}
 }
 \value{
-A Shiny tagList containing the UI elements.
+A Shiny tag list (\code{shiny.tag.list}) containing the HTML layout and widgets for the Oasisbr search and ingestion panel.
 }
 \description{
 Renders the Oasisbr (IBICT) open-access collection panel

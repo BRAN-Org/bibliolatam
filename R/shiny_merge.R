@@ -3,9 +3,18 @@
 #' Renders the Cross-Database Deduplication & Merge panel compatible with biblioshiny.
 #'
 #' @param lang Character. Interface language: "en", "pt", or "es". Default is "en".
-#' @return A Shiny tagList containing UI elements.
+#' @return A Shiny tag list (\code{shiny.tag.list}) containing the UI elements and controls for dataset merging and deduplication.
 #' @keywords internal
 #' @export
+#' @examples
+#' if (interactive()) {
+#'   library(shiny)
+#'   ui <- fluidPage(bibliolatamMergeUI())
+#'   server <- function(input, output, session) {
+#'     bibliolatamMergeServer(input, output, session)
+#'   }
+#'   shinyApp(ui, server)
+#' }
 bibliolatamMergeUI <- function(lang = "en") {
   shiny::tagList(
     shiny::fluidRow(
@@ -204,8 +213,18 @@ load_any_latam_file <- function(file_path) {
 #' @param output Shiny output.
 #' @param session Shiny session.
 #' @param values ReactiveValues global state. Default is NULL.
+#' @return No return value, called for side effects (registers reactive observers, executes cross-database entity deduplication, and injects results into global state).
 #' @keywords internal
 #' @export
+#' @examples
+#' if (interactive()) {
+#'   library(shiny)
+#'   ui <- fluidPage(bibliolatamMergeUI())
+#'   server <- function(input, output, session) {
+#'     bibliolatamMergeServer(input, output, session)
+#'   }
+#'   shinyApp(ui, server)
+#' }
 bibliolatamMergeServer <- function(input, output, session, values = NULL) {
   merged_dataset <- shiny::reactiveVal(NULL)
 

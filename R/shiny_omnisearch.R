@@ -3,9 +3,18 @@
 #' Renders the Latin American scientific Omnisearch panel compatible with biblioshiny.
 #'
 #' @param lang Character. Interface language: "en", "pt", or "es". Default is "en".
-#' @return A Shiny tagList containing UI elements.
+#' @return A Shiny tag list (\code{shiny.tag.list}) containing UI elements and controls for the Omnisearch panel.
 #' @keywords internal
 #' @export
+#' @examples
+#' if (interactive()) {
+#'   library(shiny)
+#'   ui <- fluidPage(omnisearchUI())
+#'   server <- function(input, output, session) {
+#'     omnisearchServer(input, output, session)
+#'   }
+#'   shinyApp(ui, server)
+#' }
 omnisearchUI <- function(lang = "en") {
   shiny::tagList(
     shiny::fluidRow(
@@ -200,8 +209,18 @@ omnisearchUI <- function(lang = "en") {
 #' @param output Shiny output object.
 #' @param session Shiny session object.
 #' @param values Biblioshiny reactive values container.
+#' @return No return value, called for side effects (handles reactive queries across multiple Latin American repositories, updates summary metrics, and manages dataset exports).
 #' @keywords internal
 #' @export
+#' @examples
+#' if (interactive()) {
+#'   library(shiny)
+#'   ui <- fluidPage(omnisearchUI())
+#'   server <- function(input, output, session) {
+#'     omnisearchServer(input, output, session)
+#'   }
+#'   shinyApp(ui, server)
+#' }
 omnisearchServer <- function(input, output, session, values = NULL) {
   omni_data <- shiny::reactiveVal(NULL)
   omni_stats <- shiny::reactiveVal(NULL)

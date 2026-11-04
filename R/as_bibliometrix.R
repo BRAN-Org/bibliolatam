@@ -2,7 +2,7 @@
 #'
 #' @param df A data frame containing parsed bibliographic records.
 #' @param dbsource Character string identifying the regional source (e.g. "spell", "scielo", "bdtd").
-#' @return A data frame with class `c("bibliometrixDB", "data.frame")` ready for bibliometrix.
+#' @return A data frame with class \code{c("bibliometrixDB", "data.frame")} containing standardized Web of Science tags (TI, AU, SO, PY, CR, etc.) compatible with bibliometrix routines.
 #' @export
 #' @examples
 #' df <- data.frame(

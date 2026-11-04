@@ -7,7 +7,7 @@
 </p>
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23623700.svg)](https://doi.org/10.5281/zenodo.23623700)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.html)
 
 `bibliolatam` é um pacote em R projetado para conectar a literatura científica de acesso aberto da América Latina, Caribe e Península Ibérica tanto a fluxos de análise independentes (**Modo Standalone**) quanto ao ecossistema cienciométrico do [`bibliometrix`](https://github.com/massimoaria/bibliometrix) e [`biblioshiny`](https://github.com/massimoaria/bibliometrix).
 

@@ -16,7 +16,7 @@ as_bibliometrix(
 \item{dbsource}{Character string identifying the regional source (e.g. "spell", "scielo", "bdtd").}
 }
 \value{
-A data frame with class \code{c("bibliometrixDB", "data.frame")} ready for bibliometrix.
+A data frame with class \code{c("bibliometrixDB", "data.frame")} containing standardized Web of Science tags (TI, AU, SO, PY, CR, etc.) compatible with bibliometrix routines.
 }
 \description{
 Convert raw parsed data to a bibliometrix-compatible object

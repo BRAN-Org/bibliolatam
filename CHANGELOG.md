@@ -6,6 +6,13 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [1.0.0] - 2026-10-20
 
+### Fixed
+- Conformidade estrita com as diretrizes do CRAN e feedback de revisão (Leonore Hochhauser):
+  - Adição e detalhamento da tag `\value` em todas as 30 funções exportadas, documentando classes S3 de retorno e efeitos colaterais nos módulos Shiny server (`bibliolatamMergeServer`, `omnisearchServer`, `redalycServer`, etc.).
+  - Encapsulamento de exemplos de funções interativas com `if (interactive()) {}`.
+  - Remoção de código comentado em exemplos (`read_redalyc`) e inclusão de fixture representativa BibTeX (`inst/extdata/redalyc_sample.bib`).
+  - Documentação explícita do uso de `\donttest{}` exclusivamente para funções dependentes de APIs de rede externas no `cran-comments.md`.
+
 ### Added
 - Lançador oficial da aplicação standalone interativa (`run_app`) com navegação por abas integrando Omnisearch, SciELO, BDTD, Oasisbr, Redalyc, Merge e Sobre.
 - Suporte a execução dual-mode nos módulos de servidor do Shiny com detecção dinâmica `is_biblioshiny` e resiliência com fallback para exportação (.RData/.CSV) fora do biblioshiny (`values = NULL`).

@@ -35,7 +35,8 @@ via \code{\link[=download_scielo_jats]{download_scielo_jats()}} and enriches the
 \item{timeout}{Numeric. Maximum seconds before connection timeout. Default is 30.}
 }
 \value{
-A \code{data.frame} with class \code{c("bibliometrixDB", "data.frame")} containing SciELO records.
+A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})
+or a standard \code{data.frame} (when \code{convert = FALSE}) containing retrieved SciELO records, optionally enriched with cited references (\code{CR}).
 }
 \description{
 Queries the Crossref REST API filtered by the official SciELO DOI prefix (\code{10.1590}),

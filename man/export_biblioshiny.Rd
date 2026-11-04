@@ -12,7 +12,7 @@ export_biblioshiny(data, file)
 \item{file}{Path to the output \code{.RData} file.}
 }
 \value{
-Invisibly returns the normalized path of the saved file.
+Invisibly returns the normalized file path (character string) of the saved \code{.RData} file containing object \code{M}.
 }
 \description{
 Saves the bibliometric data frame as an \code{.RData} file ready to be loaded

@@ -28,7 +28,8 @@ download_lareferencia(
 \item{normalize_authors}{Logical. If \code{TRUE} (default), normalizes author names.}
 }
 \value{
-A \code{data.frame} with class \code{c("bibliometrixDB", "data.frame")} containing LA Referencia records.
+A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})
+or a standard \code{data.frame} (when \code{convert = FALSE}) containing LA Referencia records.
 }
 \description{
 Queries the official REST API of LA Referencia (Red Federada de Repositorios

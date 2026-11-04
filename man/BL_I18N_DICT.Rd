@@ -3,6 +3,9 @@
 \name{BL_I18N_DICT}
 \alias{BL_I18N_DICT}
 \title{bibliolatam Trilingual Dictionary}
+\format{
+A named list of translation terms with nested sublists containing strings for 'en', 'pt', and 'es'.
+}
 \usage{
 BL_I18N_DICT
 }

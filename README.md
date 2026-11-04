@@ -7,7 +7,7 @@
 </p>
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23623700.svg)](https://doi.org/10.5281/zenodo.23623700)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.html)
 
 `bibliolatam` is an R package designed to bridge Latin American, Caribbean, and Iberian open-access scientific repositories both for self-contained exploration (**Standalone Mode**) and for deep scientometric pipelines in [`bibliometrix`](https://github.com/massimoaria/bibliometrix) and [`biblioshiny`](https://github.com/massimoaria/bibliometrix).
 

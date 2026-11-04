@@ -28,10 +28,19 @@ download_oasisbr(
 \item{normalize_authors}{Logical. If \code{TRUE} (default), normalizes author names.}
 }
 \value{
-A \code{data.frame} with class \code{c("bibliometrixDB", "data.frame")} containing Oasisbr multidisciplinary records.
+A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})
+or a standard \code{data.frame} (when \code{convert = FALSE}) containing Oasisbr multidisciplinary records.
 }
 \description{
 Queries the official REST API of the Portal Brasileiro de Acesso Aberto (Oasisbr / IBICT),
 retrieves metadata records across scientific articles, theses, books, and conference papers,
 and parses them into a standardized \code{bibliometrixDB} data frame.
+}
+\examples{
+\donttest{
+tryCatch({
+  df <- download_oasisbr("energia solar", limit = 3L, progress = FALSE)
+  head(df[, c("AU", "TI", "PY")])
+}, error = function(e) message("Service temporarily unavailable."))
+}
 }

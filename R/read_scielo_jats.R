@@ -7,7 +7,8 @@
 #'
 #' @param path Path to a `.xml` file, a directory of XML files, or a `.zip` archive containing XML files.
 #' @param convert Logical. If TRUE, directly wraps output with `as_bibliometrix(..., dbsource = "scielo")`. Default is TRUE.
-#' @return A data frame formatted with standard bibliometric tags including `CR`.
+#' @return A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})
+#'   or a standard \code{data.frame} (when \code{convert = FALSE}) containing parsed NLM/JATS XML article records with reconstructed cited references (\code{CR}).
 #' @export
 #' @examples
 #' sample_xml <- system.file("extdata", "scielo_sample.xml", package = "bibliolatam")

@@ -12,7 +12,8 @@ read_scielo(file, convert = TRUE)
 \item{convert}{Logical. If TRUE, directly wraps output with \code{as_bibliometrix(..., dbsource = "scielo")}. Default is TRUE.}
 }
 \value{
-A data frame formatted with standard bibliometric tags.
+A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})
+or a standard \code{data.frame} (when \code{convert = FALSE}) containing standardized SciELO article records.
 }
 \description{
 Reads and standardizes tabular CSV export files downloaded from the SciELO portal (search.scielo.org).

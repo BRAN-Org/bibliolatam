@@ -15,8 +15,21 @@ omnisearchServer(input, output, session, values = NULL)
 
 \item{values}{Biblioshiny reactive values container.}
 }
+\value{
+No return value, called for side effects (handles reactive queries across multiple Latin American repositories, updates summary metrics, and manages dataset exports).
+}
 \description{
 Handles the reactive flow of the Omnisearch engine panel, running multi-source
 queries, updating metrics, previewing harmonized datasets, and pushing results into \code{values$M}.
+}
+\examples{
+if (interactive()) {
+  library(shiny)
+  ui <- fluidPage(omnisearchUI())
+  server <- function(input, output, session) {
+    omnisearchServer(input, output, session)
+  }
+  shinyApp(ui, server)
+}
 }
 \keyword{internal}

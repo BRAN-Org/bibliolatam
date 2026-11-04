@@ -296,8 +296,16 @@ parse_vufind_records <- function(records, dbsource = c("bdtd", "oasisbr", "laref
 #'   `bibliometrixDB` data frame using [as_bibliometrix()].
 #' @param progress Logical. If `TRUE` (default), prints progress messages during pagination.
 #' @param normalize_authors Logical. If `TRUE` (default), normalizes author names.
-#' @return A `data.frame` with class `c("bibliometrixDB", "data.frame")` containing BDTD thesis and dissertation records.
+#' @return A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})
+#'   or a standard \code{data.frame} (when \code{convert = FALSE}) containing BDTD thesis and dissertation records.
 #' @export
+#' @examples
+#' \donttest{
+#' tryCatch({
+#'   df <- download_bdtd("inteligencia artificial", limit = 3L, progress = FALSE)
+#'   head(df[, c("AU", "TI", "PY")])
+#' }, error = function(e) message("Service temporarily unavailable."))
+#' }
 download_bdtd <- function(query,
                           limit = 50L,
                           years = NULL,
@@ -368,8 +376,16 @@ download_bdtd <- function(query,
 #'   `bibliometrixDB` data frame using [as_bibliometrix()].
 #' @param progress Logical. If `TRUE` (default), prints progress messages during pagination.
 #' @param normalize_authors Logical. If `TRUE` (default), normalizes author names.
-#' @return A `data.frame` with class `c("bibliometrixDB", "data.frame")` containing Oasisbr multidisciplinary records.
+#' @return A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})
+#'   or a standard \code{data.frame} (when \code{convert = FALSE}) containing Oasisbr multidisciplinary records.
 #' @export
+#' @examples
+#' \donttest{
+#' tryCatch({
+#'   df <- download_oasisbr("energia solar", limit = 3L, progress = FALSE)
+#'   head(df[, c("AU", "TI", "PY")])
+#' }, error = function(e) message("Service temporarily unavailable."))
+#' }
 download_oasisbr <- function(query,
                              limit = 50L,
                              years = NULL,
@@ -441,7 +457,8 @@ download_oasisbr <- function(query,
 #'   `bibliometrixDB` data frame using [as_bibliometrix()].
 #' @param progress Logical. If `TRUE` (default), prints progress messages during pagination.
 #' @param normalize_authors Logical. If `TRUE` (default), normalizes author names.
-#' @return A `data.frame` with class `c("bibliometrixDB", "data.frame")` containing LA Referencia records.
+#' @return A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})
+#'   or a standard \code{data.frame} (when \code{convert = FALSE}) containing LA Referencia records.
 #' @export
 #' @examples
 #' \donttest{

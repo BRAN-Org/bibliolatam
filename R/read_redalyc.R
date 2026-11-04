@@ -211,12 +211,15 @@ parse_redalyc_ris <- function(lines) {
 #'
 #' @param file Character. Path to the `.bib`, `.ris`, or `.csv` export file.
 #' @param convert Logical. If `TRUE` (default), directly converts to `bibliometrixDB` via [as_bibliometrix()].
-#' @return A data frame formatted with canonical bibliometric tags.
+#' @return A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})
+#'   or a standard \code{data.frame} (when \code{convert = FALSE}) containing parsed Redalyc/AmeliCA
+#'   article records with normalized author names and standard Web of Science tags.
 #' @export
 #' @examples
-#' \donttest{
-#' # When a Redalyc export file (.bib, .ris, or .csv) is available:
-#' # df <- read_redalyc("redalyc_export.csv", convert = TRUE)
+#' sample_file <- system.file("extdata", "redalyc_sample.bib", package = "bibliolatam")
+#' if (nzchar(sample_file)) {
+#'   df <- read_redalyc(sample_file, convert = TRUE)
+#'   head(df[, c("AU", "TI", "PY", "SO")])
 #' }
 read_redalyc <- function(file, convert = TRUE) {
   if (!is.character(file) || length(file) != 1L || !file.exists(file)) {

@@ -12,7 +12,9 @@ read_redalyc(file, convert = TRUE)
 \item{convert}{Logical. If \code{TRUE} (default), directly converts to \code{bibliometrixDB} via \code{\link[=as_bibliometrix]{as_bibliometrix()}}.}
 }
 \value{
-A data frame formatted with canonical bibliometric tags.
+A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})
+or a standard \code{data.frame} (when \code{convert = FALSE}) containing parsed Redalyc/AmeliCA
+article records with normalized author names and standard Web of Science tags.
 }
 \description{
 Reads and standardizes bibliographic files exported from Redalyc and AmeliCA
@@ -21,8 +23,9 @@ Standardizes author names via \code{\link[=normalize_authors]{normalize_authors(
 and returns a canonical \code{bibliometrixDB} object.
 }
 \examples{
-\donttest{
-# When a Redalyc export file (.bib, .ris, or .csv) is available:
-# df <- read_redalyc("redalyc_export.csv", convert = TRUE)
+sample_file <- system.file("extdata", "redalyc_sample.bib", package = "bibliolatam")
+if (nzchar(sample_file)) {
+  df <- read_redalyc(sample_file, convert = TRUE)
+  head(df[, c("AU", "TI", "PY", "SO")])
 }
 }

@@ -26,8 +26,8 @@ required for title matching. Default is 0.90.}
 \item{verbose}{Logical. If \code{TRUE}, prints merge diagnostics. Default is FALSE.}
 }
 \value{
-A \code{data.frame} with class \code{c("bibliometrixDB", "data.frame")} containing the deduplicated
-and merged collection.
+A data frame with class \code{c("bibliometrixDB", "data.frame")} containing the deduplicated
+and merged bibliographic records with fused metadata tags.
 }
 \description{
 Merges two bibliographic datasets (e.g. SciELO, Oasisbr, SPELL, BDTD, or Redalyc),

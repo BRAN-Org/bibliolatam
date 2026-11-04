@@ -5,7 +5,7 @@
 #'
 #' @param data An object of class `bibliometrixDB` or a compatible data frame.
 #' @param file Path to the output `.RData` file.
-#' @return Invisibly returns the normalized path of the saved file.
+#' @return Invisibly returns the normalized file path (character string) of the saved \code{.RData} file containing object \code{M}.
 #' @export
 #' @examples
 #' df <- data.frame(

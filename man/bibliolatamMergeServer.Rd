@@ -15,7 +15,20 @@ bibliolatamMergeServer(input, output, session, values = NULL)
 
 \item{values}{ReactiveValues global state. Default is NULL.}
 }
+\value{
+No return value, called for side effects (registers reactive observers, executes cross-database entity deduplication, and injects results into global state).
+}
 \description{
 Bibliolatam Merge Server Logic for Biblioshiny
+}
+\examples{
+if (interactive()) {
+  library(shiny)
+  ui <- fluidPage(bibliolatamMergeUI())
+  server <- function(input, output, session) {
+    bibliolatamMergeServer(input, output, session)
+  }
+  shinyApp(ui, server)
+}
 }
 \keyword{internal}

@@ -4,7 +4,7 @@
 #' biblioshiny AdminLTE layout.
 #'
 #' @param lang Character. Interface language: "en", "pt", or "es". Default is "en".
-#' @return A Shiny tagList containing the UI elements.
+#' @return A Shiny tag list (\code{shiny.tag.list}) containing the HTML widgets and layouts for the SciELO data collection and ingestion panel.
 #' @keywords internal
 #' @export
 #' @examples
@@ -213,7 +213,7 @@ scieloUI <- function(lang = "en") {
 #' @param output Shiny output object.
 #' @param session Shiny session object.
 #' @param values ReactiveValues object from biblioshiny containing global state (optional).
-#' @return An observer handle or NULL.
+#' @return No return value, called for side effects (registers reactive observers and updates UI outputs for the SciELO workflow within the Shiny session).
 #' @keywords internal
 #' @export
 #' @examples

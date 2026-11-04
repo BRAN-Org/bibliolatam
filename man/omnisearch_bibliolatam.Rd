@@ -36,11 +36,20 @@ to resolve duplicate DOIs and fuzzy titles, and fuse metadata tags.}
 \item{timeout}{Numeric. Maximum seconds allowed per API request. Default is 30.}
 }
 \value{
-A \code{data.frame} with class \code{c("bibliometrixDB", "data.frame")} containing merged and harmonized records.
+A data frame with class \code{c("bibliometrixDB", "data.frame")} containing the
+deduplicated and harmonized bibliographic records aggregated across the queried Latin American databases.
 }
 \description{
 Queries multiple Latin American bibliographic repositories (SciELO via Crossref API,
 BDTD, Oasisbr, and LA Referencia via VuFind API), parses and harmonizes their metadata
 into canonical \code{bibliometrixDB} format, and performs automated cross-database deduplication
 and metadata fusion using \code{\link[=merge_bibliolatam]{merge_bibliolatam()}}.
+}
+\examples{
+\donttest{
+tryCatch({
+  df <- omnisearch_bibliolatam("energia solar", limit_per_source = 2L, progress = FALSE)
+  head(df[, c("AU", "TI", "PY", "DB")])
+}, error = function(e) message("Service temporarily unavailable."))
+}
 }

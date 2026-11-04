@@ -8,13 +8,11 @@
 #' @param host Character. The IPv4 address that the application should listen on. Default is "127.0.0.1".
 #' @param launch.browser Logical. If TRUE, the system's default web browser will be launched. Default is interactive().
 #' @param default_lang Character. Default interface language: "en" (English), "pt" (Portuguese), or "es" (Spanish). Default is "en".
-#' @return A Shiny app object.
+#' @return A Shiny app object representing the interactive bibliolatam application, which runs locally when executed interactively.
 #' @export
 #' @examples
-#' \dontrun{
 #' if (interactive()) {
 #'   run_app()
-#' }
 #' }
 run_app <- function(port = getOption("shiny.port"),
                     host = getOption("shiny.host", "127.0.0.1"),
