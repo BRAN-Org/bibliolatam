@@ -7,14 +7,12 @@
 #'
 #' @param au_str Character vector or scalar string containing one or multiple author names
 #'   separated by semicolons.
-#' @return A normalized character vector of the same length as `au_str`, with `NA_character_`
-#'   for empty or missing entries.
+#' @return A character vector of the same length as \code{au_str} containing normalized
+#'   author names formatted as \code{"SURNAME INITIALS"} separated by semicolons, preserving
+#'   generational suffixes and compound particles, with \code{NA_character_} for empty or missing entries.
 #' @export
 #' @examples
-#' # Single string with multiple authors
 #' normalize_authors("Batista Filho, Jose Rodrigues; Perez Gomez, Maria del Carmen")
-#'
-#' # Vector of author strings
 #' normalize_authors(c("Silva, Joao", "Santos Junior, Mario", "Maria da Silva"))
 normalize_authors <- function(au_str) {
   if (is.null(au_str) || length(au_str) == 0L) {

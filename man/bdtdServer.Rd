@@ -16,7 +16,7 @@ bdtdServer(input, output, session, values = NULL)
 \item{values}{ReactiveValues object from biblioshiny containing global state (optional).}
 }
 \value{
-An observer handle or NULL.
+No return value, called for side effects (registers reactive observers and updates UI outputs for the BDTD collection workflow within the Shiny session).
 }
 \description{
 Connects BDTD UI events with package parsers and the biblioshiny reactive state.

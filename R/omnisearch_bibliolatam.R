@@ -16,8 +16,16 @@
 #'   to resolve duplicate DOIs and fuzzy titles, and fuse metadata tags.
 #' @param progress Logical. If `TRUE` (default), prints progress status for each database queried.
 #' @param timeout Numeric. Maximum seconds allowed per API request. Default is 30.
-#' @return A `data.frame` with class `c("bibliometrixDB", "data.frame")` containing merged and harmonized records.
+#' @return A data frame with class \code{c("bibliometrixDB", "data.frame")} containing the
+#'   deduplicated and harmonized bibliographic records aggregated across the queried Latin American databases.
 #' @export
+#' @examples
+#' \donttest{
+#' tryCatch({
+#'   df <- omnisearch_bibliolatam("energia solar", limit_per_source = 2L, progress = FALSE)
+#'   head(df[, c("AU", "TI", "PY", "DB")])
+#' }, error = function(e) message("Service temporarily unavailable."))
+#' }
 omnisearch_bibliolatam <- function(query,
                                    sources = c("scielo", "bdtd", "oasisbr", "lareferencia"),
                                    limit_per_source = 50L,

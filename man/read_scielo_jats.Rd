@@ -12,7 +12,8 @@ read_scielo_jats(path, convert = TRUE)
 \item{convert}{Logical. If TRUE, directly wraps output with \code{as_bibliometrix(..., dbsource = "scielo")}. Default is TRUE.}
 }
 \value{
-A data frame formatted with standard bibliometric tags including \code{CR}.
+A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})
+or a standard \code{data.frame} (when \code{convert = FALSE}) containing parsed NLM/JATS XML article records with reconstructed cited references (\code{CR}).
 }
 \description{
 Reads one or multiple SciELO articles in NLM/JATS XML format (\code{.xml}, directory, or \code{.zip}).

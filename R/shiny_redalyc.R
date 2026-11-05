@@ -3,9 +3,18 @@
 #' Renders the Redalyc / AmeliCA collection import panel compatible with the biblioshiny layout.
 #'
 #' @param lang Character. Interface language: "en", "pt", or "es". Default is "en".
-#' @return A Shiny tagList containing UI elements.
+#' @return A Shiny tag list (\code{shiny.tag.list}) containing the UI elements and controls for the Redalyc panel.
 #' @keywords internal
 #' @export
+#' @examples
+#' if (interactive()) {
+#'   library(shiny)
+#'   ui <- fluidPage(redalycUI())
+#'   server <- function(input, output, session) {
+#'     redalycServer(input, output, session)
+#'   }
+#'   shinyApp(ui, server)
+#' }
 redalycUI <- function(lang = "en") {
   shiny::tagList(
     shiny::fluidRow(
@@ -143,8 +152,18 @@ redalycUI <- function(lang = "en") {
 #' @param output Shiny output.
 #' @param session Shiny session.
 #' @param values ReactiveValues global state. Default is NULL.
+#' @return No return value, called for side effects (registers reactive observers and renders upload status and preview tables for Redalyc files within the Shiny session).
 #' @keywords internal
 #' @export
+#' @examples
+#' if (interactive()) {
+#'   library(shiny)
+#'   ui <- fluidPage(redalycUI())
+#'   server <- function(input, output, session) {
+#'     redalycServer(input, output, session)
+#'   }
+#'   shinyApp(ui, server)
+#' }
 redalycServer <- function(input, output, session, values = NULL) {
   redalyc_data <- shiny::reactiveVal(NULL)
 

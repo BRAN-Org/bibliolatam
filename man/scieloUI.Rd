@@ -10,7 +10,7 @@ scieloUI(lang = "en")
 \item{lang}{Character. Interface language: "en", "pt", or "es". Default is "en".}
 }
 \value{
-A Shiny tagList containing the UI elements.
+A Shiny tag list (\code{shiny.tag.list}) containing the HTML widgets and layouts for the SciELO data collection and ingestion panel.
 }
 \description{
 Renders the SciELO data collection and import panel compatible with

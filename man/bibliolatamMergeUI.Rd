@@ -10,9 +10,19 @@ bibliolatamMergeUI(lang = "en")
 \item{lang}{Character. Interface language: "en", "pt", or "es". Default is "en".}
 }
 \value{
-A Shiny tagList containing UI elements.
+A Shiny tag list (\code{shiny.tag.list}) containing the UI elements and controls for dataset merging and deduplication.
 }
 \description{
 Renders the Cross-Database Deduplication & Merge panel compatible with biblioshiny.
+}
+\examples{
+if (interactive()) {
+  library(shiny)
+  ui <- fluidPage(bibliolatamMergeUI())
+  server <- function(input, output, session) {
+    bibliolatamMergeServer(input, output, session)
+  }
+  shinyApp(ui, server)
+}
 }
 \keyword{internal}

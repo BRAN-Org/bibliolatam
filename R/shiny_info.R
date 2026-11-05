@@ -3,7 +3,7 @@
 #' Renders the information and documentation tab for Bibliolatam inside biblioshiny.
 #'
 #' @param lang Character. Interface language: "en", "pt", or "es". Default is "en".
-#' @return A Shiny tagList containing the UI elements.
+#' @return A Shiny tag list (\code{shiny.tag.list}) containing the HTML documentation and governance overview for bibliolatam.
 #' @keywords internal
 #' @export
 #' @examples

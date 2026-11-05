@@ -21,7 +21,7 @@ run_app(
 \item{default_lang}{Character. Default interface language: "en" (English), "pt" (Portuguese), or "es" (Spanish). Default is "en".}
 }
 \value{
-A Shiny app object.
+A Shiny app object representing the interactive bibliolatam application, which runs locally when executed interactively.
 }
 \description{
 Launches an interactive Shiny application integrating all Latin American
@@ -29,9 +29,7 @@ bibliographic data collectors, parsers, and merging tools with full
 trilingual support (English, Portuguese, Spanish).
 }
 \examples{
-\dontrun{
 if (interactive()) {
   run_app()
-}
 }
 }

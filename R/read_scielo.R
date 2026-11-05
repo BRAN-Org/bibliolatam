@@ -4,7 +4,8 @@
 #'
 #' @param file Path to the SciELO CSV export file.
 #' @param convert Logical. If TRUE, directly wraps output with `as_bibliometrix(..., dbsource = "scielo")`. Default is TRUE.
-#' @return A data frame formatted with standard bibliometric tags.
+#' @return A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})
+#'   or a standard \code{data.frame} (when \code{convert = FALSE}) containing standardized SciELO article records.
 #' @export
 #' @examples
 #' sample_file <- system.file("extdata", "scielo_sample.csv", package = "bibliolatam")

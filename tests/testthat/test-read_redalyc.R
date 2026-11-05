@@ -63,3 +63,15 @@ test_that("read_redalyc parses RIS export format", {
   expect_equal(df$DT, "ARTICLE")
   expect_equal(df$DB, "redalyc")
 })
+
+test_that("read_redalyc parses bundled inst/extdata/redalyc_sample.bib fixture", {
+  sample_file <- system.file("extdata", "redalyc_sample.bib", package = "bibliolatam")
+  expect_true(file.exists(sample_file))
+
+  df <- read_redalyc(sample_file, convert = TRUE)
+  expect_s3_class(df, "bibliometrixDB")
+  expect_equal(nrow(df), 1L)
+  expect_equal(df$PY, 2021)
+  expect_true(grepl("GARCIA-MONTERO", df$AU))
+  expect_equal(df$DB, "redalyc")
+})

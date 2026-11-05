@@ -15,7 +15,20 @@ redalycServer(input, output, session, values = NULL)
 
 \item{values}{ReactiveValues global state. Default is NULL.}
 }
+\value{
+No return value, called for side effects (registers reactive observers and renders upload status and preview tables for Redalyc files within the Shiny session).
+}
 \description{
 Redalyc Server Logic for Biblioshiny
+}
+\examples{
+if (interactive()) {
+  library(shiny)
+  ui <- fluidPage(redalycUI())
+  server <- function(input, output, session) {
+    redalycServer(input, output, session)
+  }
+  shinyApp(ui, server)
+}
 }
 \keyword{internal}

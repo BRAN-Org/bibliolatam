@@ -17,9 +17,17 @@
 #' @param progress Logical. If `TRUE` (default), prints progress messages during
 #'   retrieval.
 #' @param timeout Numeric. Maximum seconds allowed per article download. Default is 25.
-#' @return If `parse = TRUE`, a `data.frame` with class `c("bibliometrixDB", "data.frame")`.
-#'   If `parse = FALSE`, a character vector of local file paths to the downloaded XMLs.
+#' @return If \code{parse = TRUE}, a data frame with class \code{c("bibliometrixDB", "data.frame")}
+#'   containing parsed article records and reconstructed cited references (\code{CR}).
+#'   If \code{parse = FALSE}, a character vector of local file paths pointing to the downloaded XML files.
 #' @export
+#' @examples
+#' \donttest{
+#' tryCatch({
+#'   df <- download_scielo_jats("10.1590/S0103-50532006000200006", timeout = 10)
+#'   head(df[, c("AU", "TI", "PY", "CR")])
+#' }, error = function(e) message("Service temporarily unavailable."))
+#' }
 download_scielo_jats <- function(ids,
                                  dest_dir = tempfile(pattern = "scielo_jats_"),
                                  parse = TRUE,

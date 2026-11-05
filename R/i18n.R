@@ -8,6 +8,8 @@
 NULL
 
 #' bibliolatam Trilingual Dictionary
+#'
+#' @format A named list of translation terms with nested sublists containing strings for 'en', 'pt', and 'es'.
 #' @keywords internal
 BL_I18N_DICT <- list(
   # Navbar & Navigation

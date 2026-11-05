@@ -15,7 +15,8 @@
 #' @param progress Logical. If `TRUE` (default), prints progress messages during pagination.
 #' @param normalize_authors Logical. If `TRUE` (default), normalizes author names.
 #' @param timeout Numeric. Maximum seconds before connection timeout. Default is 30.
-#' @return A `data.frame` with class `c("bibliometrixDB", "data.frame")` containing SciELO records.
+#' @return A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})
+#'   or a standard \code{data.frame} (when \code{convert = FALSE}) containing retrieved SciELO records, optionally enriched with cited references (\code{CR}).
 #' @export
 #' @examples
 #' \donttest{

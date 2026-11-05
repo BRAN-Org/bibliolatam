@@ -33,12 +33,21 @@ retrieval.}
 \item{timeout}{Numeric. Maximum seconds allowed per article download. Default is 25.}
 }
 \value{
-If \code{parse = TRUE}, a \code{data.frame} with class \code{c("bibliometrixDB", "data.frame")}.
-If \code{parse = FALSE}, a character vector of local file paths to the downloaded XMLs.
+If \code{parse = TRUE}, a data frame with class \code{c("bibliometrixDB", "data.frame")}
+containing parsed article records and reconstructed cited references (\code{CR}).
+If \code{parse = FALSE}, a character vector of local file paths pointing to the downloaded XML files.
 }
 \description{
 Retrieves full-text NLM/JATS XML documents directly from official SciELO
 endpoints using standard DOIs, classic PIDs (\code{S...}), or SciELO article URLs.
 Follows HTTP redirections using base R networking, validates XML payload integrity,
 and optionally parses the downloaded files directly into a \code{bibliometrixDB} data frame.
+}
+\examples{
+\donttest{
+tryCatch({
+  df <- download_scielo_jats("10.1590/S0103-50532006000200006", timeout = 10)
+  head(df[, c("AU", "TI", "PY", "CR")])
+}, error = function(e) message("Service temporarily unavailable."))
+}
 }

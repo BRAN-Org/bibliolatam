@@ -43,8 +43,8 @@ normalize_title_str <- function(titles) {
 #' @param similarity_threshold Numeric between 0 and 1. Minimum normalized string similarity
 #'   required for title matching. Default is 0.90.
 #' @param verbose Logical. If `TRUE`, prints merge diagnostics. Default is FALSE.
-#' @return A `data.frame` with class `c("bibliometrixDB", "data.frame")` containing the deduplicated
-#'   and merged collection.
+#' @return A data frame with class \code{c("bibliometrixDB", "data.frame")} containing the deduplicated
+#'   and merged bibliographic records with fused metadata tags.
 #' @export
 #' @examples
 #' df1 <- data.frame(

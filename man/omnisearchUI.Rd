@@ -10,9 +10,19 @@ omnisearchUI(lang = "en")
 \item{lang}{Character. Interface language: "en", "pt", or "es". Default is "en".}
 }
 \value{
-A Shiny tagList containing UI elements.
+A Shiny tag list (\code{shiny.tag.list}) containing UI elements and controls for the Omnisearch panel.
 }
 \description{
 Renders the Latin American scientific Omnisearch panel compatible with biblioshiny.
+}
+\examples{
+if (interactive()) {
+  library(shiny)
+  ui <- fluidPage(omnisearchUI())
+  server <- function(input, output, session) {
+    omnisearchServer(input, output, session)
+  }
+  shinyApp(ui, server)
+}
 }
 \keyword{internal}

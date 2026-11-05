@@ -11,8 +11,9 @@ normalize_authors(au_str)
 separated by semicolons.}
 }
 \value{
-A normalized character vector of the same length as \code{au_str}, with \code{NA_character_}
-for empty or missing entries.
+A character vector of the same length as \code{au_str} containing normalized
+author names formatted as \code{"SURNAME INITIALS"} separated by semicolons, preserving
+generational suffixes and compound particles, with \code{NA_character_} for empty or missing entries.
 }
 \description{
 Converts diverse author string formats (e.g. 'Sobrenome, Nome', 'Nome Sobrenome',
@@ -21,9 +22,6 @@ WoS/bibliometrix format: \verb{SOBRENOME INICIAIS; ...}. Supports both scalar st
 and character vectors.
 }
 \examples{
-# Single string with multiple authors
 normalize_authors("Batista Filho, Jose Rodrigues; Perez Gomez, Maria del Carmen")
-
-# Vector of author strings
 normalize_authors(c("Silva, Joao", "Santos Junior, Mario", "Maria da Silva"))
 }

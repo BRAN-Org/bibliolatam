@@ -10,7 +10,7 @@ bibliolatamInfoUI(lang = "en")
 \item{lang}{Character. Interface language: "en", "pt", or "es". Default is "en".}
 }
 \value{
-A Shiny tagList containing the UI elements.
+A Shiny tag list (\code{shiny.tag.list}) containing the HTML documentation and governance overview for bibliolatam.
 }
 \description{
 Renders the information and documentation tab for Bibliolatam inside biblioshiny.

@@ -15,7 +15,8 @@ read_oasisbr(file, convert = TRUE)
 \item{convert}{Logical. If TRUE, directly wraps output with \code{as_bibliometrix()}. Default is TRUE.}
 }
 \value{
-A data frame formatted with standard bibliometric tags.
+A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})
+or a standard \code{data.frame} (when \code{convert = FALSE}) containing parsed thesis and dissertation records with standardized bibliometric tags.
 }
 \description{
 Reads and standardizes tabular exports (CSV, TSV) from the Biblioteca Digital
