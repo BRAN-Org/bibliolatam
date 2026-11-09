@@ -7,7 +7,7 @@
 </p>
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23623700.svg)](https://doi.org/10.5281/zenodo.23623700)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.html)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](#governança--princípios)
 
 `bibliolatam` é um pacote em R projetado para conectar a literatura científica de acesso aberto da América Latina, Caribe e Península Ibérica tanto a fluxos de análise independentes (**Modo Standalone**) quanto ao ecossistema cienciométrico do [`bibliometrix`](https://github.com/massimoaria/bibliometrix) e [`biblioshiny`](https://github.com/massimoaria/bibliometrix).
 
@@ -265,7 +265,7 @@ Campos não suportados pela fonte são preenchidos como `NA` (ou `0` para citaç
 - **[Princípios FAIR](https://www.gofair.foundation/fair-principles)**: Localizabilidade, Acessibilidade, Interoperabilidade e Reusabilidade para a ciência do Sul Global.
 - **[BOAI](https://www.budapestopenaccessinitiative.org/)**: Alinhamento estrito à Iniciativa de Acesso Aberto de Budapeste e à comunicação científica não-comercial.
 - **Licenciamento Duplo**:
-  - **Código-Fonte**: [GNU General Public License v3.0 (GPL-3.0)](https://www.gnu.org/licenses/gpl-3.0.html) - Software livre copyleft garantindo abertura contínua.
+  - **Código-Fonte**: GNU General Public License v3.0 (GPL-3.0) - Software livre copyleft garantindo abertura contínua.
   - **Fixtures de Amostra (`inst/extdata/`)**: [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/) - Uso exclusivo para validação acadêmica e testes, com cláusula de proteção contra raspagem para IA comercial.
 
 ---

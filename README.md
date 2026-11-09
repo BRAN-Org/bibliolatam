@@ -7,7 +7,7 @@
 </p>
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23623700.svg)](https://doi.org/10.5281/zenodo.23623700)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.html)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](#governance--principles)
 
 `bibliolatam` is an R package designed to bridge Latin American, Caribbean, and Iberian open-access scientific repositories both for self-contained exploration (**Standalone Mode**) and for deep scientometric pipelines in [`bibliometrix`](https://github.com/massimoaria/bibliometrix) and [`biblioshiny`](https://github.com/massimoaria/bibliometrix).
 
@@ -265,7 +265,7 @@ Missing tags are populated with `NA` (or `0` for numeric citations) without data
 - **[FAIR Principles](https://www.gofair.foundation/fair-principles)**: Enhancing Findability, Accessibility, Interoperability, and Reusability for Global South scientific literature.
 - **[BOAI](https://www.budapestopenaccessinitiative.org/)**: Dedicated to non-commercial, Diamond Open Access infrastructures.
 - **Dual Licensing**:
-  - **Source Code**: [GNU General Public License v3.0 (GPL-3.0)](https://www.gnu.org/licenses/gpl-3.0.html) - Free software copyleft guaranteeing open code.
+  - **Source Code**: GNU General Public License v3.0 (GPL-3.0) - Free software copyleft guaranteeing open code.
   - **Sample Fixtures (`inst/extdata/`)**: [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/) - For academic validation and testing only, with anti-AI commercial scraping clauses.
 
 ---

@@ -32,7 +32,8 @@ This is a resubmission addressing reviewer feedback from Leonore Hochhauser.
    - All local parsing functions (`read_scielo`, `read_scielo_jats`, `read_spell`, `read_bdtd`, `read_oasisbr`, `read_redalyc`, `as_bibliometrix`, `merge_bibliolatam`, `normalize_authors`) execute unconditionally using bundled toy files in `inst/extdata/` in less than 0.1 seconds.
 
 5. **GPL-3.0 URL in `README.md`**:
-   - The link `https://www.gnu.org/licenses/gpl-3.0.html` is used in the README License badge and section to provide developers with a direct reference to the GNU General Public License v3.0 terms, complementing the dual-licensing structure of the repository (GPL-3.0 for software code, and CC BY-NC-SA 4.0 for scientometric sample fixtures in `inst/extdata/`). The URL has been updated to the canonical `.html` endpoint.
+   - The URL `https://www.gnu.org/licenses/gpl-3.0` was originally included in `README.md` to reference the GNU General Public License v3.0 terms in the context of the repository's dual licensing (GPL-3.0 for software code, CC BY-NC-SA 4.0 for scientometric fixtures).
+   - In response to the reviewer's query and to eliminate transient network connection resets by `gnu.org` during CRAN's incoming URL check (`libcurl error 35`), this external URL has been removed from `README.md`, replacing it with standard plain-text references and internal anchor links.
 
 ---
 
