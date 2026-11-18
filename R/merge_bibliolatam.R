@@ -27,6 +27,11 @@ normalize_title_str <- function(titles) {
   # remove pontuacao e espacos multiplos
   t <- gsub("[^a-z0-9]", " ", t)
   t <- gsub("\\s+", " ", t)
+  t <- trimws(t)
+  # harmoniza abreviacoes comuns de series em titulos
+  t <- gsub("\\bvol\\b", "volume", t)
+  t <- gsub("\\bpt\\b", "parte", t)
+  t <- gsub("\\bsecc?\\b", "secao", t)
   trimws(t)
 }
 
