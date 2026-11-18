@@ -66,6 +66,12 @@ test_that("read_redalyc parses RIS export format", {
 
 test_that("read_redalyc parses bundled inst/extdata/redalyc_sample.bib fixture", {
   sample_file <- system.file("extdata", "redalyc_sample.bib", package = "bibliolatam")
+  if (!nzchar(sample_file) || !file.exists(sample_file)) {
+    sample_file <- "../../inst/extdata/redalyc_sample.bib"
+  }
+  if (!file.exists(sample_file)) {
+    sample_file <- "inst/extdata/redalyc_sample.bib"
+  }
   expect_true(file.exists(sample_file))
 
   df <- read_redalyc(sample_file, convert = TRUE)

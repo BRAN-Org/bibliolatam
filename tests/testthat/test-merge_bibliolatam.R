@@ -124,3 +124,96 @@ test_that("merge_bibliolatam preserves extra non-standard columns", {
   expect_equal(nrow(merged), 1L)
   expect_true("CUSTOM_COL1" %in% names(merged) || "CUSTOM_COL2" %in% names(merged))
 })
+
+test_that("merge_bibliolatam prevents false positives between series parts (Parte I vs Parte II)", {
+  # Dois artigos distintos de uma mesma serie, mesmo autor, mesmo ano, sem DOI
+  df1 <- data.frame(
+    AU = "SILVA J",
+    TI = "Avaliacao da producao cientifica na pos graduacao brasileira: Parte I",
+    SO = "Revista Brasileira de Pos-Graduacao",
+    PY = 2022,
+    DI = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  df1 <- as_bibliometrix(df1, dbsource = "scielo")
+
+  df2 <- data.frame(
+    AU = "SILVA J",
+    TI = "Avaliacao da producao cientifica na pos graduacao brasileira: Parte II",
+    SO = "Revista Brasileira de Pos-Graduacao",
+    PY = 2022,
+    DI = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  df2 <- as_bibliometrix(df2, dbsource = "oasisbr")
+
+  # Mesmo com similaridade de titulo > 95%, o guardrail de partes DEVE impedir a fusao!
+  merged <- merge_bibliolatam(df1, df2, match_by = "title", similarity_threshold = 0.90)
+  expect_equal(nrow(merged), 2L)
+
+  # Tambem testa com algarismos arabicos ("Parte 1" vs "Parte 2")
+  df1$TI <- "Estudo Cienciometrico Regional: Parte 1"
+  df2$TI <- "Estudo Cienciometrico Regional: Parte 2"
+  merged_num <- merge_bibliolatam(df1, df2, match_by = "title", similarity_threshold = 0.90)
+  expect_equal(nrow(merged_num), 2L)
+
+  # Porem, o mesmo artigo com representacao romana em uma base e arabica na outra DEVE fundir
+  df1$TI <- "Estudo Cienciometrico Regional: Parte 1"
+  df2$TI <- "Estudo Cienciometrico Regional: Parte I"
+  merged_same <- merge_bibliolatam(df1, df2, match_by = "title", similarity_threshold = 0.90)
+  expect_equal(nrow(merged_same), 1L)
+})
+
+test_that("merge_bibliolatam prevents false positives between distinct authors with similar/identical titles", {
+  # Dois editoriais com titulos identicos em periodicos diferentes publicados por pessoas distintas
+  df1 <- data.frame(
+    AU = "SILVA J",
+    TI = "Editorial: Os desafios da pesquisa cientifica na America Latina em tempos de crise",
+    SO = "Ciencia da Informacao",
+    PY = 2021,
+    DI = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  df1 <- as_bibliometrix(df1, dbsource = "scielo")
+
+  df2 <- data.frame(
+    AU = "GAMA G; SANTOS M",
+    TI = "Editorial: Os desafios da pesquisa cientifica na America Latina em tempos de crise",
+    SO = "Perspectivas em Ciencia da Informacao",
+    PY = 2021,
+    DI = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  df2 <- as_bibliometrix(df2, dbsource = "oasisbr")
+
+  # Titulo identico (100% similaridade), mas autores completamente disjuntos -> NAO deve fundir!
+  merged <- merge_bibliolatam(df1, df2, match_by = "title", similarity_threshold = 0.90)
+  expect_equal(nrow(merged), 2L)
+})
+
+test_that("merge_bibliolatam allows merge when author has minor phonetic spelling variation", {
+  # Mesmo artigo onde o autor esta como Sousa em uma base e Souza na outra
+  df1 <- data.frame(
+    AU = "SOUSA J",
+    TI = "Acesso aberto diamante e infraestruturas comunitarias na ciencia contemporanea",
+    SO = "Encontros Bibli",
+    PY = 2023,
+    DI = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  df1 <- as_bibliometrix(df1, dbsource = "scielo")
+
+  df2 <- data.frame(
+    AU = "SOUZA J",
+    TI = "Acesso aberto diamante e infraestruturas comunitárias na ciência contemporânea",
+    SO = "Encontros Bibli",
+    PY = 2023,
+    DI = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  df2 <- as_bibliometrix(df2, dbsource = "oasisbr")
+
+  merged <- merge_bibliolatam(df1, df2, match_by = "title", similarity_threshold = 0.90)
+  expect_equal(nrow(merged), 1L)
+})
+

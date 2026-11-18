@@ -30,6 +30,117 @@ normalize_title_str <- function(titles) {
   trimws(t)
 }
 
+#' Extract normalized series/part token from normalized title
+#'
+#' @param norm_title Normalized lowercase ASCII title string.
+#' @return A character string identifier (e.g. "part_1", "part_2") or NA.
+#' @noRd
+extract_part_token <- function(norm_title) {
+  if (is.null(norm_title) || is.na(norm_title) || !nzchar(norm_title)) return(NA_character_)
+
+  roman_map <- c(
+    "i" = "1", "ii" = "2", "iii" = "3", "iv" = "4", "v" = "5",
+    "vi" = "6", "vii" = "7", "viii" = "8", "ix" = "9", "x" = "10"
+  )
+
+  # 1. Verifica padroes com indicadores explicitos (parte, volume, secao, fase, ensaio)
+  m <- regexec("\\b(parte|part|volume|vol|secao|section|fase|phase|ensaio)\\s+([0-9]+|[ivxlcdm]+|[a-z])\\b", norm_title)
+  reg_res <- regmatches(norm_title, m)[[1]]
+  if (length(reg_res) >= 3L) {
+    indicator <- tolower(reg_res[2])
+    val <- tolower(reg_res[3])
+
+    if (indicator %in% c("part", "parte")) indicator <- "part"
+    if (indicator %in% c("volume", "vol")) indicator <- "vol"
+    if (indicator %in% c("section", "secao")) indicator <- "sec"
+    if (indicator %in% c("phase", "fase")) indicator <- "phase"
+
+    if (val %in% names(roman_map)) {
+      val <- roman_map[[val]]
+    }
+    return(paste0(indicator, "_", val))
+  }
+
+  # 2. Verifica numeral romano ou ordinal curto ao final do titulo (ex: "estudo i" vs "estudo ii")
+  trailing_m <- regexec("\\s+(i|ii|iii|iv|v|vi|vii|viii|ix|x|[0-9]{1,2})$", norm_title)
+  trailing_res <- regmatches(norm_title, trailing_m)[[1]]
+  if (length(trailing_res) >= 2L) {
+    val <- tolower(trailing_res[2])
+    if (val %in% names(roman_map)) val <- roman_map[[val]]
+    return(paste0("part_", val))
+  }
+
+  NA_character_
+}
+
+#' Extract clean uppercase author surnames from author string
+#'
+#' @param au_str Character scalar representing authors.
+#' @return Character vector of distinct uppercase author surnames, or character(0).
+#' @noRd
+extract_author_surnames <- function(au_str) {
+  if (is.null(au_str) || is.na(au_str) || !nzchar(trimws(au_str))) {
+    return(character(0L))
+  }
+  raw_authors <- unlist(strsplit(as.character(au_str), ";", fixed = TRUE))
+  surnames <- character(0L)
+
+  sufixos <- c("junior", "jr", "filho", "neto", "sobrinho", "segundo", "terceiro")
+
+  for (a in raw_authors) {
+    a <- trimws(a)
+    if (!nzchar(a)) next
+
+    if (grepl(",", a, fixed = TRUE)) {
+      sn <- trimws(unlist(strsplit(a, ",", fixed = TRUE))[1])
+    } else {
+      tokens <- unlist(strsplit(a, "\\s+"))
+      tokens <- tokens[nzchar(tokens)]
+      if (length(tokens) == 0L) next
+      if (length(tokens) == 1L) {
+        sn <- tokens[1]
+      } else {
+        last_tok <- tolower(tokens[length(tokens)])
+        if (last_tok %in% sufixos && length(tokens) >= 3L) {
+          sn <- paste(tokens[length(tokens) - 1L], tokens[length(tokens)])
+        } else if (grepl("^[A-Z]{1,4}$", tokens[length(tokens)]) && length(tokens) >= 2L) {
+          # Formato WOS padrao: "SOBRENOME INICIAIS"
+          sn <- paste(tokens[1L:(length(tokens) - 1L)], collapse = " ")
+        } else {
+          sn <- tokens[length(tokens)]
+        }
+      }
+    }
+
+    sn_norm <- tolower(trimws(sn))
+    sn_norm <- iconv(sn_norm, to = "ASCII//TRANSLIT")
+    sn_norm <- gsub("[^a-z]", "", sn_norm)
+    if (nzchar(sn_norm) && !sn_norm %in% c("anonymous", "anonimo", "desconhecido", "na")) {
+      surnames <- c(surnames, toupper(sn_norm))
+    }
+  }
+  unique(surnames)
+}
+
+#' Check if two sets of author surnames are compatible
+#'
+#' @param sn1 Character vector of surnames.
+#' @param sn2 Character vector of surnames.
+#' @return Logical TRUE if compatible, FALSE otherwise.
+#' @noRd
+surnames_compatible <- function(sn1, sn2) {
+  if (length(sn1) == 0L || length(sn2) == 0L) return(FALSE)
+  # Sobreposicao exata
+  if (length(intersect(sn1, sn2)) > 0L) return(TRUE)
+  # Tolerancia de 1 caractere de edicao para variacoes foneticas comuns (ex: Sousa vs Souza)
+  for (s1 in sn1) {
+    if (nchar(s1) < 4L) next
+    dists <- utils::adist(s1, sn2)[1, ]
+    if (any(dists <= 1L)) return(TRUE)
+  }
+  FALSE
+}
+
 #' Merge and Deduplicate Regional Bibliographic Collections
 #'
 #' Merges two bibliographic datasets (e.g. SciELO, Oasisbr, SPELL, BDTD, or Redalyc),
@@ -103,6 +214,12 @@ merge_bibliolatam <- function(df1,
   titles1 <- normalize_title_str(df1$TI)
   titles2 <- normalize_title_str(df2$TI)
 
+  parts1 <- vapply(titles1, extract_part_token, character(1L), USE.NAMES = FALSE)
+  parts2 <- vapply(titles2, extract_part_token, character(1L), USE.NAMES = FALSE)
+
+  au_surnames1 <- lapply(df1$AU, extract_author_surnames)
+  au_surnames2 <- lapply(df2$AU, extract_author_surnames)
+
   py1 <- suppressWarnings(as.numeric(df1$PY))
   py2 <- suppressWarnings(as.numeric(df2$PY))
 
@@ -126,7 +243,7 @@ merge_bibliolatam <- function(df1,
 
   doi_matches_count <- length(matched_pairs)
 
-  # 2. Matching por Titulo aproximado (com tolerancia de ano +- 1)
+  # 2. Matching por Titulo aproximado (com tolerancia de ano +- 1 e guardrails anti-falso positivo)
   if ("title" %in% match_by) {
     unmatched_1 <- setdiff(seq_len(n1), vapply(matched_pairs, function(p) p[1], integer(1L)))
 
@@ -137,14 +254,45 @@ merge_bibliolatam <- function(df1,
       cand_indices <- which(!matched_in_2)
       if (length(cand_indices) == 0L) break
 
-      # Filtra candidatos por aproximacao de ano se ambos tiverem PY
+      # 2.1 Filtra candidatos por aproximacao de ano se ambos tiverem PY (+- 1 ano)
       p1 <- py1[i]
       if (!is.na(p1)) {
         cand_p2 <- py2[cand_indices]
         valid_year <- is.na(cand_p2) | abs(cand_p2 - p1) <= 1
         cand_indices <- cand_indices[valid_year]
       }
+      if (length(cand_indices) == 0L) next
 
+      # 2.2 Guardrail de Series / Partes / Volumes (evita fundir "Parte I" com "Parte II")
+      part1 <- parts1[i]
+      if (length(cand_indices) > 0L) {
+        cand_parts2 <- parts2[cand_indices]
+        both_have_diff_parts <- !is.na(part1) & !is.na(cand_parts2) & part1 != cand_parts2
+        is_sequel_1 <- !is.na(part1) && grepl("_(2|3|4|5|6|7|8|9|10)$", part1)
+        sequel_discrepancy_1 <- is_sequel_1 & is.na(cand_parts2)
+        sequel_discrepancy_2 <- is.na(part1) & !is.na(cand_parts2) & grepl("_(2|3|4|5|6|7|8|9|10)$", cand_parts2)
+
+        valid_parts <- !both_have_diff_parts & !sequel_discrepancy_1 & !sequel_discrepancy_2
+        cand_indices <- cand_indices[valid_parts]
+      }
+      if (length(cand_indices) == 0L) next
+
+      # 2.3 Guardrail de Autoria (Compatibilidade de Sobrenomes de Autores)
+      sn1 <- au_surnames1[[i]]
+      if (length(sn1) > 0L && length(cand_indices) > 0L) {
+        valid_authors <- logical(length(cand_indices))
+        for (k in seq_along(cand_indices)) {
+          c_idx <- cand_indices[k]
+          sn2 <- au_surnames2[[c_idx]]
+          if (length(sn2) == 0L) {
+            # Candidato sem autor registrado: permite prosseguir sob threshold estrito posterior
+            valid_authors[k] <- TRUE
+          } else {
+            valid_authors[k] <- surnames_compatible(sn1, sn2)
+          }
+        }
+        cand_indices <- cand_indices[valid_authors]
+      }
       if (length(cand_indices) == 0L) next
 
       cand_titles <- titles2[cand_indices]
@@ -153,7 +301,20 @@ merge_bibliolatam <- function(df1,
       max_len <- pmax(nchar(t1), nchar(cand_titles))
       sims <- 1 - (dists / max_len)
 
-      best_match_pos <- which(sims >= similarity_threshold)
+      # 2.4 Threshold adaptativo: se algum dos registros nao possui autor, exige threshold rigoroso (>= 0.95)
+      eff_thresholds <- rep(similarity_threshold, length(cand_indices))
+      if (length(sn1) == 0L) {
+        eff_thresholds <- pmax(eff_thresholds, 0.95)
+      } else {
+        for (k in seq_along(cand_indices)) {
+          c_idx <- cand_indices[k]
+          if (length(au_surnames2[[c_idx]]) == 0L) {
+            eff_thresholds[k] <- max(eff_thresholds[k], 0.95)
+          }
+        }
+      }
+
+      best_match_pos <- which(sims >= eff_thresholds)
       if (length(best_match_pos) > 0L) {
         # pega a maior similaridade
         best_idx <- best_match_pos[which.max(sims[best_match_pos])]
