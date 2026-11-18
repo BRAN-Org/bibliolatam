@@ -251,10 +251,12 @@ merge_bibliolatam <- function(df1,
   # 2. Matching por Titulo aproximado (com tolerancia de ano +- 1 e guardrails anti-falso positivo)
   if ("title" %in% match_by) {
     unmatched_1 <- setdiff(seq_len(n1), vapply(matched_pairs, function(p) p[1], integer(1L)))
+    titles2_lens <- nchar(titles2)
 
     for (i in unmatched_1) {
       t1 <- titles1[i]
       if (!nzchar(t1) || nchar(t1) < 15) next # ignora titulos extremamente curtos para evitar falso positivo
+      t1_len <- nchar(t1)
 
       cand_indices <- which(!matched_in_2)
       if (length(cand_indices) == 0L) break
@@ -301,12 +303,59 @@ merge_bibliolatam <- function(df1,
       if (length(cand_indices) == 0L) next
 
       cand_titles <- titles2[cand_indices]
-      # Usa adist do base R
+
+      # 2.4 Atalho de correspondencia exata de titulo (Exact Match Fast-Path, O(1))
+      exact_match_pos <- which(cand_titles == t1)
+      if (length(exact_match_pos) > 0L) {
+        if (length(exact_match_pos) > 1L && length(sn1) > 0L) {
+          # Prioriza candidato com autor explicitamente compativel sobre candidato anonimo
+          has_au <- vapply(cand_indices[exact_match_pos], function(c_idx) {
+            length(au_surnames2[[c_idx]]) > 0L
+          }, logical(1L))
+          if (any(has_au)) {
+            exact_match_pos <- exact_match_pos[has_au]
+          }
+        }
+        target_j <- cand_indices[exact_match_pos[1L]]
+        matched_pairs[[length(matched_pairs) + 1L]] <- c(i, target_j)
+        matched_in_2[target_j] <- TRUE
+        next
+      }
+
+      # 2.5 Filtro Matematico de Extensao de String (Length Bound Filter, O(1))
+      # Pela desigualdade triangular de Levenshtein: dist(t1, t2) >= |len(t1) - len(t2)|.
+      # Logo, para sim >= theta, len(t2) deve estar em [ceiling(len(t1) * theta), floor(len(t1) / theta)].
+      min_len <- ceiling(t1_len * similarity_threshold)
+      max_len <- floor(t1_len / similarity_threshold)
+      cand_lens <- titles2_lens[cand_indices]
+      valid_len <- cand_lens >= min_len & cand_lens <= max_len
+      cand_indices <- cand_indices[valid_len]
+      if (length(cand_indices) == 0L) next
+      cand_titles <- titles2[cand_indices]
+
+      # 2.6 Bloqueio por Palavras de Conteudo (Significant Content Word Canopy)
+      # Para conjuntos densos de candidatos (> 15), filtra por compartilhamento
+      # de pelo menos um termo significativo (>= 4 caracteres).
+      if (length(cand_indices) > 15L) {
+        sig_words <- unlist(regmatches(t1, gregexpr("[a-z0-9]{4,}", t1)))
+        if (length(sig_words) > 0L) {
+          long_words <- sig_words[nchar(sig_words) >= 5]
+          if (length(long_words) == 0L) long_words <- sig_words
+          pat <- paste0("\\b(", paste(unique(long_words), collapse = "|"), ")\\b")
+          has_word <- grepl(pat, cand_titles)
+          if (any(has_word)) {
+            cand_indices <- cand_indices[has_word]
+            cand_titles <- cand_titles[has_word]
+          }
+        }
+      }
+
+      # 2.7 Matriz de Edicao de Levenshtein (calculada apenas sobre candidatos podados)
       dists <- utils::adist(t1, cand_titles, ignore.case = TRUE)[1, ]
-      max_len <- pmax(nchar(t1), nchar(cand_titles))
+      max_len <- pmax(t1_len, titles2_lens[cand_indices])
       sims <- 1 - (dists / max_len)
 
-      # 2.4 Threshold adaptativo: se algum dos registros nao possui autor, exige threshold rigoroso (>= 0.95)
+      # 2.8 Threshold adaptativo: se algum dos registros nao possui autor, exige threshold rigoroso (>= 0.95)
       eff_thresholds <- rep(similarity_threshold, length(cand_indices))
       if (length(sn1) == 0L) {
         eff_thresholds <- pmax(eff_thresholds, 0.95)

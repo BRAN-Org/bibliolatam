@@ -215,3 +215,77 @@ test_that("confusion matrix benchmark: 50 true duplicates vs 50 adversarial trap
 
   expect_equal(fpr, 0.0) # Taxa de Falsos Positivos = 0.0%
 })
+
+test_that("asymptotic optimizations: exact match fast-path resolves identical titles and prioritizes authored candidate", {
+  # Cenário: df1 possui 1 artigo com autor SILVA J
+  # df2 possui 2 registros com o MESMO titulo: um sem autor (ANONYMOUS/NA) e outro com autor compativel SILVA JOAO
+  df1 <- as_bibliometrix(data.frame(
+    AU = "SILVA J",
+    TI = "Diretrizes para Preservacao Digital em Repositorios Institucionais",
+    SO = "Revista Alpha",
+    PY = 2022,
+    DI = NA_character_,
+    stringsAsFactors = FALSE
+  ), "scielo")
+
+  df2 <- as_bibliometrix(data.frame(
+    AU = c(NA_character_, "SILVA JOAO"),
+    TI = rep("Diretrizes para Preservacao Digital em Repositorios Institucionais", 2),
+    SO = c("Revista Beta", "Revista Alpha"),
+    PY = c(2022, 2022),
+    DI = c(NA_character_, NA_character_),
+    stringsAsFactors = FALSE
+  ), "oasisbr")
+
+  merged <- merge_bibliolatam(df1, df2, match_by = "title", similarity_threshold = 0.90)
+  expect_equal(nrow(merged), 2L) # 1 par fundido + 1 registro restante mantido
+
+  # O registro fundido deve ser o que tem autor compativel (SILVA JOAO), preservando SO ou tags
+  matched_row <- merged[grepl("SILVA", merged$AU, ignore.case = TRUE), ]
+  expect_equal(nrow(matched_row), 1L)
+})
+
+test_that("asymptotic optimizations: length bound filter and token canopy scale safely under candidate pool stress", {
+  # Cenário de estresse: df1 com 1 artigo alvo
+  # df2 com 100 candidatos no mesmo ano (2023), dos quais:
+  # - 50 tem comprimentos impossíveis (muito curtos < 40 chars ou muito longos > 120 chars)
+  # - 49 tem comprimentos próximos mas títulos sobre assuntos completamente diferentes sem palavras compartilhadas
+  # - 1 é a duplicata verdadeira com pequenas variações graficas
+  target_title <- "Avaliacao da Producao Cientifica Brasileira em Acesso Aberto e Ciencia Aberta"
+  target_author <- "GAMA G"
+
+  cands_too_short <- paste("Artigo Curto Numero", 1:25)
+  cands_too_long <- paste("Este e um titulo artificialmente inflado e extremamente longo que ultrapassa em muito qualquer limite matematico de similaridade numero", 1:25)
+  cands_diff_topic <- paste("Desenvolvimento de Algoritmos em Redes Neurais Profundas e Inteligencia Artificial Caso", 1:49)
+  cands_true_dup <- "Avaliação da Produção Científica Brasileira em Acesso Aberto e Ciência Aberta"
+
+  all_cands <- c(cands_too_short, cands_too_long, cands_diff_topic, cands_true_dup)
+
+  df1 <- as_bibliometrix(data.frame(
+    AU = target_author,
+    TI = target_title,
+    SO = "Transinformacao",
+    PY = 2023,
+    DI = NA_character_,
+    stringsAsFactors = FALSE
+  ), "scielo")
+
+  df2 <- as_bibliometrix(data.frame(
+    AU = rep(target_author, length(all_cands)),
+    TI = all_cands,
+    SO = "Revista Teste",
+    PY = 2023,
+    DI = NA_character_,
+    stringsAsFactors = FALSE
+  ), "oasisbr")
+
+  t0 <- Sys.time()
+  merged <- merge_bibliolatam(df1, df2, match_by = "title", similarity_threshold = 0.90)
+  elapsed <- as.numeric(Sys.time() - t0, units = "secs")
+
+  # O alvo deve fundir exclusivamente com o candidato duplicata verdadeira:
+  # Total de registros esperados = 100 (1 par fundido dos 1 + 100 registros = 100)
+  expect_equal(nrow(merged), 100L)
+  expect_lt(elapsed, 2.0) # Deve resolver rapidamente graças aos filtros assintóticos
+})
+

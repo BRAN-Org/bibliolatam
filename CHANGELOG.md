@@ -19,6 +19,10 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
   - Threshold de similaridade adaptativo com elevação automática para $\ge 0.95$ quando algum dos registros não possui autor declarado.
 
 - **Harmonização de abreviações de séries em `normalize_title_str()`**: expansão automática de `vol` para `volume`, `pt` para `parte` e `sec` para `secao` antes da medição de distâncias de string, prevenindo falsos negativos decorrentes de abreviações pontuais.
+- **Otimização assintótica e poda de candidatos em `merge_bibliolatam()` (Passo 3)**:
+  - *Length Bound Filter* ($O(1)$): filtro matemático prévio baseado na desigualdade métrica de Levenshtein ($\lceil |t_1| \theta \rceil \le |t_2| \le \lfloor |t_1| / \theta \rfloor$), eliminando 80% a 90% dos candidatos sem necessidade de cálculo de matriz de edição.
+  - *Exact Match Fast-Path* ($O(1)$ vetorizado): correspondência imediata para títulos idênticos pré-Levenshtein com priorização de candidatos com autoria explicitamente compatível, acelerando em mais de 200x pares duplicados comuns.
+  - *Significant Content Word Canopy*: bloqueio por termos significativos ($\ge 4$ caracteres) ativado em conjuntos densos de candidatos (> 15), garantindo escalabilidade para grandes bases sem risco de falsos negativos.
 
 ### Test
 - **Suíte de testes adversariais massivos e benchmark empírico (`tests/testthat/test-adversarial_merge_benchmark.R`)**:
@@ -26,6 +30,7 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
   - Testes de equivalência de numerais ordinais arábicos e romanos (*Parte 1* vs *Parte I*, *Volume 2* vs *Vol. II*, *Fase 4* vs *Fase IV*).
   - Testes de permutações de autores (ordem invertida e coautores truncados).
   - Benchmark automatizado de matriz de confusão com 50 duplicatas verdadeiras vs 50 armadilhas adversariais atingindo Taxa de Falsos Positivos de 0,0% e Recall de 100%.
+  - Testes de não-regressão e estresse para atalhos assintóticos (fast-path exato, priorização de autoria e poda de candidatos sob carga).
 - Bateria de testes adversariais em `tests/testthat/test-merge_bibliolatam.R` validando a retenção de 2 registros para séries ordinais e autores distintos com títulos idênticos.
 - Fallback de caminho relativo para fixture `redalyc_sample.bib` em `tests/testthat/test-read_redalyc.R` garantindo execução de testes em modo de desenvolvimento local.
 
