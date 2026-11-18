@@ -48,9 +48,10 @@
   - Detecção e bloqueio de discrepância entre séries e numerais ordinais (`Parte I` vs `Parte II`, `Parte 1` vs `Parte 2`).
   - Bloqueio por sobreposição de sobrenomes de autores com tolerância fonética a grafias comuns (ex.: `Sousa` vs `Souza`).
   - Elevação automática de threshold para 0.95 quando registros não possuem autor declarado.
-- [ ] **Passo 2 (Melhoria Futura - Testes Adversariais Massivos)**:
-  - Bateria de testes adversariais com matrizes sintéticas de títulos colidentes e permutações de homônimos.
-  - Benchmarking empírico automatizado para mensuração contínua da taxa de falsos positivos em coleções heterogêneas.
+- [x] **Passo 2 (Testes Adversariais Massivos e Benchmark Empírico)**:
+  - Bateria de testes adversariais em `test-adversarial_merge_benchmark.R` com sequências de 4 partes, inversão de autores e sufixos ordinais.
+  - Benchmark de matriz de confusão automatizado com 50 duplicatas reais versus 50 armadilhas adversariais atingindo FPR = 0,0% e Recall = 100%.
+  - Expansão de abreviações de séries (`vol` -> `volume`, `pt` -> `parte`, `sec` -> `secao`) em `normalize_title_str()`.
 - [ ] **Passo 3 (Melhoria Futura - Otimização Assintótica para Grandes Coleções)**:
   - Indexação prévia de títulos por prefixos e hashes de *q-grams* para evitar o produto cartesiano $O(N \times M)$ do Levenshtein em coleções censitárias gigantes (> 50.000 artigos).
   - Bloqueio pré-Levenshtein por chaves fonéticas (Metaphone/Soundex lusófono) para acelerar a busca em memória.

@@ -10,7 +10,8 @@
   - Added source repository dropdown filter (SciELO, BDTD, Oasisbr, LA Referencia).
   - Added page size selector (5, 10, 20, 50) and previous/next page navigation controls.
   - Added trilingual localization keys in `R/i18n.R`.
-- **Adversarial test suite for entity resolution**: Added dedicated unit tests in `test-merge_bibliolatam.R` verifying that series parts and disjoint author pairs are never merged.
+  - Added series abbreviation expansion in `normalize_title_str()` mapping `vol` to `volume`, `pt` to `parte`, and `sec` to `secao`.
+- **Adversarial merge benchmark and confusion matrix suite**: Added `test-adversarial_merge_benchmark.R` evaluating multi-part 4-sequence articles, inverted author order, and an automated confusion matrix test comparing 50 true duplicate pairs with synthetic noise against 50 adversarial traps, validating a False Positive Rate of 0.0% and Recall of 100%.
 
 # bibliolatam 1.0.0
 

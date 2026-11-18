@@ -18,7 +18,14 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
   - Guardrail de autoria (`extract_author_surnames`, `surnames_compatible`), exigindo ao menos um sobrenome de autor coincidente para permitir matching por título, com tolerância fonética de edição $\le 1$ para grafias luso-hispânicas comuns (ex.: `Sousa` vs `Souza`).
   - Threshold de similaridade adaptativo com elevação automática para $\ge 0.95$ quando algum dos registros não possui autor declarado.
 
+- **Harmonização de abreviações de séries em `normalize_title_str()`**: expansão automática de `vol` para `volume`, `pt` para `parte` e `sec` para `secao` antes da medição de distâncias de string, prevenindo falsos negativos decorrentes de abreviações pontuais.
+
 ### Test
+- **Suíte de testes adversariais massivos e benchmark empírico (`tests/testthat/test-adversarial_merge_benchmark.R`)**:
+  - Validação de sequências multissetoriais de 4 partes preservadas sem colapso indevido.
+  - Testes de equivalência de numerais ordinais arábicos e romanos (*Parte 1* vs *Parte I*, *Volume 2* vs *Vol. II*, *Fase 4* vs *Fase IV*).
+  - Testes de permutações de autores (ordem invertida e coautores truncados).
+  - Benchmark automatizado de matriz de confusão com 50 duplicatas verdadeiras vs 50 armadilhas adversariais atingindo Taxa de Falsos Positivos de 0,0% e Recall de 100%.
 - Bateria de testes adversariais em `tests/testthat/test-merge_bibliolatam.R` validando a retenção de 2 registros para séries ordinais e autores distintos com títulos idênticos.
 - Fallback de caminho relativo para fixture `redalyc_sample.bib` em `tests/testthat/test-read_redalyc.R` garantindo execução de testes em modo de desenvolvimento local.
 
