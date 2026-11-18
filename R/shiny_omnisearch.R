@@ -190,6 +190,7 @@ omnisearchUI <- function(lang = "en") {
             shiny::div(
               style = "margin-top: 20px;",
               shiny::uiOutput("omniPreviewHeader"),
+              shiny::uiOutput("omniPreviewControls"),
               shiny::uiOutput("omniPreviewTable"),
               shiny::uiOutput("omniLoadSection")
             )
@@ -224,6 +225,10 @@ omnisearchUI <- function(lang = "en") {
 omnisearchServer <- function(input, output, session, values = NULL) {
   omni_data <- shiny::reactiveVal(NULL)
   omni_stats <- shiny::reactiveVal(NULL)
+  omni_preview_page <- shiny::reactiveVal(1L)
+  omni_preview_source_filter <- shiny::reactiveVal("all")
+  omni_preview_page_size <- shiny::reactiveVal(10L)
+  omni_preview_search <- shiny::reactiveVal("")
 
   get_lang <- function() {
     if (!is.null(input$current_lang) && nzchar(input$current_lang)) {
@@ -305,6 +310,9 @@ omnisearchServer <- function(input, output, session, values = NULL) {
       shiny::incProgress(0.2, detail = bl_i18n("omni_prog_finalizing", lang))
 
       omni_data(df_result)
+      omni_preview_page(1L)
+      omni_preview_source_filter("all")
+      omni_preview_search("")
 
       # Calcular estatisticas
       src_tab <- if ("DB" %in% names(df_result)) table(df_result$DB) else table("ALL" = nrow(df_result))
@@ -381,6 +389,70 @@ omnisearchServer <- function(input, output, session, values = NULL) {
     )
   })
 
+  # Preview Pagination & Filtering Observers
+  shiny::observeEvent(input$omniPreviewSourceFilter, {
+    if (!is.null(input$omniPreviewSourceFilter)) {
+      omni_preview_source_filter(input$omniPreviewSourceFilter)
+      omni_preview_page(1L)
+    }
+  }, ignoreInit = TRUE)
+
+  shiny::observeEvent(input$omniPreviewSearchInput, {
+    val <- input$omniPreviewSearchInput
+    omni_preview_search(if (is.null(val)) "" else trimws(val))
+    omni_preview_page(1L)
+  }, ignoreInit = TRUE)
+
+  shiny::observeEvent(input$omniPreviewPageSizeSelect, {
+    val <- as.integer(input$omniPreviewPageSizeSelect)
+    if (!is.na(val) && val > 0L) {
+      omni_preview_page_size(val)
+      omni_preview_page(1L)
+    }
+  }, ignoreInit = TRUE)
+
+  shiny::observeEvent(input$omniPreviewPrevBtn, {
+    curr <- omni_preview_page()
+    if (curr > 1L) {
+      omni_preview_page(curr - 1L)
+    }
+  })
+
+  shiny::observeEvent(input$omniPreviewNextBtn, {
+    df_sub <- preview_filtered_data()
+    total_items <- if (is.null(df_sub)) 0L else nrow(df_sub)
+    page_size <- omni_preview_page_size()
+    total_pages <- max(1L, ceiling(total_items / page_size))
+    curr <- omni_preview_page()
+    if (curr < total_pages) {
+      omni_preview_page(curr + 1L)
+    }
+  })
+
+  preview_filtered_data <- shiny::reactive({
+    df <- omni_data()
+    if (is.null(df) || nrow(df) == 0L) return(NULL)
+
+    src_filter <- omni_preview_source_filter()
+    if (!is.null(src_filter) && nzchar(src_filter) && src_filter != "all" && "DB" %in% names(df)) {
+      df <- df[!is.na(df$DB) & tolower(df$DB) == tolower(src_filter), , drop = FALSE]
+    }
+
+    search_term <- omni_preview_search()
+    if (!is.null(search_term) && nzchar(search_term)) {
+      cols_to_search <- intersect(c("TI", "AU", "SO", "DI"), names(df))
+      if (length(cols_to_search) > 0L && nrow(df) > 0L) {
+        combined_text <- apply(df[, cols_to_search, drop = FALSE], 1, function(r) {
+          paste(r[!is.na(r)], collapse = " ")
+        })
+        match_idx <- grepl(search_term, combined_text, ignore.case = TRUE)
+        df <- df[match_idx, , drop = FALSE]
+      }
+    }
+
+    df
+  })
+
   output$omniPreviewHeader <- shiny::renderUI({
     df <- omni_data()
     if (is.null(df) || nrow(df) == 0L) return(NULL)
@@ -388,20 +460,119 @@ omnisearchServer <- function(input, output, session, values = NULL) {
     shiny::tags$h4(
       bl_i18n("omni_preview_title", lang),
       `data-i18n` = "omni_preview_title",
-      style = "font-weight: bold; color: #2c3e50;"
+      style = "font-weight: bold; color: #2c3e50; margin-bottom: 12px;"
+    )
+  })
+
+  output$omniPreviewControls <- shiny::renderUI({
+    df <- omni_data()
+    if (is.null(df) || nrow(df) == 0L) return(NULL)
+    lang <- get_lang()
+
+    src_choices <- c("all")
+    names(src_choices) <- paste0(bl_i18n("preview_filter_all_sources", lang), " (", nrow(df), ")")
+
+    if ("DB" %in% names(df)) {
+      db_tab <- table(df$DB)
+      for (s in sort(names(db_tab))) {
+        src_choices[[paste0(toupper(s), " (", as.integer(db_tab[[s]]), ")")]] <- s
+      }
+    }
+
+    shiny::div(
+      style = "margin-bottom: 12px; padding: 10px 14px; background-color: #f9f9f9; border: 1px solid #e1e1e1; border-radius: 4px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px;",
+      shiny::div(
+        style = "display: flex; align-items: center; gap: 8px; flex-wrap: wrap;",
+        shiny::tags$span(shiny::icon("filter"), style = "color: #555;"),
+        shiny::selectInput(
+          "omniPreviewSourceFilter",
+          label = NULL,
+          choices = src_choices,
+          selected = omni_preview_source_filter(),
+          width = "190px"
+        ),
+        shiny::tags$input(
+          id = "omniPreviewSearchInput",
+          type = "text",
+          class = "form-control input-sm",
+          placeholder = bl_i18n("preview_search_ph", lang),
+          value = omni_preview_search(),
+          onkeyup = "Shiny.setInputValue('omniPreviewSearchInput', this.value);",
+          style = "width: 240px; height: 30px;"
+        )
+      ),
+      shiny::div(
+        style = "display: flex; align-items: center; gap: 8px;",
+        shiny::tags$span(bl_i18n("preview_page_size", lang), style = "font-size: 12px; color: #555; font-weight: 600;"),
+        shiny::selectInput(
+          "omniPreviewPageSizeSelect",
+          label = NULL,
+          choices = c("5" = 5, "10" = 10, "20" = 20, "50" = 50),
+          selected = omni_preview_page_size(),
+          width = "75px"
+        ),
+        shiny::actionButton(
+          "omniPreviewPrevBtn",
+          label = NULL,
+          icon = shiny::icon("chevron-left"),
+          class = "btn-sm btn-default",
+          style = "padding: 4px 8px;",
+          title = bl_i18n("preview_btn_prev", lang)
+        ),
+        shiny::uiOutput("omniPreviewPageInfoText", inline = TRUE),
+        shiny::actionButton(
+          "omniPreviewNextBtn",
+          label = NULL,
+          icon = shiny::icon("chevron-right"),
+          class = "btn-sm btn-default",
+          style = "padding: 4px 8px;",
+          title = bl_i18n("preview_btn_next", lang)
+        )
+      )
+    )
+  })
+
+  output$omniPreviewPageInfoText <- shiny::renderUI({
+    df_sub <- preview_filtered_data()
+    total_items <- if (is.null(df_sub)) 0L else nrow(df_sub)
+    page_size <- omni_preview_page_size()
+    total_pages <- max(1L, ceiling(total_items / page_size))
+    curr_page <- min(omni_preview_page(), total_pages)
+    lang <- get_lang()
+
+    shiny::tags$span(
+      sprintf(bl_i18n("preview_page_label", lang), curr_page, total_pages, total_items),
+      style = "font-size: 12px; font-weight: 600; color: #333; margin: 0 4px;"
     )
   })
 
   output$omniPreviewTable <- shiny::renderUI({
-    df <- omni_data()
-    if (is.null(df) || nrow(df) == 0L) return(NULL)
+    df_sub <- preview_filtered_data()
+    if (is.null(df_sub) || nrow(df_sub) == 0L) {
+      lang <- get_lang()
+      return(
+        shiny::div(
+          style = "padding: 20px; text-align: center; color: #777; background: #fafafa; border: 1px dashed #ddd; border-radius: 4px;",
+          shiny::icon("info-circle", style = "margin-right: 6px;"),
+          bl_i18n("preview_no_match", lang)
+        )
+      )
+    }
 
-    disp_cols <- intersect(c("TI", "AU", "SO", "PY", "DB", "DI"), names(df))
-    preview_df <- utils::head(df[, disp_cols, drop = FALSE], 5)
+    disp_cols <- intersect(c("TI", "AU", "SO", "PY", "DB", "DI"), names(df_sub))
+    page_size <- omni_preview_page_size()
+    total_items <- nrow(df_sub)
+    total_pages <- max(1L, ceiling(total_items / page_size))
+    curr_page <- min(omni_preview_page(), total_pages)
+
+    start_idx <- (curr_page - 1L) * page_size + 1L
+    end_idx <- min(curr_page * page_size, total_items)
+
+    slice_df <- df_sub[start_idx:end_idx, disp_cols, drop = FALSE]
 
     shiny::tags$div(
       style = "overflow-x: auto; font-size: 13px;",
-      shiny::renderTable(preview_df, striped = TRUE, hover = TRUE, bordered = TRUE, width = "100%")
+      shiny::renderTable(slice_df, striped = TRUE, hover = TRUE, bordered = TRUE, width = "100%")
     )
   })
 
