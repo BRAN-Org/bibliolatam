@@ -4,6 +4,24 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/), e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [Unreleased]
+
+### Added
+- **Controles de paginação e filtragem no Omnisearch (`omnisearchUI`, `omnisearchServer`)**:
+  - Filtro por repositório de origem (SciELO, BDTD, Oasisbr, LA Referencia).
+  - Campo de busca textual reativa em tempo real cobrindo título, autor, periódico e DOI.
+  - Seletor de tamanho de página (5, 10, 20, 50 registros) e navegação com botões anterior/próximo e indicador de página.
+  - Chaves de tradução trilíngue (`omni_filter_source`, `omni_search_filter`, etc.) em `R/i18n.R`.
+- **Guardrails determinísticos anti-falso positivo em `merge_bibliolatam()`**:
+  - Detecção e bloqueio de discrepância entre séries e numerais ordinais (`extract_part_token`), impedindo que artigos como *"Parte I"* e *"Parte II"* se fundam indevidamente sob similaridade elevada de título.
+  - Normalização de numerais ordinais romanos para arábicos (`Parte 1` vs `Parte I`) permitindo fusão correta de artigos idênticos entre bases heterogêneas.
+  - Guardrail de autoria (`extract_author_surnames`, `surnames_compatible`), exigindo ao menos um sobrenome de autor coincidente para permitir matching por título, com tolerância fonética de edição $\le 1$ para grafias luso-hispânicas comuns (ex.: `Sousa` vs `Souza`).
+  - Threshold de similaridade adaptativo com elevação automática para $\ge 0.95$ quando algum dos registros não possui autor declarado.
+
+### Test
+- Bateria de testes adversariais em `tests/testthat/test-merge_bibliolatam.R` validando a retenção de 2 registros para séries ordinais e autores distintos com títulos idênticos.
+- Fallback de caminho relativo para fixture `redalyc_sample.bib` em `tests/testthat/test-read_redalyc.R` garantindo execução de testes em modo de desenvolvimento local.
+
 ## [1.0.0] - 2026-10-20
 
 ### Fixed

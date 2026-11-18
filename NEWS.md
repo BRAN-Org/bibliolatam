@@ -1,3 +1,17 @@
+# bibliolatam (development version)
+
+- **Anti-false-positive guardrails in `merge_bibliolatam()`**:
+  - Added series and part discrepancy detection (`extract_part_token`), preventing articles belonging to sequential series (e.g. "Part I" vs "Part II") from falsely merging despite high string similarity.
+  - Added cross-database ordinal normalization mapping Roman numerals to Arabic equivalents ("Part 1" vs "Part I"), preserving correct entity resolution.
+  - Added author surname overlap guardrail (`extract_author_surnames`, `surnames_compatible`) requiring at least one compatible author surname before title matching, with a 1-character edit distance tolerance for common Portuguese and Spanish phonetic spelling variations (e.g., "Sousa" vs "Souza").
+  - Added adaptive similarity threshold enforcing $\ge 0.95$ when either record lacks author metadata.
+- **Paginated and filtered preview controls in Omnisearch (`omnisearchUI`, `omnisearchServer`)**:
+  - Added live text search filtering across title, author, journal, and DOI.
+  - Added source repository dropdown filter (SciELO, BDTD, Oasisbr, LA Referencia).
+  - Added page size selector (5, 10, 20, 50) and previous/next page navigation controls.
+  - Added trilingual localization keys in `R/i18n.R`.
+- **Adversarial test suite for entity resolution**: Added dedicated unit tests in `test-merge_bibliolatam.R` verifying that series parts and disjoint author pairs are never merged.
+
 # bibliolatam 1.0.0
 
 - **Initial repository structure and governance**: Scaffolded package infrastructure, dual licensing (GPL-3.0 for code and CC BY-NC-SA 4.0 for scientometric fixtures), and standard BRAN Org community health files.
