@@ -61,6 +61,25 @@
   - [ ] **Completar cobertura trilíngue (i18n) nos rótulos internos das abas secundárias (`R/shiny_bdtd.R`, `R/shiny_oasisbr.R`, `R/shiny_redalyc.R`, `R/shiny_merge.R`)**: Mapear banners informativos, títulos dos cartões KPI (`TOTAL WORKS`, `TIMESPAN`, etc.), opções de filtro (`radioButtons`/`selectInput`) e botões de exportação com `bl_i18n()` e atributos `data-i18n` em `R/i18n.R`.
   - [ ] **Adicionar busca online por palavra-chave na aba dedicada SciELO (`scieloUI` / `scieloServer` em `R/shiny_scielo.R`)**: Integrar `download_scielo_search()` na aba SciELO (além da busca atual por lista de DOIs/PIDs via `download_scielo_jats()`), permitindo busca textual direta com filtro de ano e enriquecimento opcional de referências citadas (`CR`).
   - [ ] **Expor upload explícito para arquivos SPELL / ANPAD (`read_spell`) na interface gráfica (`run_app()`)**: Adicionar aba dedicada ou seletor explícito de upload para exportações CSV do SPELL com pré-visualização, cartões de resumo e exportação.
+- [ ] **Passo 5 (Expansão da Cobertura Ibero-Americana 100% — Superação das Limitações 1, 2 e 3)**:
+  - [ ] **Limitação 1 — Busca Online Multi-País no SciELO (`download_scielo_search.R`)**:
+    - Expandir o filtro `filter=prefix:...` na API do Crossref (atualmente restrito ao prefixo `10.1590` do SciELO Brasil) para incluir os prefixos DOI das demais coleções nacionais da Rede SciELO:
+      - SciELO Brasil / Saúde Pública: `10.1590`
+      - SciELO Chile (ANID): `10.4067`
+      - SciELO Espanha (ISCIII): `10.4321`
+      - SciELO Costa Rica (UCR): `10.15517`
+      - SciELO Peru: `10.17843`
+      - SciELO Uruguai: `10.26461`
+    - Adicionar parâmetro opcional `collections` / `prefixes` em `download_scielo_search()` para permitir buscar em toda a rede SciELO ibero-americana simultaneamente ou filtrar por país específico.
+  - [ ] **Limitação 2 — Desenhar Solução de Busca Online para Redalyc/AmeliCA e SPELL (além de arquivo local)**:
+    - Estudar e arquitetar estratégia para integrar Redalyc/AmeliCA e SPELL na descoberta online (`omnisearch_bibliolatam`), avaliando:
+      - Resolução via **OpenAlex REST API / Crossref** filtrada por conjunto de ISSNs indexados no Redalyc/AmeliCA e SPELL; ou
+      - Coleta via endpoints **OAI-PMH** / APIs públicas disponíveis nessas plataformas sem violar rate-limits.
+  - [ ] **Limitação 3 — Desenhar Solução para Fontes Complementares e Especializadas (Dialnet, Biblat/CLASE, LILACS/PePSIC e Latindex)**:
+    - Projetar arquitetura de cobertura para as bases regionais e disciplinares que ainda não possuem conector dedicado:
+      - **Dialnet (Espanha / Ibero-América)** e **Biblat / CLASE / PERIÓDICA (UNAM - México)**: Criar parsers dedicados (`read_dialnet`, `read_biblat`) para exportações RIS/BibTeX/CSV e avaliar busca automatizada via OAI-PMH / OpenAlex.
+      - **LILACS (BVS / BIREME)** e **PePSIC**: Criar parser dedicado (`read_lilacs`) para exportações RIS/CSV da BVS e investigar integração com a API/formato de busca iAHx da BVS.
+      - **Latindex (Diretório e Catálogo 2.0)**: Projetar módulo de enriquecimento/validação de periódicos por ISSN (`SN`) para identificar e classificar revistas ibero-americanas de Acesso Aberto Diamante dentro de coleções `bibliometrixDB`.
 - [ ] OpenAlex Latin American harvester backend
 - [ ] Canopy clustering e string distance heuristics para desambiguação avançada de autores
 - [ ] Automated co-citation and bibliographic coupling graph export for Gephi / Pajek
