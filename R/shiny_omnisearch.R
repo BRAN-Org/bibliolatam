@@ -1,3 +1,25 @@
+#' Internal helper to render a square '?' hover help badge with live i18n tooltip
+#'
+#' @param i18n_key Character. Translation key in `BL_I18N_DICT`.
+#' @param lang Character. Initial language code ("en", "pt", or "es").
+#' @return A `shiny.tag` span displaying a square '?' icon with hover tooltip.
+#' @noRd
+bl_help_badge <- function(i18n_key, lang = "en") {
+  shiny::tags$span(
+    "?",
+    class = "bl-help-badge",
+    title = bl_i18n(i18n_key, lang),
+    `data-i18n-title` = i18n_key,
+    style = paste0(
+      "display: inline-flex; align-items: center; justify-content: center; ",
+      "width: 17px; height: 17px; margin-left: 6px; font-size: 11px; ",
+      "font-weight: bold; color: #3c8dbc; background-color: #eef5fa; ",
+      "border: 1px solid #b8d4ea; border-radius: 3px; cursor: help; ",
+      "vertical-align: middle; user-select: none;"
+    )
+  )
+}
+
 #' Omnisearch UI Component for Biblioshiny
 #'
 #' Renders the Latin American scientific Omnisearch panel compatible with biblioshiny.
@@ -162,25 +184,195 @@ omnisearchUI <- function(lang = "en") {
                   style = "margin-top: 5px;",
                   shiny::checkboxInput(
                     "omniDeduplicate",
-                    shiny::tags$span(bl_i18n("omni_dedup", lang), `data-i18n` = "omni_dedup"),
+                    shiny::tagList(
+                      shiny::tags$span(bl_i18n("omni_dedup", lang), `data-i18n` = "omni_dedup"),
+                      bl_help_badge("omni_help_dedup", lang)
+                    ),
                     value = TRUE
                   ),
                   shiny::checkboxInput(
                     "omniEnrichCR",
-                    shiny::tags$span(bl_i18n("omni_enrich_cr", lang), `data-i18n` = "omni_enrich_cr"),
+                    shiny::tagList(
+                      shiny::tags$span(bl_i18n("omni_enrich_cr", lang), `data-i18n` = "omni_enrich_cr"),
+                      bl_help_badge("omni_help_enrich_cr", lang)
+                    ),
                     value = FALSE
                   )
                 )
               )
             ),
+
+            # Action bar: Advanced Settings toggle (left) + Search button (right)
             shiny::div(
-              style = "margin-top: 15px; margin-bottom: 15px; text-align: right;",
+              style = "margin-top: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;",
+              shiny::tags$button(
+                id = "omniToggleAdvanced",
+                type = "button",
+                class = "btn btn-default",
+                style = "font-weight: 600; color: #34495e; border-color: #cbd5e1;",
+                shiny::icon("sliders-h"),
+                " ",
+                shiny::tags$span(bl_i18n("omni_adv_toggle", lang), `data-i18n` = "omni_adv_toggle"),
+                " ",
+                shiny::tags$i(id = "omniAdvancedChevron", class = "fa fa-chevron-down", style = "margin-left: 4px; font-size: 11px;")
+              ),
               shiny::actionButton(
                 "omniSearchBtn",
                 label = shiny::tags$span(bl_i18n("omni_search_btn", lang), `data-i18n` = "omni_search_btn"),
                 icon = shiny::icon("search"),
                 class = "btn-primary btn-lg",
                 style = "background-color: #00a65a; border-color: #008d4c; font-weight: bold;"
+              )
+            ),
+
+            # Collapsible Advanced Settings Drawer (hidden by default)
+            shiny::div(
+              id = "omniAdvancedPanel",
+              style = "display: none; margin-bottom: 18px; padding: 16px; background-color: #f8fafc; border: 1px solid #d9e2ec; border-left: 4px solid #3c8dbc; border-radius: 4px;",
+              shiny::fluidRow(
+                # Block 1: Corpus Quality Filters & Author Normalization
+                shiny::column(
+                  width = 6,
+                  shiny::tags$h5(
+                    shiny::icon("filter", style = "margin-right: 6px; color: #3c8dbc;"),
+                    shiny::tags$span(bl_i18n("omni_adv_sec_filters", lang), `data-i18n` = "omni_adv_sec_filters"),
+                    style = "font-weight: bold; color: #2c3e50; margin-top: 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;"
+                  ),
+                  shiny::tags$label(
+                    shiny::tags$span(bl_i18n("omni_adv_doc_types", lang), `data-i18n` = "omni_adv_doc_types"),
+                    bl_help_badge("omni_help_doc_types", lang),
+                    style = "font-weight: 600; font-size: 12px; color: #34495e; display: block;"
+                  ),
+                  shiny::checkboxGroupInput(
+                    "omniDocTypeFilter",
+                    label = NULL,
+                    choices = c(
+                      "Article" = "ARTICLE",
+                      "Thesis" = "THESIS",
+                      "Dissertation" = "DISSERTATION",
+                      "Book" = "BOOK",
+                      "Conference" = "CONFERENCE"
+                    ),
+                    selected = character(0L),
+                    inline = TRUE
+                  ),
+                  shiny::tags$label(
+                    shiny::tags$span(bl_i18n("omni_adv_languages", lang), `data-i18n` = "omni_adv_languages"),
+                    bl_help_badge("omni_help_languages", lang),
+                    style = "font-weight: 600; font-size: 12px; color: #34495e; display: block; margin-top: 8px;"
+                  ),
+                  shiny::checkboxGroupInput(
+                    "omniLanguageFilter",
+                    label = NULL,
+                    choices = c(
+                      "Portuguese" = "PORTUGUESE",
+                      "Spanish" = "SPANISH",
+                      "English" = "ENGLISH"
+                    ),
+                    selected = character(0L),
+                    inline = TRUE
+                  ),
+                  shiny::div(
+                    style = "margin-top: 8px;",
+                    shiny::checkboxInput(
+                      "omniRequireDoi",
+                      shiny::tagList(
+                        shiny::tags$span(bl_i18n("omni_adv_req_doi", lang), `data-i18n` = "omni_adv_req_doi"),
+                        bl_help_badge("omni_help_req_doi", lang)
+                      ),
+                      value = FALSE
+                    ),
+                    shiny::checkboxInput(
+                      "omniRequireAbstract",
+                      shiny::tagList(
+                        shiny::tags$span(bl_i18n("omni_adv_req_ab", lang), `data-i18n` = "omni_adv_req_ab"),
+                        bl_help_badge("omni_help_req_ab", lang)
+                      ),
+                      value = FALSE
+                    ),
+                    shiny::checkboxInput(
+                      "omniNormalizeAuthors",
+                      shiny::tagList(
+                        shiny::tags$span(bl_i18n("omni_adv_norm_au", lang), `data-i18n` = "omni_adv_norm_au"),
+                        bl_help_badge("omni_help_norm_au", lang)
+                      ),
+                      value = TRUE
+                    )
+                  )
+                ),
+
+                # Block 2: SciELO Collections, Network & Export
+                shiny::column(
+                  width = 6,
+                  shiny::tags$h5(
+                    shiny::icon("globe-americas", style = "margin-right: 6px; color: #3c8dbc;"),
+                    shiny::tags$span(bl_i18n("omni_adv_sec_network", lang), `data-i18n` = "omni_adv_sec_network"),
+                    style = "font-weight: bold; color: #2c3e50; margin-top: 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;"
+                  ),
+                  shiny::tags$label(
+                    shiny::tags$span(bl_i18n("omni_adv_scielo_col", lang), `data-i18n` = "omni_adv_scielo_col"),
+                    bl_help_badge("omni_help_scielo_col", lang),
+                    style = "font-weight: 600; font-size: 12px; color: #34495e; display: block;"
+                  ),
+                  shiny::checkboxGroupInput(
+                    "omniScieloCollections",
+                    label = NULL,
+                    choices = c(
+                      "BR (10.1590)" = "br",
+                      "CL (10.4067)" = "cl",
+                      "ES (10.4321)" = "es",
+                      "CR (10.15517)" = "cr",
+                      "PE (10.17843)" = "pe",
+                      "UY (10.26461)" = "uy"
+                    ),
+                    selected = c("br", "cl", "es", "cr", "pe", "uy"),
+                    inline = TRUE
+                  ),
+                  shiny::tags$label(
+                    shiny::tags$span(bl_i18n("omni_adv_timeout", lang), `data-i18n` = "omni_adv_timeout"),
+                    bl_help_badge("omni_help_timeout", lang),
+                    `for` = "omniTimeout",
+                    style = "font-weight: 600; font-size: 12px; color: #34495e; display: block; margin-top: 8px;"
+                  ),
+                  shiny::numericInput(
+                    "omniTimeout",
+                    label = NULL,
+                    value = 30,
+                    min = 10,
+                    max = 120,
+                    step = 5,
+                    width = "100%"
+                  ),
+                  shiny::tags$label(
+                    shiny::tags$span(bl_i18n("omni_adv_csv_sep", lang), `data-i18n` = "omni_adv_csv_sep"),
+                    bl_help_badge("omni_help_csv_sep", lang),
+                    style = "font-weight: 600; font-size: 12px; color: #34495e; display: block; margin-top: 6px;"
+                  ),
+                  shiny::radioButtons(
+                    "omniCsvSep",
+                    label = NULL,
+                    choices = c("Comma (,)" = ",", "Semicolon (;)" = ";"),
+                    selected = ",",
+                    inline = TRUE
+                  ),
+                  shiny::checkboxInput(
+                    "omniCsvBom",
+                    shiny::tagList(
+                      shiny::tags$span(bl_i18n("omni_adv_csv_bom", lang), `data-i18n` = "omni_adv_csv_bom"),
+                      bl_help_badge("omni_help_csv_bom", lang)
+                    ),
+                    value = FALSE
+                  )
+                )
+              ),
+              shiny::div(
+                style = "margin-top: 8px; padding-top: 8px; border-top: 1px solid #e2e8f0; text-align: right;",
+                shiny::actionButton(
+                  "omniResetAdvancedBtn",
+                  label = shiny::tags$span(bl_i18n("omni_adv_reset", lang), `data-i18n` = "omni_adv_reset"),
+                  icon = shiny::icon("undo"),
+                  class = "btn-default btn-xs"
+                )
               )
             ),
 
@@ -200,7 +392,7 @@ omnisearchUI <- function(lang = "en") {
       )
     ),
 
-    # JavaScript for reversible toggle collapse
+    # JavaScript for reversible panel collapse and Advanced Settings drawer toggle
     shiny::tags$script(shiny::HTML(
       "$(document).ready(function() {
          var omniCollapsed = false;
@@ -211,6 +403,18 @@ omnisearchUI <- function(lang = "en") {
              $(this).html('<i class=\"fa fa-chevron-down\"></i>');
            } else {
              $(this).html('<i class=\"fa fa-chevron-up\"></i>');
+           }
+         });
+
+         var advOpen = false;
+         $(document).off('click.omniAdvToggle', '#omniToggleAdvanced').on('click.omniAdvToggle', '#omniToggleAdvanced', function() {
+           advOpen = !advOpen;
+           $('#omniAdvancedPanel').slideToggle(250);
+           var chev = $('#omniAdvancedChevron');
+           if (advOpen) {
+             chev.removeClass('fa-chevron-down').addClass('fa-chevron-up');
+           } else {
+             chev.removeClass('fa-chevron-up').addClass('fa-chevron-down');
            }
          });
        });"
@@ -255,6 +459,25 @@ omnisearchServer <- function(input, output, session, values = NULL) {
     }
   }
 
+  # Reset Advanced Settings to defaults
+  shiny::observeEvent(input$omniResetAdvancedBtn, {
+    lang <- get_lang()
+    shiny::updateCheckboxGroupInput(session, "omniDocTypeFilter", selected = character(0L))
+    shiny::updateCheckboxGroupInput(session, "omniLanguageFilter", selected = character(0L))
+    shiny::updateCheckboxInput(session, "omniRequireDoi", value = FALSE)
+    shiny::updateCheckboxInput(session, "omniRequireAbstract", value = FALSE)
+    shiny::updateCheckboxInput(session, "omniNormalizeAuthors", value = TRUE)
+    shiny::updateCheckboxGroupInput(
+      session,
+      "omniScieloCollections",
+      selected = c("br", "cl", "es", "cr", "pe", "uy")
+    )
+    shiny::updateNumericInput(session, "omniTimeout", value = 30)
+    shiny::updateRadioButtons(session, "omniCsvSep", selected = ",")
+    shiny::updateCheckboxInput(session, "omniCsvBom", value = FALSE)
+    shiny::showNotification(bl_i18n("omni_adv_reset_ok", lang), type = "message", duration = 3)
+  })
+
   # Search execution
   shiny::observeEvent(input$omniSearchBtn, {
     lang <- get_lang()
@@ -284,6 +507,28 @@ omnisearchServer <- function(input, output, session, values = NULL) {
       years_arg <- c(ys, ye)
     }
 
+    # Advanced settings with safe validated defaults
+    norm_au_arg <- if (is.null(input$omniNormalizeAuthors)) TRUE else isTRUE(input$omniNormalizeAuthors)
+
+    scielo_col_arg <- input$omniScieloCollections
+    if (is.null(scielo_col_arg) || length(scielo_col_arg) == 0L) {
+      scielo_col_arg <- c("br", "cl", "es", "cr", "pe", "uy")
+    }
+
+    timeout_arg <- suppressWarnings(as.numeric(input$omniTimeout))
+    if (length(timeout_arg) != 1L || is.na(timeout_arg) || timeout_arg < 10) {
+      timeout_arg <- 30
+    }
+
+    doc_types_arg <- input$omniDocTypeFilter
+    if (length(doc_types_arg) == 0L) doc_types_arg <- NULL
+
+    langs_arg <- input$omniLanguageFilter
+    if (length(langs_arg) == 0L) langs_arg <- NULL
+
+    req_doi_arg <- isTRUE(input$omniRequireDoi)
+    req_ab_arg <- isTRUE(input$omniRequireAbstract)
+
     shiny::withProgress(message = bl_i18n("omni_prog_title", lang), value = 0.1, {
       shiny::incProgress(0.2, detail = bl_i18n("omni_prog_querying", lang))
 
@@ -296,7 +541,14 @@ omnisearchServer <- function(input, output, session, values = NULL) {
             years = years_arg,
             enrich_references = enrich_cr,
             deduplicate = dedup,
-            progress = FALSE
+            progress = FALSE,
+            timeout = timeout_arg,
+            normalize_authors = norm_au_arg,
+            scielo_collections = scielo_col_arg,
+            doc_types = doc_types_arg,
+            languages = langs_arg,
+            require_doi = req_doi_arg,
+            require_abstract = req_ab_arg
           )
         },
         error = function(e) {
@@ -554,6 +806,9 @@ omnisearchServer <- function(input, output, session, values = NULL) {
   })
 
   output$omniPreviewTable <- shiny::renderUI({
+    raw_df <- omni_data()
+    if (is.null(raw_df) || nrow(raw_df) == 0L) return(NULL)
+
     df_sub <- preview_filtered_data()
     if (is.null(df_sub) || nrow(df_sub) == 0L) {
       lang <- get_lang()
@@ -616,7 +871,36 @@ omnisearchServer <- function(input, output, session, values = NULL) {
     content = function(file) {
       df <- omni_data()
       if (!is.null(df)) {
-        utils::write.csv(df, file, row.names = FALSE, na = "")
+        csv_sep <- if (!is.null(input$omniCsvSep) && identical(input$omniCsvSep, ";")) ";" else ","
+        use_bom <- isTRUE(input$omniCsvBom)
+        if (use_bom) {
+          tmp_csv <- tempfile(fileext = ".csv")
+          on.exit(unlink(tmp_csv), add = TRUE)
+          utils::write.table(
+            df,
+            file = tmp_csv,
+            sep = csv_sep,
+            row.names = FALSE,
+            col.names = TRUE,
+            qmethod = "double",
+            na = ""
+          )
+          raw_csv <- readBin(tmp_csv, what = "raw", n = file.info(tmp_csv)$size)
+          bom_bytes <- as.raw(c(0xef, 0xbb, 0xbf))
+          con <- file(file, open = "wb")
+          on.exit(close(con), add = TRUE)
+          writeBin(c(bom_bytes, raw_csv), con)
+        } else {
+          utils::write.table(
+            df,
+            file = file,
+            sep = csv_sep,
+            row.names = FALSE,
+            col.names = TRUE,
+            qmethod = "double",
+            na = ""
+          )
+        }
       }
     }
   )

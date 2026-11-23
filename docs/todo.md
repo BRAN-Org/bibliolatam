@@ -63,7 +63,7 @@
 ---
 
 ## Fase 7: Expansão da Cobertura Ibero-Americana 100% (Limitações 1, 2 e 3)
-- [ ] **Limitação 1 (Busca Online SciELO Multi-País)**: Expandir `download_scielo_search()` além do prefixo `10.1590` (Brasil), adicionando os prefixos DOI de SciELO Chile (`10.4067`), SciELO Espanha/ISCIII (`10.4321`), SciELO Costa Rica (`10.15517`), SciELO Peru (`10.17843`) e SciELO Uruguai (`10.26461`)
+- [x] **Limitação 1 (Busca Online SciELO Multi-País)**: Expandir `download_scielo_search()` além do prefixo `10.1590` (Brasil), adicionando os prefixos DOI de SciELO Chile (`10.4067`), SciELO Espanha/ISCIII (`10.4321`), SciELO Costa Rica (`10.15517`), SciELO Peru (`10.17843`) e SciELO Uruguai (`10.26461`)
 - [ ] **Limitação 2 (Busca Online para Redalyc/AmeliCA e SPELL)**: Arquitetar solução para consulta online dessas fontes no `omnisearch_bibliolatam()` (ex.: filtragem por lista de ISSNs via OpenAlex/Crossref ou endpoints OAI-PMH)
 - [ ] **Limitação 3 (Fontes Complementares e Especializadas)**: Projetar solução dedicada para **Dialnet**, **Biblat (CLASE / PERIÓDICA)**, **LILACS (BVS) / PePSIC** (parsers nativos e/ou conectores de busca) e **Latindex** (enriquecimento e classificação de periódicos por ISSN `SN`)
 

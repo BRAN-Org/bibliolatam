@@ -12,7 +12,8 @@ download_scielo_search(
   convert = TRUE,
   progress = TRUE,
   normalize_authors = TRUE,
-  timeout = 30
+  timeout = 30,
+  collections = c("br", "cl", "es", "cr", "pe", "uy")
 )
 }
 \arguments{
@@ -33,16 +34,22 @@ via \code{\link[=download_scielo_jats]{download_scielo_jats()}} and enriches the
 \item{normalize_authors}{Logical. If \code{TRUE} (default), normalizes author names.}
 
 \item{timeout}{Numeric. Maximum seconds before connection timeout. Default is 30.}
+
+\item{collections}{Character vector. SciELO national collections to query. Supported codes:
+\code{"br"} (10.1590), \code{"cl"} (10.4067), \code{"es"} (10.4321), \code{"cr"} (10.15517),
+\code{"pe"} (10.17843), \code{"uy"} (10.26461), \code{"all"}, or raw Crossref DOI prefixes.
+Defaults to all six collections.}
 }
 \value{
 A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})
 or a standard \code{data.frame} (when \code{convert = FALSE}) containing retrieved SciELO records, optionally enriched with cited references (\code{CR}).
 }
 \description{
-Queries the Crossref REST API filtered by the official SciELO DOI prefix (\code{10.1590}),
-retrieving metadata records for peer-reviewed journal articles across SciELO collections
-(Brazil, Colombia, Mexico, Chile, Argentina, etc.), and parses them into a standardized
-\code{bibliometrixDB} data frame.
+Queries the Crossref REST API filtered by official SciELO national DOI prefixes
+(Brazil \code{10.1590}, Chile \code{10.4067}, Spain \code{10.4321}, Costa Rica \code{10.15517},
+Peru \code{10.17843}, and Uruguay \code{10.26461}), retrieving metadata records for
+peer-reviewed journal articles across SciELO collections and parsing them into a
+standardized \code{bibliometrixDB} data frame.
 }
 \examples{
 \donttest{

@@ -62,7 +62,7 @@
   - [ ] **Adicionar busca online por palavra-chave na aba dedicada SciELO (`scieloUI` / `scieloServer` em `R/shiny_scielo.R`)**: Integrar `download_scielo_search()` na aba SciELO (além da busca atual por lista de DOIs/PIDs via `download_scielo_jats()`), permitindo busca textual direta com filtro de ano e enriquecimento opcional de referências citadas (`CR`).
   - [ ] **Expor upload explícito para arquivos SPELL / ANPAD (`read_spell`) na interface gráfica (`run_app()`)**: Adicionar aba dedicada ou seletor explícito de upload para exportações CSV do SPELL com pré-visualização, cartões de resumo e exportação.
 - [ ] **Passo 5 (Expansão da Cobertura Ibero-Americana 100% — Superação das Limitações 1, 2 e 3)**:
-  - [ ] **Limitação 1 — Busca Online Multi-País no SciELO (`download_scielo_search.R`)**:
+  - [x] **Limitação 1 — Busca Online Multi-País no SciELO (`download_scielo_search.R`)**:
     - Expandir o filtro `filter=prefix:...` na API do Crossref (atualmente restrito ao prefixo `10.1590` do SciELO Brasil) para incluir os prefixos DOI das demais coleções nacionais da Rede SciELO:
       - SciELO Brasil / Saúde Pública: `10.1590`
       - SciELO Chile (ANID): `10.4067`

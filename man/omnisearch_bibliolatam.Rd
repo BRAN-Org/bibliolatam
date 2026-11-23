@@ -12,7 +12,15 @@ omnisearch_bibliolatam(
   enrich_references = FALSE,
   deduplicate = TRUE,
   progress = TRUE,
-  timeout = 30
+  timeout = 30,
+  match_by = c("doi", "title"),
+  similarity_threshold = 0.9,
+  normalize_authors = TRUE,
+  scielo_collections = c("br", "cl", "es", "cr", "pe", "uy"),
+  doc_types = NULL,
+  languages = NULL,
+  require_doi = FALSE,
+  require_abstract = FALSE
 )
 }
 \arguments{
@@ -34,6 +42,29 @@ to resolve duplicate DOIs and fuzzy titles, and fuse metadata tags.}
 \item{progress}{Logical. If \code{TRUE} (default), prints progress status for each database queried.}
 
 \item{timeout}{Numeric. Maximum seconds allowed per API request. Default is 30.}
+
+\item{match_by}{Character vector. Matching criteria passed to \code{\link[=merge_bibliolatam]{merge_bibliolatam()}}:
+\code{"doi"} and/or \code{"title"}. Defaults to \code{c("doi", "title")}.}
+
+\item{similarity_threshold}{Numeric between 0 and 1. Minimum normalized string similarity
+passed to \code{\link[=merge_bibliolatam]{merge_bibliolatam()}} for fuzzy title matching. Default is 0.90.}
+
+\item{normalize_authors}{Logical. If \code{TRUE} (default), normalizes Luso-Hispanic author names
+across all queried repositories via \code{\link[=normalize_authors]{normalize_authors()}}.}
+
+\item{scielo_collections}{Character vector. SciELO national collections passed to
+\code{\link[=download_scielo_search]{download_scielo_search()}} (\code{"br"}, \code{"cl"}, \code{"es"}, \code{"cr"}, \code{"pe"}, \code{"uy"}, or \code{"all"}).
+Defaults to all six collections.}
+
+\item{doc_types}{Character vector or \code{NULL}. Optional post-retrieval filter on Document Type (\code{DT}),
+e.g. \code{c("ARTICLE", "THESIS", "DISSERTATION")}. Default is \code{NULL} (keep all types).}
+
+\item{languages}{Character vector or \code{NULL}. Optional post-retrieval filter on Language (\code{LA}),
+e.g. \code{c("PORTUGUESE", "SPANISH", "ENGLISH")}. Default is \code{NULL} (keep all languages).}
+
+\item{require_doi}{Logical. If \code{TRUE}, retains only records carrying a non-empty \code{DI} field. Default is \code{FALSE}.}
+
+\item{require_abstract}{Logical. If \code{TRUE}, retains only records carrying a non-empty \code{AB} field. Default is \code{FALSE}.}
 }
 \value{
 A data frame with class \code{c("bibliometrixDB", "data.frame")} containing the
