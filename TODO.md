@@ -100,7 +100,12 @@
   - Permitir que o pesquisador informe uma palavra-chave ou tema em **um único idioma** (ex.: `"saude publica"`) e ative a expansão multilíngue automática para buscar simultaneamente o mesmo conceito em **Português, Espanhol e Inglês** (ex.: `"saude publica" OR "salud publica" OR "public health"`) sem precisar repetir a busca manualmente em 3 idiomas.
   - Avaliar fontes abertas e reprodutíveis para resolução conceitual trilíngue (sem chaves pagas e 100% compatível com CRAN):
     - **Vocabulários controlados abertos**: API **DeCS/MeSH** (BIREME/OPAS), **Tesauro da UNESCO** (SKOS) e **OpenAlex Topics/Concepts / Wikidata** (mapeamento nativo PT/ES/EN por conceito científico).
-    - **Transparência & Reprodutibilidade (FAIR)**: Exibir e permitir edição dos termos expandidos na interface (omnisearchUI / Advanced Settings) e registrar a query booleana expandida nos atributos do objeto ibliometrixDB para auditoria científica.
+    - **Transparência & Reprodutibilidade (FAIR)**: Exibir e permitir edição dos termos expandidos na interface (`omnisearchUI` / *Advanced Settings*) e registrar a query booleana expandida nos atributos do objeto `bibliometrixDB` para auditoria científica.
+- [ ] **Passo 8 (Blindagem Anti-Falso Positivo Residual no `merge_bibliolatam` & `omnisearch_bibliolatam`)**:
+  - [ ] **Conflito explícito de DOIs distintos no Passo 2 (`merge_bibliolatam`)**: Bloquear o matching aproximado por título sempre que **ambos** os registros possuírem DOI válido não-vazio e `dois1 != dois2` (evitando fundir artigo + errata/comentário ou tese com DOI institucional + artigo publicado derivado).
+  - [ ] **Guardrail de compatibilidade de Tipo Documental (`DT`)**: Impedir fusão automática entre `ARTICLE` e `THESIS`/`DISSERTATION` homônimos quando não compartilharem o mesmo DOI, evitando perda semântica de obras distintas publicadas no mesmo ano.
+  - [ ] **Deduplicação intra-fonte no `omnisearch_bibliolatam()`**: Remover duplicatas já retornadas dentro de uma mesma fonte (frequente no Oasisbr e na LA Referencia quando um trabalho está espelhado em múltiplos repositórios institucionais) antes da fusão cruzada via `Reduce()`.
+  - [ ] **Testes adversariais de regressão (`test-merge_bibliolatam.R`, `test-adversarial_merge_benchmark.R`)**: Cobrir pares com DOIs divergentes + título idêntico, tese vs. artigo homônimo e duplicatas intra-fonte.
 - [ ] OpenAlex Latin American harvester backend
 - [ ] Canopy clustering e string distance heuristics para desambiguação avançada de autores
 - [ ] Automated co-citation and bibliographic coupling graph export for Gephi / Pajek
