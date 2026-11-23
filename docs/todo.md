@@ -78,5 +78,11 @@
 ---
 
 ## Fase 9: Busca Multilíngue Automática (Cross-Lingual Query Expansion PT <-> ES <-> EN)
-- [ ] Projetar motor de expansão multilíngue de consultas (expand_query_multilingual()), permitindo digitar um termo em um único idioma (ex.: Português) e consultar automaticamente o tema equivalente em **Português, Espanhol e Inglês** nas bases federadas do omnisearch_bibliolatam()
+- [ ] Projetar motor de expansão multilíngue de consultas (`expand_query_multilingual()`), permitindo digitar um termo em um único idioma (ex.: Português) e consultar automaticamente o tema equivalente em **Português, Espanhol e Inglês** nas bases federadas do `omnisearch_bibliolatam()`
 - [ ] Avaliar integração com vocabulários controlados abertos (**DeCS/MeSH**, **Tesauro UNESCO**, **OpenAlex/Wikidata**) com pré-visualização editável dos termos expandidos na gaveta *Advanced Settings* do Omnisearch para garantir transparência e reprodutibilidade científica
+
+## Fase 10: Blindagem Anti-Falso Positivo Residual (`merge_bibliolatam` & `omnisearch_bibliolatam`)
+- [ ] **Conflito explícito de DOIs distintos**: Bloquear o matching por título em `merge_bibliolatam()` sempre que ambos os registros possuírem DOI válido e `d1 != d2` (evitando fundir artigo + errata/comentário ou tese com DOI institucional + artigo derivado)
+- [ ] **Compatibilidade de Tipo Documental (`DT`)**: Impedir fusão automática entre `ARTICLE` e `THESIS`/`DISSERTATION` homônimos sem DOI compartilhado
+- [ ] **Deduplicação intra-fonte**: Eliminar duplicatas retornadas dentro da mesma fonte (comum em Oasisbr e LA Referencia entre múltiplos repositórios universitários) antes do `Reduce()` no `omnisearch_bibliolatam()`
+- [ ] **Cobertura adversarial**: Expandir a suíte de testes adversariais cobrindo conflito de DOIs, tese vs. artigo homônimo e duplicatas intra-fonte
