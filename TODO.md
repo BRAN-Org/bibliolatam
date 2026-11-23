@@ -57,7 +57,7 @@
   - Atalho de igualdade exata pré-Levenshtein (*Exact Match Fast-Path*, $O(1)$) com priorização de autores compatíveis, proporcionando speedup de mais de 200x para títulos idênticos.
   - Bloqueio por palavras de conteúdo significativas (*Significant Content Word Canopy*) para coleções densas de candidatos (> 15).
 - [ ] **Passo 4 (Polimento da Aplicação Shiny `run_app()` & Módulos UI/Server)**:
-  - [ ] **Corrigir botão de recolher painel no Omnisearch (`R/shiny_omnisearch.R`)**: Substituir `shiny::removeUI(selector = "#omnisearchContent", immediate = TRUE)` por animação reversível via jQuery `slideToggle(300)`, evitando que o conteúdo seja removido permanentemente do DOM ao minimizar.
+  - [x] **Corrigir botão de recolher painel no Omnisearch (`R/shiny_omnisearch.R`)**: Substituído `shiny::removeUI(selector = "#omnisearchContent", immediate = TRUE)` por animação reversível via jQuery `slideToggle(300)` com `data-i18n-title="btn_collapse"` e 61 testes unitários em `test-shiny_omnisearch.R`.
   - [ ] **Completar cobertura trilíngue (i18n) nos rótulos internos das abas secundárias (`R/shiny_bdtd.R`, `R/shiny_oasisbr.R`, `R/shiny_redalyc.R`, `R/shiny_merge.R`)**: Mapear banners informativos, títulos dos cartões KPI (`TOTAL WORKS`, `TIMESPAN`, etc.), opções de filtro (`radioButtons`/`selectInput`) e botões de exportação com `bl_i18n()` e atributos `data-i18n` em `R/i18n.R`.
   - [ ] **Adicionar busca online por palavra-chave na aba dedicada SciELO (`scieloUI` / `scieloServer` em `R/shiny_scielo.R`)**: Integrar `download_scielo_search()` na aba SciELO (além da busca atual por lista de DOIs/PIDs via `download_scielo_jats()`), permitindo busca textual direta com filtro de ano e enriquecimento opcional de referências citadas (`CR`).
   - [ ] **Expor upload explícito para arquivos SPELL / ANPAD (`read_spell`) na interface gráfica (`run_app()`)**: Adicionar aba dedicada ou seletor explícito de upload para exportações CSV do SPELL com pré-visualização, cartões de resumo e exportação.
@@ -80,6 +80,22 @@
       - **Dialnet (Espanha / Ibero-América)** e **Biblat / CLASE / PERIÓDICA (UNAM - México)**: Criar parsers dedicados (`read_dialnet`, `read_biblat`) para exportações RIS/BibTeX/CSV e avaliar busca automatizada via OAI-PMH / OpenAlex.
       - **LILACS (BVS / BIREME)** e **PePSIC**: Criar parser dedicado (`read_lilacs`) para exportações RIS/CSV da BVS e investigar integração com a API/formato de busca iAHx da BVS.
       - **Latindex (Diretório e Catálogo 2.0)**: Projetar módulo de enriquecimento/validação de periódicos por ISSN (`SN`) para identificar e classificar revistas ibero-americanas de Acesso Aberto Diamante dentro de coleções `bibliometrixDB`.
+- [ ] **Passo 6 (Menu de Configurações / Settings & Diagnóstico na Tela Inicial `run_app()` — Proposta em Análise)**:
+  - [ ] **6.1. Arquitetura de Estado & Conformidade CRAN (Sem escrita em `~/`)**:
+    - Criar container reativo `settings <- shiny::reactiveValues(...)` injetado nos módulos Server do `run_app()`, com persistência opcional apenas via `localStorage` no navegador (client-side) e suporte em scripts via `options(bibliolatam.*)`.
+  - [ ] **6.2. Configurações de Rede & APIs (Network & Polite Pool)**:
+    - Timeout HTTP global configurável (`15s` a `120s`, padrão `30s`) para lidar com lentidão intermitente do IBICT/Oasisbr.
+    - Campo opcional de e-mail para o **Crossref Polite Pool** (`mailto:` no `User-Agent`, melhorando taxa e prioridade na API do SciELO/Crossref).
+    - Número de retentativas em falhas transitórias (`1` a `5`, padrão `3`) e botão **"Verificar Status das APIs"** (ping leve em SciELO/Crossref, BDTD, Oasisbr e LA Referencia com indicador verde/vermelho).
+  - [ ] **6.3. Padrões de Busca, Normalização & Deduplicação**:
+    - Limite padrão de registros por fonte (`20`, `50`, `100`, `200`, `500`) e coleções SciELO padrão ativas (BR, CL, ES, CR, PE, UY).
+    - Limiar padrão de similaridade de títulos (`similarity_threshold`: `0.85`–`0.98`, padrão `0.90`) e toggle global de normalização onomástica luso-hispânica (`normalize_authors`).
+  - [ ] **6.4. Exportação & Reprodutibilidade Científica (FAIR)**:
+    - Escolha do separador CSV padrão (`,` internacional vs. `;` para Microsoft Excel PT/ES) e opção de codificação **UTF-8 com BOM** (evita acentos corrompidos no Excel).
+    - Toggle para espelhamento `DE -> ID` quando `ID` (Keywords Plus) estiver ausente.
+    - Gerador de **Código R Reprodutível** correspondente à busca executada na GUI (para colar em scripts/artigos científicos).
+  - [ ] **6.5. Gerenciamento de Sessão & Cabeçalho da Tela Inicial**:
+    - Indicador discreto de coleção ativa no cabeçalho (ex.: contagem de registros em `values$M`), botão de acesso rápido **Settings** (aba dedicada ou modal), botão **"Resetar Padrões"**, botão **"Limpar Sessão Ativa"** e painel de diagnóstico do ambiente (versão R, `bibliolatam` e detecção de `bibliometrix`).
 - [ ] OpenAlex Latin American harvester backend
 - [ ] Canopy clustering e string distance heuristics para desambiguação avançada de autores
 - [ ] Automated co-citation and bibliographic coupling graph export for Gephi / Pajek

@@ -55,7 +55,7 @@
 ---
 
 ## Fase 6: Polimento da Aplicação Shiny (`run_app()`) & UX
-- [ ] Corrigir botão de recolher painel no Omnisearch (`R/shiny_omnisearch.R`), substituindo `shiny::removeUI(selector = "#omnisearchContent")` por `slideToggle(300)` reversível
+- [x] Corrigir botão de recolher painel no Omnisearch (`R/shiny_omnisearch.R`), substituindo `shiny::removeUI(selector = "#omnisearchContent")` por `slideToggle(300)` reversível (com 61 testes unitários)
 - [ ] Completar cobertura 100% trilíngue (i18n) nos rótulos internos, banners, cartões KPI e seletores das abas `bdtdUI`, `oasisbrUI`, `redalycUI` e `bibliolatamMergeUI`
 - [ ] Integrar busca online por palavra-chave (`download_scielo_search()`) na aba dedicada SciELO (`scieloUI` / `scieloServer`), além da busca por lista de DOIs/PIDs
 - [ ] Expor upload e pré-visualização explícita para arquivos CSV do SPELL / ANPAD (`read_spell()`) na interface gráfica do `run_app()`
@@ -66,3 +66,12 @@
 - [ ] **Limitação 1 (Busca Online SciELO Multi-País)**: Expandir `download_scielo_search()` além do prefixo `10.1590` (Brasil), adicionando os prefixos DOI de SciELO Chile (`10.4067`), SciELO Espanha/ISCIII (`10.4321`), SciELO Costa Rica (`10.15517`), SciELO Peru (`10.17843`) e SciELO Uruguai (`10.26461`)
 - [ ] **Limitação 2 (Busca Online para Redalyc/AmeliCA e SPELL)**: Arquitetar solução para consulta online dessas fontes no `omnisearch_bibliolatam()` (ex.: filtragem por lista de ISSNs via OpenAlex/Crossref ou endpoints OAI-PMH)
 - [ ] **Limitação 3 (Fontes Complementares e Especializadas)**: Projetar solução dedicada para **Dialnet**, **Biblat (CLASE / PERIÓDICA)**, **LILACS (BVS) / PePSIC** (parsers nativos e/ou conectores de busca) e **Latindex** (enriquecimento e classificação de periódicos por ISSN `SN`)
+
+---
+
+## Fase 8: Menu de Configurações (`Settings`) & Diagnóstico na Tela Inicial (`run_app()`)
+- [ ] **Arquitetura CRAN-safe**: Estado reativo `settings` + persistência opcional via `localStorage` no navegador e `options(bibliolatam.*)` (zero escrita no disco do usuário)
+- [ ] **Rede & APIs**: Timeout HTTP global (`15s`–`120s`), e-mail do usuário para *Crossref Polite Pool*, controle de retentativas e botão *"Verificar Status das APIs"*
+- [ ] **Padrões de Busca & Merge**: Limite padrão por base, coleções SciELO ativas (BR/CL/ES/CR/PE/UY), limiar de similaridade (`similarity_threshold`) e toggle global de `normalize_authors`
+- [ ] **Exportação & Reprodutibilidade**: Separador CSV (`,` vs `;`), opção UTF-8 com BOM para Excel, toggle de espelhamento `DE -> ID` e gerador de snippet de código R reproduzível
+- [ ] **Sessão & Cabeçalho**: Indicador de coleção ativa (`values$M`), botão **Settings**, *"Resetar Padrões"*, *"Limpar Sessão"* e diagnóstico do ambiente (R, `bibliolatam`, `bibliometrix`)

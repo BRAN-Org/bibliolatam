@@ -45,7 +45,8 @@ omnisearchUI <- function(lang = "en") {
               shiny::icon("chevron-up"),
               class = "btn-sm btn-default",
               style = "padding: 5px 10px;",
-              title = bl_i18n("btn_collapse", lang)
+              title = bl_i18n("btn_collapse", lang),
+              `data-i18n-title` = "btn_collapse"
             )
           ),
 
@@ -197,7 +198,23 @@ omnisearchUI <- function(lang = "en") {
           )
         )
       )
-    )
+    ),
+
+    # JavaScript for reversible toggle collapse
+    shiny::tags$script(shiny::HTML(
+      "$(document).ready(function() {
+         var omniCollapsed = false;
+         $(document).off('click.omnisearchToggle', '#omnisearchTogglePanel').on('click.omnisearchToggle', '#omnisearchTogglePanel', function() {
+           omniCollapsed = !omniCollapsed;
+           $('#omnisearchContent').slideToggle(300);
+           if (omniCollapsed) {
+             $(this).html('<i class=\"fa fa-chevron-down\"></i>');
+           } else {
+             $(this).html('<i class=\"fa fa-chevron-up\"></i>');
+           }
+         });
+       });"
+    ))
   )
 }
 
@@ -237,16 +254,6 @@ omnisearchServer <- function(input, output, session, values = NULL) {
       "en"
     }
   }
-
-  # Toggle panel
-  shiny::observeEvent(input$omnisearchTogglePanel, {
-    shiny::updateActionButton(
-      session,
-      "omnisearchTogglePanel",
-      icon = if (input$omnisearchTogglePanel %% 2 == 1) shiny::icon("chevron-down") else shiny::icon("chevron-up")
-    )
-    shiny::removeUI(selector = "#omnisearchContent", immediate = TRUE)
-  }, ignoreInit = TRUE)
 
   # Search execution
   shiny::observeEvent(input$omniSearchBtn, {

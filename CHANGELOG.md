@@ -6,6 +6,9 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+### Fixed
+- **Botão de recolher/expandir painel no Omnisearch (omnisearchUI, omnisearchServer)**: Substituído o observer destrutivo shiny::removeUI(selector = "#omnisearchContent", immediate = TRUE) por alternância reversível via jQuery slideToggle(300) com data-i18n-title="btn_collapse", preservando o DOM e o estado reativo ao minimizar e restaurar o painel.
+
 ### Added
 - **Controles de paginação e filtragem no Omnisearch (`omnisearchUI`, `omnisearchServer`)**:
   - Filtro por repositório de origem (SciELO, BDTD, Oasisbr, LA Referencia).

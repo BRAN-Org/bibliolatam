@@ -1,5 +1,6 @@
 # bibliolatam (development version)
 
+- **Reversible Omnisearch panel collapse toggle (omnisearchUI, omnisearchServer)**: Replaced the destructive shiny::removeUI(selector = "#omnisearchContent", immediate = TRUE) observer with a reversible client-side jQuery slideToggle(300) toggle and data-i18n-title="btn_collapse", preserving reactive state across collapse/expand cycles, accompanied by expanded unit tests in 	est-shiny_omnisearch.R.
 - **Anti-false-positive guardrails in `merge_bibliolatam()`**:
   - Added series and part discrepancy detection (`extract_part_token`), preventing articles belonging to sequential series (e.g. "Part I" vs "Part II") from falsely merging despite high string similarity.
   - Added cross-database ordinal normalization mapping Roman numerals to Arabic equivalents ("Part 1" vs "Part I"), preserving correct entity resolution.
