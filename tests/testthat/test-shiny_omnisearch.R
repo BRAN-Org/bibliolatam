@@ -49,8 +49,11 @@ test_that("omnisearchUI returns valid Shiny tags, clean title, 2-column Advanced
   expect_true(grepl("omniCsvBom", ui_str, fixed = TRUE))
   expect_true(grepl("omniResetAdvancedBtn", ui_str, fixed = TRUE))
 
-  # Square '?' hover tooltip badges for every setting (with trilingual data-i18n-title)
+  # Square '?' hover tooltip badges & instant popover boxes for every setting
   expect_true(grepl('class="bl-help-badge"', ui_str, fixed = TRUE))
+  expect_true(grepl('class="bl-help-tooltip"', ui_str, fixed = TRUE))
+  expect_true(grepl(".bl-help-badge:hover .bl-help-tooltip", ui_str, fixed = TRUE))
+  expect_true(grepl("bl-tip-bottom", ui_str, fixed = TRUE))
   expected_tooltips <- c(
     "omni_help_dedup", "omni_help_enrich_cr",
     "omni_help_doc_types", "omni_help_languages",
@@ -60,8 +63,8 @@ test_that("omnisearchUI returns valid Shiny tags, clean title, 2-column Advanced
   )
   for (tk in expected_tooltips) {
     expect_true(
-      grepl(sprintf('data-i18n-title="%s"', tk), ui_str, fixed = TRUE),
-      info = paste("Missing hover tooltip badge for:", tk)
+      grepl(sprintf('class="bl-help-tooltip" data-i18n="%s"', tk), ui_str, fixed = TRUE),
+      info = paste("Missing instant hover tooltip box for:", tk)
     )
   }
 
