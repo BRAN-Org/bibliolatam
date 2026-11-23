@@ -1,3 +1,25 @@
+#' Internal helper to render a square '?' hover help badge with live i18n tooltip
+#'
+#' @param i18n_key Character. Translation key in `BL_I18N_DICT`.
+#' @param lang Character. Initial language code ("en", "pt", or "es").
+#' @return A `shiny.tag` span displaying a square '?' icon with hover tooltip.
+#' @noRd
+bl_help_badge <- function(i18n_key, lang = "en") {
+  shiny::tags$span(
+    "?",
+    class = "bl-help-badge",
+    title = bl_i18n(i18n_key, lang),
+    `data-i18n-title` = i18n_key,
+    style = paste0(
+      "display: inline-flex; align-items: center; justify-content: center; ",
+      "width: 17px; height: 17px; margin-left: 6px; font-size: 11px; ",
+      "font-weight: bold; color: #3c8dbc; background-color: #eef5fa; ",
+      "border: 1px solid #b8d4ea; border-radius: 3px; cursor: help; ",
+      "vertical-align: middle; user-select: none;"
+    )
+  )
+}
+
 #' Omnisearch UI Component for Biblioshiny
 #'
 #' Renders the Latin American scientific Omnisearch panel compatible with biblioshiny.
@@ -162,12 +184,18 @@ omnisearchUI <- function(lang = "en") {
                   style = "margin-top: 5px;",
                   shiny::checkboxInput(
                     "omniDeduplicate",
-                    shiny::tags$span(bl_i18n("omni_dedup", lang), `data-i18n` = "omni_dedup"),
+                    shiny::tagList(
+                      shiny::tags$span(bl_i18n("omni_dedup", lang), `data-i18n` = "omni_dedup"),
+                      bl_help_badge("omni_help_dedup", lang)
+                    ),
                     value = TRUE
                   ),
                   shiny::checkboxInput(
                     "omniEnrichCR",
-                    shiny::tags$span(bl_i18n("omni_enrich_cr", lang), `data-i18n` = "omni_enrich_cr"),
+                    shiny::tagList(
+                      shiny::tags$span(bl_i18n("omni_enrich_cr", lang), `data-i18n` = "omni_enrich_cr"),
+                      bl_help_badge("omni_help_enrich_cr", lang)
+                    ),
                     value = FALSE
                   )
                 )
@@ -202,59 +230,17 @@ omnisearchUI <- function(lang = "en") {
               id = "omniAdvancedPanel",
               style = "display: none; margin-bottom: 18px; padding: 16px; background-color: #f8fafc; border: 1px solid #d9e2ec; border-left: 4px solid #3c8dbc; border-radius: 4px;",
               shiny::fluidRow(
-                # Block A: Entity Resolution & Deduplication
+                # Block 1: Corpus Quality Filters & Author Normalization
                 shiny::column(
-                  width = 4,
-                  shiny::tags$h5(
-                    shiny::icon("object-group", style = "margin-right: 6px; color: #3c8dbc;"),
-                    shiny::tags$span(bl_i18n("omni_adv_sec_merge", lang), `data-i18n` = "omni_adv_sec_merge"),
-                    style = "font-weight: bold; color: #2c3e50; margin-top: 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;"
-                  ),
-                  shiny::tags$label(
-                    bl_i18n("omni_adv_match_by", lang),
-                    `data-i18n` = "omni_adv_match_by",
-                    style = "font-weight: 600; font-size: 12px; color: #34495e; display: block;"
-                  ),
-                  shiny::checkboxGroupInput(
-                    "omniMatchBy",
-                    label = NULL,
-                    choices = c("Canonical DOI" = "doi", "Fuzzy Title" = "title"),
-                    selected = c("doi", "title"),
-                    inline = TRUE
-                  ),
-                  shiny::tags$label(
-                    bl_i18n("omni_adv_threshold", lang),
-                    `data-i18n` = "omni_adv_threshold",
-                    `for` = "omniSimilarityThreshold",
-                    style = "font-weight: 600; font-size: 12px; color: #34495e; display: block; margin-top: 6px;"
-                  ),
-                  shiny::sliderInput(
-                    "omniSimilarityThreshold",
-                    label = NULL,
-                    min = 0.80,
-                    max = 1.00,
-                    value = 0.90,
-                    step = 0.02,
-                    width = "100%"
-                  ),
-                  shiny::checkboxInput(
-                    "omniNormalizeAuthors",
-                    shiny::tags$span(bl_i18n("omni_adv_norm_au", lang), `data-i18n` = "omni_adv_norm_au"),
-                    value = TRUE
-                  )
-                ),
-
-                # Block B: Corpus Quality Filters
-                shiny::column(
-                  width = 4,
+                  width = 6,
                   shiny::tags$h5(
                     shiny::icon("filter", style = "margin-right: 6px; color: #3c8dbc;"),
                     shiny::tags$span(bl_i18n("omni_adv_sec_filters", lang), `data-i18n` = "omni_adv_sec_filters"),
                     style = "font-weight: bold; color: #2c3e50; margin-top: 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;"
                   ),
                   shiny::tags$label(
-                    bl_i18n("omni_adv_doc_types", lang),
-                    `data-i18n` = "omni_adv_doc_types",
+                    shiny::tags$span(bl_i18n("omni_adv_doc_types", lang), `data-i18n` = "omni_adv_doc_types"),
+                    bl_help_badge("omni_help_doc_types", lang),
                     style = "font-weight: 600; font-size: 12px; color: #34495e; display: block;"
                   ),
                   shiny::checkboxGroupInput(
@@ -271,9 +257,9 @@ omnisearchUI <- function(lang = "en") {
                     inline = TRUE
                   ),
                   shiny::tags$label(
-                    bl_i18n("omni_adv_languages", lang),
-                    `data-i18n` = "omni_adv_languages",
-                    style = "font-weight: 600; font-size: 12px; color: #34495e; display: block; margin-top: 6px;"
+                    shiny::tags$span(bl_i18n("omni_adv_languages", lang), `data-i18n` = "omni_adv_languages"),
+                    bl_help_badge("omni_help_languages", lang),
+                    style = "font-weight: 600; font-size: 12px; color: #34495e; display: block; margin-top: 8px;"
                   ),
                   shiny::checkboxGroupInput(
                     "omniLanguageFilter",
@@ -287,31 +273,45 @@ omnisearchUI <- function(lang = "en") {
                     inline = TRUE
                   ),
                   shiny::div(
-                    style = "margin-top: 6px;",
+                    style = "margin-top: 8px;",
                     shiny::checkboxInput(
                       "omniRequireDoi",
-                      shiny::tags$span(bl_i18n("omni_adv_req_doi", lang), `data-i18n` = "omni_adv_req_doi"),
+                      shiny::tagList(
+                        shiny::tags$span(bl_i18n("omni_adv_req_doi", lang), `data-i18n` = "omni_adv_req_doi"),
+                        bl_help_badge("omni_help_req_doi", lang)
+                      ),
                       value = FALSE
                     ),
                     shiny::checkboxInput(
                       "omniRequireAbstract",
-                      shiny::tags$span(bl_i18n("omni_adv_req_ab", lang), `data-i18n` = "omni_adv_req_ab"),
+                      shiny::tagList(
+                        shiny::tags$span(bl_i18n("omni_adv_req_ab", lang), `data-i18n` = "omni_adv_req_ab"),
+                        bl_help_badge("omni_help_req_ab", lang)
+                      ),
                       value = FALSE
+                    ),
+                    shiny::checkboxInput(
+                      "omniNormalizeAuthors",
+                      shiny::tagList(
+                        shiny::tags$span(bl_i18n("omni_adv_norm_au", lang), `data-i18n` = "omni_adv_norm_au"),
+                        bl_help_badge("omni_help_norm_au", lang)
+                      ),
+                      value = TRUE
                     )
                   )
                 ),
 
-                # Block C: SciELO Collections, Network & Export
+                # Block 2: SciELO Collections, Network & Export
                 shiny::column(
-                  width = 4,
+                  width = 6,
                   shiny::tags$h5(
                     shiny::icon("globe-americas", style = "margin-right: 6px; color: #3c8dbc;"),
                     shiny::tags$span(bl_i18n("omni_adv_sec_network", lang), `data-i18n` = "omni_adv_sec_network"),
                     style = "font-weight: bold; color: #2c3e50; margin-top: 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;"
                   ),
                   shiny::tags$label(
-                    bl_i18n("omni_adv_scielo_col", lang),
-                    `data-i18n` = "omni_adv_scielo_col",
+                    shiny::tags$span(bl_i18n("omni_adv_scielo_col", lang), `data-i18n` = "omni_adv_scielo_col"),
+                    bl_help_badge("omni_help_scielo_col", lang),
                     style = "font-weight: 600; font-size: 12px; color: #34495e; display: block;"
                   ),
                   shiny::checkboxGroupInput(
@@ -329,10 +329,10 @@ omnisearchUI <- function(lang = "en") {
                     inline = TRUE
                   ),
                   shiny::tags$label(
-                    bl_i18n("omni_adv_timeout", lang),
-                    `data-i18n` = "omni_adv_timeout",
+                    shiny::tags$span(bl_i18n("omni_adv_timeout", lang), `data-i18n` = "omni_adv_timeout"),
+                    bl_help_badge("omni_help_timeout", lang),
                     `for` = "omniTimeout",
-                    style = "font-weight: 600; font-size: 12px; color: #34495e; display: block; margin-top: 6px;"
+                    style = "font-weight: 600; font-size: 12px; color: #34495e; display: block; margin-top: 8px;"
                   ),
                   shiny::numericInput(
                     "omniTimeout",
@@ -344,9 +344,9 @@ omnisearchUI <- function(lang = "en") {
                     width = "100%"
                   ),
                   shiny::tags$label(
-                    bl_i18n("omni_adv_csv_sep", lang),
-                    `data-i18n` = "omni_adv_csv_sep",
-                    style = "font-weight: 600; font-size: 12px; color: #34495e; display: block; margin-top: 4px;"
+                    shiny::tags$span(bl_i18n("omni_adv_csv_sep", lang), `data-i18n` = "omni_adv_csv_sep"),
+                    bl_help_badge("omni_help_csv_sep", lang),
+                    style = "font-weight: 600; font-size: 12px; color: #34495e; display: block; margin-top: 6px;"
                   ),
                   shiny::radioButtons(
                     "omniCsvSep",
@@ -357,7 +357,10 @@ omnisearchUI <- function(lang = "en") {
                   ),
                   shiny::checkboxInput(
                     "omniCsvBom",
-                    shiny::tags$span(bl_i18n("omni_adv_csv_bom", lang), `data-i18n` = "omni_adv_csv_bom"),
+                    shiny::tagList(
+                      shiny::tags$span(bl_i18n("omni_adv_csv_bom", lang), `data-i18n` = "omni_adv_csv_bom"),
+                      bl_help_badge("omni_help_csv_bom", lang)
+                    ),
                     value = FALSE
                   )
                 )
@@ -459,13 +462,11 @@ omnisearchServer <- function(input, output, session, values = NULL) {
   # Reset Advanced Settings to defaults
   shiny::observeEvent(input$omniResetAdvancedBtn, {
     lang <- get_lang()
-    shiny::updateCheckboxGroupInput(session, "omniMatchBy", selected = c("doi", "title"))
-    shiny::updateSliderInput(session, "omniSimilarityThreshold", value = 0.90)
-    shiny::updateCheckboxInput(session, "omniNormalizeAuthors", value = TRUE)
     shiny::updateCheckboxGroupInput(session, "omniDocTypeFilter", selected = character(0L))
     shiny::updateCheckboxGroupInput(session, "omniLanguageFilter", selected = character(0L))
     shiny::updateCheckboxInput(session, "omniRequireDoi", value = FALSE)
     shiny::updateCheckboxInput(session, "omniRequireAbstract", value = FALSE)
+    shiny::updateCheckboxInput(session, "omniNormalizeAuthors", value = TRUE)
     shiny::updateCheckboxGroupInput(
       session,
       "omniScieloCollections",
@@ -506,17 +507,7 @@ omnisearchServer <- function(input, output, session, values = NULL) {
       years_arg <- c(ys, ye)
     }
 
-    # Advanced settings with safe defaults
-    match_by_arg <- input$omniMatchBy
-    if (is.null(match_by_arg) || length(match_by_arg) == 0L) {
-      match_by_arg <- c("doi", "title")
-    }
-
-    sim_thresh_arg <- suppressWarnings(as.numeric(input$omniSimilarityThreshold))
-    if (length(sim_thresh_arg) != 1L || is.na(sim_thresh_arg) || sim_thresh_arg <= 0 || sim_thresh_arg > 1) {
-      sim_thresh_arg <- 0.90
-    }
-
+    # Advanced settings with safe validated defaults
     norm_au_arg <- if (is.null(input$omniNormalizeAuthors)) TRUE else isTRUE(input$omniNormalizeAuthors)
 
     scielo_col_arg <- input$omniScieloCollections
@@ -552,8 +543,6 @@ omnisearchServer <- function(input, output, session, values = NULL) {
             deduplicate = dedup,
             progress = FALSE,
             timeout = timeout_arg,
-            match_by = match_by_arg,
-            similarity_threshold = sim_thresh_arg,
             normalize_authors = norm_au_arg,
             scielo_collections = scielo_col_arg,
             doc_types = doc_types_arg,

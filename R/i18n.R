@@ -68,15 +68,12 @@ BL_I18N_DICT <- list(
   omni_err_during_query = list(en = "Error during query: %s", pt = "Erro durante a consulta: %s", es = "Error durante la consulta: %s"),
   omni_success_loaded = list(en = "Success! %d harmonized records loaded into active session.", pt = "Sucesso! %d registros harmonizados carregados na sessao ativa.", es = "Exito! %d registros armonizados cargados en la sesion activa."),
   omni_adv_toggle = list(en = "Advanced Settings", pt = "Configuracoes Avancadas", es = "Configuracion Avanzada"),
-  omni_adv_sec_merge = list(en = "Entity Resolution & Deduplication", pt = "Resolucao de Entidades e Deduplicacao", es = "Resolucion de Entidades y Deduplicacion"),
-  omni_adv_match_by = list(en = "Matching Criteria:", pt = "Criterios de Correspondencia:", es = "Criterios de Coincidencia:"),
-  omni_adv_threshold = list(en = "Title Similarity Threshold:", pt = "Limiar de Similaridade de Titulo:", es = "Umbral de Similitud de Titulo:"),
-  omni_adv_norm_au = list(en = "Normalize Luso-Hispanic author names", pt = "Normalizar nomes de autores luso-hispanicos", es = "Normalizar nombres de autores luso-hispanos"),
-  omni_adv_sec_filters = list(en = "Corpus Quality Filters", pt = "Filtros de Qualidade do Corpus", es = "Filtros de Calidad del Corpus"),
+  omni_adv_sec_filters = list(en = "Corpus Quality & Author Normalization", pt = "Qualidade do Corpus e Normalizacao de Autores", es = "Calidad del Corpus y Normalizacion de Autores"),
   omni_adv_doc_types = list(en = "Document Types (DT):", pt = "Tipos de Documento (DT):", es = "Tipos de Documento (DT):"),
   omni_adv_languages = list(en = "Languages (LA):", pt = "Idiomas (LA):", es = "Idiomas (LA):"),
   omni_adv_req_doi = list(en = "Only records with DOI", pt = "Apenas registros com DOI", es = "Solo registros con DOI"),
   omni_adv_req_ab = list(en = "Only records with Abstract", pt = "Apenas registros com Resumo", es = "Solo registros con Resumen"),
+  omni_adv_norm_au = list(en = "Normalize Luso-Hispanic author names", pt = "Normalizar nomes de autores luso-hispanicos", es = "Normalizar nombres de autores luso-hispanos"),
   omni_adv_sec_network = list(en = "SciELO Collections, Network & Export", pt = "Colecoes SciELO, Rede e Exportacao", es = "Colecciones SciELO, Red y Exportacion"),
   omni_adv_scielo_col = list(en = "SciELO Collections (DOI Prefixes):", pt = "Colecoes SciELO (Prefixos DOI):", es = "Colecciones SciELO (Prefijos DOI):"),
   omni_adv_timeout = list(en = "API Timeout (seconds):", pt = "Timeout da API (segundos):", es = "Timeout de la API (segundos):"),
@@ -84,6 +81,61 @@ BL_I18N_DICT <- list(
   omni_adv_csv_bom = list(en = "UTF-8 BOM (Excel compatibility)", pt = "UTF-8 BOM (compatibilidade Excel)", es = "UTF-8 BOM (compatibilidad Excel)"),
   omni_adv_reset = list(en = "Reset Defaults", pt = "Restaurar Padroes", es = "Restaurar Valores"),
   omni_adv_reset_ok = list(en = "Advanced settings restored to defaults.", pt = "Configuracoes avancadas restauradas para os padroes.", es = "Configuracion avanzada restaurada a los valores predeterminados."),
+  omni_help_dedup = list(
+    en = "Automatically merges duplicate works across databases using validated canonical DOI and 90% fuzzy title matching with anti-false-positive guardrails (series and author checks), preserving cited references (CR).",
+    pt = "Funde automaticamente trabalhos duplicados entre bases usando DOI canonico e similaridade de titulo validada em 90% com guardrails anti-falso positivo (series e autores), preservando referencias citadas (CR).",
+    es = "Fusiona automaticamente trabajos duplicados entre bases usando DOI canonico y similitud de titulo validada al 90% con guardrails anti-falso positivo (series y autores), preservando referencias citadas (CR)."
+  ),
+  omni_help_enrich_cr = list(
+    en = "Downloads full-text NLM/JATS XML for SciELO articles to reconstruct the Cited References (CR) field required for co-citation and bibliographic coupling networks. Increases retrieval time.",
+    pt = "Baixa o XML NLM/JATS completo dos artigos do SciELO para reconstruir o campo Referencias Citadas (CR), necessario para redes de co-citacao e acoplamento bibliografico. Aumenta o tempo de coleta.",
+    es = "Descarga el XML NLM/JATS completo de los articulos de SciELO para reconstruir el campo Referencias Citadas (CR), necesario para redes de co-citacion y acoplamiento bibliografico. Aumenta el tiempo de consulta."
+  ),
+  omni_help_doc_types = list(
+    en = "Filter results to specific document types (e.g., Articles, Theses, Dissertations). Leave all unchecked to keep every document type returned by the repositories.",
+    pt = "Filtra os resultados para tipos documentais especificos (ex.: Artigos, Teses, Dissertacoes). Deixe tudo desmarcado para manter todos os tipos retornados pelos repositorios.",
+    es = "Filtra los resultados por tipos documentales especificos (ej.: Articulos, Tesis, Disertaciones). Deje todo desmarcado para conservar todos los tipos devueltos por los repositorios."
+  ),
+  omni_help_languages = list(
+    en = "Restrict results to specific publication languages (Portuguese, Spanish, English). Leave all unchecked to retain works in all languages.",
+    pt = "Restringe os resultados a idiomas especificos de publicacao (Portugues, Espanhol, Ingles). Deixe tudo desmarcado para manter obras em todos os idiomas.",
+    es = "Restringe los resultados a idiomas especificos de publicacion (Portugues, Espanol, Ingles). Deje todo desmarcado para conservar obras en todos los idiomas."
+  ),
+  omni_help_req_doi = list(
+    en = "Keep only bibliographic records that have a valid Digital Object Identifier (DOI). Useful for citation linking, though some theses in BDTD/Oasisbr lack DOIs.",
+    pt = "Mantem apenas registros bibliograficos que possuem um DOI valido. Util para vinculacao de citacoes, embora muitas teses da BDTD/Oasisbr nao possuam DOI.",
+    es = "Mantiene solo registros bibliograficos que poseen un DOI valido. Util para vinculacion de citas, aunque muchas tesis en BDTD/Oasisbr no tienen DOI."
+  ),
+  omni_help_req_ab = list(
+    en = "Keep only records containing a non-empty abstract (AB). Recommended for text mining, topic modeling, and thematic map analyses.",
+    pt = "Mantem apenas registros que possuem resumo (AB) preenchido. Recomendado para mineracao de texto, modelagem de topicos e mapas tematicos.",
+    es = "Mantiene solo registros que poseen resumen (AB). Recomendado para mineria de texto, modelado de topicos y mapas tematicos."
+  ),
+  omni_help_norm_au = list(
+    en = "Standardizes author names into canonical WoS format (SURNAME INITIALS) while preserving Brazilian/Hispanic generational suffixes (Filho, Neto, Junior, Sobrinho) and handling particles (da, de, del).",
+    pt = "Padroniza nomes de autores no formato canonico WoS (SOBRENOME INICIAIS), preservando sufixos geracionais brasileiros/hispanicos (Filho, Neto, Junior, Sobrinho) e tratando particulas (da, de, del).",
+    es = "Estandariza nombres de autores en formato canonico WoS (APELLIDO INICIALES), preservando sufijos generacionales brasilenos/hispanos (Filho, Neto, Junior, Sobrinho) y tratando particulas (da, de, del)."
+  ),
+  omni_help_scielo_col = list(
+    en = "Select which SciELO national collections (Crossref DOI prefixes) to include when querying SciELO: Brazil (10.1590), Chile (10.4067), Spain (10.4321), Costa Rica (10.15517), Peru (10.17843), and Uruguay (10.26461).",
+    pt = "Selecione quais colecoes nacionais do SciELO (prefixos DOI no Crossref) consultar: Brasil (10.1590), Chile (10.4067), Espanha (10.4321), Costa Rica (10.15517), Peru (10.17843) e Uruguai (10.26461).",
+    es = "Seleccione que colecciones nacionales de SciELO (prefijos DOI en Crossref) consultar: Brasil (10.1590), Chile (10.4067), Espana (10.4321), Costa Rica (10.15517), Peru (10.17843) y Uruguay (10.26461)."
+  ),
+  omni_help_timeout = list(
+    en = "Maximum time in seconds to wait for each repository API response. Increase to 60-120s if public portals such as IBICT (BDTD/Oasisbr) are responding slowly.",
+    pt = "Tempo maximo em segundos para aguardar resposta de cada API. Aumente para 60-120s caso portais publicos como o IBICT (BDTD/Oasisbr) estejam lentos.",
+    es = "Tiempo maximo en segundos para esperar respuesta de cada API. Aumente a 60-120s si portales publicos como IBICT (BDTD/Oasisbr) responden lentamente."
+  ),
+  omni_help_csv_sep = list(
+    en = "Choose the column delimiter for exported CSV files: Comma (,) for R/Python/international tools, or Semicolon (;) to open directly in columns in Portuguese/Spanish Microsoft Excel.",
+    pt = "Escolha o delimitador de colunas do arquivo CSV exportado: Virgula (,) para R/Python/padrao internacional, ou Ponto e virgula (;) para abrir direto em colunas no Microsoft Excel em Portugues/Espanhol.",
+    es = "Elija el delimitador de columnas del archivo CSV exportado: Coma (,) para R/Python/estandar internacional, o Punto y coma (;) para abrir directo en columnas en Microsoft Excel en Espanol/Portugues."
+  ),
+  omni_help_csv_bom = list(
+    en = "Prepends a UTF-8 Byte Order Mark (BOM) to exported CSV files so accented Portuguese and Spanish characters display properly when opened directly in Microsoft Excel on Windows.",
+    pt = "Adiciona a marca UTF-8 BOM no inicio do CSV exportado para que acentos em portugues e espanhol aparecam corretamente ao abrir o arquivo direto no Microsoft Excel no Windows.",
+    es = "Anade la marca UTF-8 BOM al inicio del CSV exportado para que los acentos en espanol y portugues se muestren correctamente al abrir el archivo directo en Microsoft Excel en Windows."
+  ),
 
   # SciELO
   scielo_title = list(en = "SciELO Data Collection", pt = "Coleta de Dados SciELO", es = "Recoleccion de Datos SciELO"),

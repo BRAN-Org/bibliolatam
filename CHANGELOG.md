@@ -7,18 +7,16 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 ## [Unreleased]
 
 ### Fixed
-- **Tela inicial limpa no Omnisearch (omnisearchServer)**: Corrigida a exibição indevida da caixa *"No records match the current preview filter"* antes de qualquer busca ser executada; agora a mensagem aparece exclusivamente quando há resultados carregados mas o filtro de prévia retorna 0 linhas.
-- **Botão de recolher/expandir painel no Omnisearch (omnisearchUI, omnisearchServer)**: Substituído o observer destrutivo shiny::removeUI(selector = "#omnisearchContent", immediate = TRUE) por alternância reversível via jQuery slideToggle(300) com data-i18n-title="btn_collapse", preservando o DOM e o estado reativo ao minimizar e restaurar o painel.
+- **Tela inicial limpa no Omnisearch (`omnisearchServer`)**: Corrigida a exibição indevida da caixa *"No records match the current preview filter"* antes de qualquer busca ser executada; agora a mensagem aparece exclusivamente quando há resultados carregados mas o filtro de prévia retorna 0 linhas.
+- **Botão de recolher/expandir painel no Omnisearch (`omnisearchUI`, `omnisearchServer`)**: Substituído o observer destrutivo `shiny::removeUI(selector = "#omnisearchContent", immediate = TRUE)` por alternância reversível via jQuery `slideToggle(300)` com `data-i18n-title="btn_collapse"`, preservando o DOM e o estado reativo ao minimizar e restaurar o painel.
 
 ### Added
-- **Gaveta retrátil de Configurações Avançadas no Omnisearch (omnisearchUI, omnisearchServer, omnisearch_bibliolatam)**:
-  - Título limpo (Omnisearch Engine / Mecanismo Omnisearch / Motor Omnisearch) mantendo "Latin American" apenas na faixa descritiva.
-  - Botão retrátil Advanced Settings (fechado por padrão) organizado em 3 blocos:
-    - *Resolução de Entidades & Deduplicação*: critérios (match_by), limiar de similaridade (similarity_threshold) e toggle de normalização luso-hispânica (
-ormalize_authors).
-    - *Filtros de Qualidade do Corpus*: tipos documentais (DT), idiomas (LA), exigência de DOI (equire_doi) e exigência de resumo (equire_abstract).
-    - *Coleções SciELO, Rede & Exportação*: seleção dos 6 prefixos DOI da Rede SciELO, 	imeout propagado para todas as 4 APIs (download_scielo_search, download_bdtd, download_oasisbr, download_lareferencia), separador CSV (, vs ;), opção UTF-8 BOM para Excel e botão Reset Defaults.
-- **Busca Online Multi-País no SciELO (download_scielo_search)**: Suporte nativo aos 6 prefixos DOI da Rede SciELO via Crossref (10.1590 BR, 10.4067 CL, 10.4321 ES, 10.15517 CR, 10.17843 PE, 10.26461 UY) através do novo parâmetro collections.
+- **Gaveta retrátil de Configurações Avançadas no Omnisearch (`omnisearchUI`, `omnisearchServer`, `omnisearch_bibliolatam`)**:
+  - Título limpo (`Omnisearch Engine` / `Mecanismo Omnisearch` / `Motor Omnisearch`) mantendo "Latin American" apenas na faixa descritiva.
+  - Botão retrátil **Advanced Settings** (fechado por padrão) organizado em 2 blocos equilibrados com ícones quadrados `[?]` de ajuda ao passar o mouse (tooltip trilíngue EN/PT/ES), mantendo os parâmetros validados de deduplicação (DOI + título 90%) protegidos internamente:
+    - *Qualidade do Corpus & Normalização de Autores*: tipos documentais (`DT`), idiomas (`LA`), exigência de DOI (`require_doi`), exigência de resumo (`require_abstract`) e normalização luso-hispânica (`normalize_authors`).
+    - *Coleções SciELO, Rede & Exportação*: seleção dos 6 prefixos DOI da Rede SciELO, `timeout` propagado para todas as 4 APIs (`download_scielo_search`, `download_bdtd`, `download_oasisbr`, `download_lareferencia`), separador CSV (`,` vs `;`), opção UTF-8 BOM para Excel e botão **Reset Defaults**.
+- **Busca Online Multi-País no SciELO (`download_scielo_search`)**: Suporte nativo aos 6 prefixos DOI da Rede SciELO via Crossref (`10.1590` BR, `10.4067` CL, `10.4321` ES, `10.15517` CR, `10.17843` PE, `10.26461` UY) através do novo parâmetro `collections`.
 - **Controles de paginação e filtragem no Omnisearch (`omnisearchUI`, `omnisearchServer`)**:
   - Filtro por repositório de origem (SciELO, BDTD, Oasisbr, LA Referencia).
   - Campo de busca textual reativa em tempo real cobrindo título, autor, periódico e DOI.

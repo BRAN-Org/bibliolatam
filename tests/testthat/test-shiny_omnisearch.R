@@ -1,4 +1,4 @@
-test_that("omnisearchUI returns valid Shiny tags, clean title, Advanced Settings drawer, and reversible collapse script", {
+test_that("omnisearchUI returns valid Shiny tags, clean title, 2-column Advanced Settings with '?' hover tooltips, and no unsafe merge threshold controls", {
   skip_if_not_installed("shiny")
 
   ui <- omnisearchUI()
@@ -23,19 +23,21 @@ test_that("omnisearchUI returns valid Shiny tags, clean title, Advanced Settings
   expect_true(grepl("omniPreviewTable", ui_str))
   expect_true(grepl("omniLoadSection", ui_str))
 
-  # Advanced Settings drawer (hidden by default) and all advanced inputs
+  # Validated merge defaults stay locked internally (not exposed as risky UI sliders)
+  expect_false(grepl("omniMatchBy", ui_str, fixed = TRUE))
+  expect_false(grepl("omniSimilarityThreshold", ui_str, fixed = TRUE))
+
+  # Advanced Settings drawer (hidden by default) and all pertinent inputs
   expect_true(grepl("omniToggleAdvanced", ui_str, fixed = TRUE))
   expect_true(grepl("omniAdvancedPanel", ui_str, fixed = TRUE))
   expect_true(grepl("display: none;", ui_str, fixed = TRUE))
   expect_true(grepl("omniAdvancedChevron", ui_str, fixed = TRUE))
   expect_true(grepl("slideToggle(250)", ui_str, fixed = TRUE))
-  expect_true(grepl("omniMatchBy", ui_str, fixed = TRUE))
-  expect_true(grepl("omniSimilarityThreshold", ui_str, fixed = TRUE))
-  expect_true(grepl("omniNormalizeAuthors", ui_str, fixed = TRUE))
   expect_true(grepl("omniDocTypeFilter", ui_str, fixed = TRUE))
   expect_true(grepl("omniLanguageFilter", ui_str, fixed = TRUE))
   expect_true(grepl("omniRequireDoi", ui_str, fixed = TRUE))
   expect_true(grepl("omniRequireAbstract", ui_str, fixed = TRUE))
+  expect_true(grepl("omniNormalizeAuthors", ui_str, fixed = TRUE))
   expect_true(grepl("omniScieloCollections", ui_str, fixed = TRUE))
   expect_true(grepl("10.4067", ui_str, fixed = TRUE))
   expect_true(grepl("10.4321", ui_str, fixed = TRUE))
@@ -46,6 +48,22 @@ test_that("omnisearchUI returns valid Shiny tags, clean title, Advanced Settings
   expect_true(grepl("omniCsvSep", ui_str, fixed = TRUE))
   expect_true(grepl("omniCsvBom", ui_str, fixed = TRUE))
   expect_true(grepl("omniResetAdvancedBtn", ui_str, fixed = TRUE))
+
+  # Square '?' hover tooltip badges for every setting (with trilingual data-i18n-title)
+  expect_true(grepl('class="bl-help-badge"', ui_str, fixed = TRUE))
+  expected_tooltips <- c(
+    "omni_help_dedup", "omni_help_enrich_cr",
+    "omni_help_doc_types", "omni_help_languages",
+    "omni_help_req_doi", "omni_help_req_ab", "omni_help_norm_au",
+    "omni_help_scielo_col", "omni_help_timeout",
+    "omni_help_csv_sep", "omni_help_csv_bom"
+  )
+  for (tk in expected_tooltips) {
+    expect_true(
+      grepl(sprintf('data-i18n-title="%s"', tk), ui_str, fixed = TRUE),
+      info = paste("Missing hover tooltip badge for:", tk)
+    )
+  }
 
   # Reversible collapse toggle contract (matches other bibliolatam Shiny modules)
   expect_true(grepl("omnisearchTogglePanel", ui_str))
@@ -60,7 +78,6 @@ test_that("omnisearchServer hides preview empty-match message before any search 
   skip_if_not_installed("shiny")
 
   shiny::testServer(omnisearchServer, {
-    # Before any search, all preview/metrics/load outputs must be NULL (no misleading 'No records match' box)
     expect_null(output$omniMetricsCards)
     expect_null(output$omniPreviewHeader)
     expect_null(output$omniPreviewControls)
@@ -92,7 +109,6 @@ test_that("omnisearchServer does not use destructive removeUI on toggle and pres
     omni_stats(list(total = 2L, sources = "scielo: 2", timespan = "2022 - 2023", unique_authors = 2L))
     session$flushReact()
 
-    # Simulate collapsing and expanding repeatedly
     session$setInputs(omnisearchTogglePanel = 1L)
     session$setInputs(omnisearchTogglePanel = 2L)
     session$setInputs(omnisearchTogglePanel = 3L)
@@ -188,11 +204,9 @@ test_that("omnisearchServer preview filtering, search, pagination, and bounds wo
     expect_equal(omni_preview_page(), 1L)
     expect_true(grepl("Page 1 of 2 \\(12 items\\)", output$omniPreviewPageInfoText$html))
 
-    # Previous on page 1 stays at page 1
     session$setInputs(omniPreviewPrevBtn = 1L)
     expect_equal(omni_preview_page(), 1L)
 
-    # Next advances to page 2 and does not exceed total pages
     session$setInputs(omniPreviewNextBtn = 1L)
     expect_equal(omni_preview_page(), 2L)
     expect_true(grepl("Page 2 of 2 \\(12 items\\)", output$omniPreviewPageInfoText$html))
@@ -200,13 +214,11 @@ test_that("omnisearchServer preview filtering, search, pagination, and bounds wo
     session$setInputs(omniPreviewNextBtn = 2L)
     expect_equal(omni_preview_page(), 2L)
 
-    # Changing page size to 5 resets page to 1 (3 pages total)
     session$setInputs(omniPreviewPageSizeSelect = "5")
     expect_equal(omni_preview_page(), 1L)
     expect_equal(omni_preview_page_size(), 5L)
     expect_true(grepl("Page 1 of 3 \\(12 items\\)", output$omniPreviewPageInfoText$html))
 
-    # Filtering by source resets page to 1 and keeps only matching DB
     session$setInputs(omniPreviewNextBtn = 3L)
     expect_equal(omni_preview_page(), 2L)
     session$setInputs(omniPreviewSourceFilter = "bdtd")
@@ -214,23 +226,20 @@ test_that("omnisearchServer preview filtering, search, pagination, and bounds wo
     expect_equal(nrow(preview_filtered_data()), 6L)
     expect_true(all(preview_filtered_data()$DB == "bdtd"))
 
-    # Live text search narrows results further
     session$setInputs(omniPreviewSearchInput = "Study 09")
     expect_equal(nrow(preview_filtered_data()), 1L)
     expect_equal(preview_filtered_data()$TI[1], "Open Science Study 09")
 
-    # Non-matching search renders empty-match message cleanly (only because omni_data() is non-empty)
     session$setInputs(omniPreviewSearchInput = "zzz_no_match_xyz")
     expect_equal(nrow(preview_filtered_data()), 0L)
     expect_true(grepl("No records match the current preview filter", output$omniPreviewTable$html))
 
-    # Resetting filters restores full dataset
     session$setInputs(omniPreviewSourceFilter = "all", omniPreviewSearchInput = "")
     expect_equal(nrow(preview_filtered_data()), 12L)
   })
 })
 
-test_that("omnisearchServer forwards all Advanced Settings to omnisearch_bibliolatam and supports reset", {
+test_that("omnisearchServer forwards Advanced Settings to omnisearch_bibliolatam and supports reset", {
   skip_if_not_installed("shiny")
 
   captured_args <- NULL
@@ -271,8 +280,6 @@ test_that("omnisearchServer forwards all Advanced Settings to omnisearch_bibliol
           omniYearEnd = 2026,
           omniDeduplicate = TRUE,
           omniEnrichCR = TRUE,
-          omniMatchBy = c("doi"),
-          omniSimilarityThreshold = 0.94,
           omniNormalizeAuthors = FALSE,
           omniScieloCollections = c("cl", "es", "pe"),
           omniTimeout = 60,
@@ -289,8 +296,6 @@ test_that("omnisearchServer forwards all Advanced Settings to omnisearch_bibliol
         expect_equal(captured_args$limit_per_source, 25L)
         expect_equal(captured_args$years, c(2020L, 2026L))
         expect_true(captured_args$enrich_references)
-        expect_equal(captured_args$match_by, "doi")
-        expect_equal(captured_args$similarity_threshold, 0.94)
         expect_false(captured_args$normalize_authors)
         expect_equal(captured_args$scielo_collections, c("cl", "es", "pe"))
         expect_equal(captured_args$timeout, 60)
@@ -298,19 +303,19 @@ test_that("omnisearchServer forwards all Advanced Settings to omnisearch_bibliol
         expect_equal(captured_args$languages, "SPANISH")
         expect_true(captured_args$require_doi)
         expect_true(captured_args$require_abstract)
+        expect_null(captured_args$match_by)
+        expect_null(captured_args$similarity_threshold)
 
         expect_false(is.null(shared_values$M))
         expect_equal(nrow(shared_values$M), 1L)
         expect_equal(shared_values$M$TI[1], "Manual Push Study")
 
-        # Clear shared_values$M and verify manual reload button pushes it back
         shared_values$M <- NULL
         session$setInputs(omniReloadBiblioshinyBtn = 1L)
         session$flushReact()
         expect_false(is.null(shared_values$M))
         expect_equal(nrow(shared_values$M), 1L)
 
-        # Trigger Reset Defaults cleanly without errors
         expect_no_error({
           session$setInputs(omniResetAdvancedBtn = 1L)
           session$flushReact()
