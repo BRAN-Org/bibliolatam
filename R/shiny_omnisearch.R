@@ -1,21 +1,20 @@
-#' Internal helper to render a square '?' hover help badge with live i18n tooltip
+#' Internal helper to render a square '?' hover help badge with instant i18n tooltip card
 #'
 #' @param i18n_key Character. Translation key in `BL_I18N_DICT`.
 #' @param lang Character. Initial language code ("en", "pt", or "es").
-#' @return A `shiny.tag` span displaying a square '?' icon with hover tooltip.
+#' @return A `shiny.tag` span displaying a square '?' icon with an instant hover tooltip card.
 #' @noRd
 bl_help_badge <- function(i18n_key, lang = "en") {
   shiny::tags$span(
-    "?",
     class = "bl-help-badge",
-    title = bl_i18n(i18n_key, lang),
-    `data-i18n-title` = i18n_key,
-    style = paste0(
-      "display: inline-flex; align-items: center; justify-content: center; ",
-      "width: 17px; height: 17px; margin-left: 6px; font-size: 11px; ",
-      "font-weight: bold; color: #3c8dbc; background-color: #eef5fa; ",
-      "border: 1px solid #b8d4ea; border-radius: 3px; cursor: help; ",
-      "vertical-align: middle; user-select: none;"
+    tabindex = "0",
+    role = "note",
+    `aria-label` = bl_i18n(i18n_key, lang),
+    "?",
+    shiny::tags$span(
+      class = "bl-help-tooltip",
+      `data-i18n` = i18n_key,
+      bl_i18n(i18n_key, lang)
     )
   )
 }
@@ -39,6 +38,85 @@ bl_help_badge <- function(i18n_key, lang = "en") {
 #' }
 omnisearchUI <- function(lang = "en") {
   shiny::tagList(
+    shiny::tags$style(shiny::HTML(
+      ".bl-help-badge {
+         position: relative;
+         display: inline-flex;
+         align-items: center;
+         justify-content: center;
+         width: 17px;
+         height: 17px;
+         margin-left: 6px;
+         font-size: 11px;
+         font-weight: 700;
+         line-height: 1;
+         color: #3c8dbc;
+         background-color: #eef5fa;
+         border: 1px solid #b8d4ea;
+         border-radius: 3px;
+         cursor: help;
+         vertical-align: middle;
+         user-select: none;
+         transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+       }
+       .bl-help-badge:hover,
+       .bl-help-badge:focus {
+         background-color: #3c8dbc;
+         color: #ffffff;
+         border-color: #2f7299;
+         outline: none;
+       }
+       .bl-help-tooltip {
+         visibility: hidden;
+         opacity: 0;
+         pointer-events: none;
+         position: absolute;
+         bottom: calc(100% + 9px);
+         left: 50%;
+         transform: translateX(-50%);
+         width: 270px;
+         max-width: 78vw;
+         padding: 9px 12px;
+         background-color: #1e293b;
+         color: #f8fafc;
+         border: 1px solid #334155;
+         border-radius: 6px;
+         box-shadow: 0 8px 20px rgba(15, 23, 42, 0.28);
+         font-size: 12px;
+         font-weight: 400;
+         font-style: normal;
+         line-height: 1.45;
+         text-align: left;
+         white-space: normal;
+         letter-spacing: normal;
+         z-index: 99999;
+         transition: opacity 0.14s ease, visibility 0.14s ease;
+       }
+       .bl-help-tooltip::after {
+         content: '';
+         position: absolute;
+         top: 100%;
+         left: calc(50% - var(--bl-arrow-dx, 0px));
+         margin-left: -6px;
+         border-width: 6px;
+         border-style: solid;
+         border-color: #1e293b transparent transparent transparent;
+       }
+       .bl-help-tooltip.bl-tip-bottom {
+         bottom: auto;
+         top: calc(100% + 9px);
+       }
+       .bl-help-tooltip.bl-tip-bottom::after {
+         top: auto;
+         bottom: 100%;
+         border-color: transparent transparent #1e293b transparent;
+       }
+       .bl-help-badge:hover .bl-help-tooltip,
+       .bl-help-badge:focus .bl-help-tooltip {
+         visibility: visible;
+         opacity: 1;
+       }"
+    )),
     shiny::fluidRow(
       shiny::column(
         width = 12,
@@ -417,6 +495,37 @@ omnisearchUI <- function(lang = "en") {
              chev.removeClass('fa-chevron-up').addClass('fa-chevron-down');
            }
          });
+
+         $(document).off('mouseenter.blHelpTip focusin.blHelpTip', '.bl-help-badge')
+           .on('mouseenter.blHelpTip focusin.blHelpTip', '.bl-help-badge', function() {
+             var tip = $(this).find('.bl-help-tooltip').get(0);
+             if (!tip) return;
+             tip.classList.remove('bl-tip-bottom');
+             tip.style.transform = 'translateX(-50%)';
+             tip.style.setProperty('--bl-arrow-dx', '0px');
+             var rect = tip.getBoundingClientRect();
+             if (rect.top < 12) {
+               tip.classList.add('bl-tip-bottom');
+             }
+             var dx = 0;
+             var pad = 12;
+             if (rect.left < pad) {
+               dx = pad - rect.left;
+             } else if (rect.right > window.innerWidth - pad) {
+               dx = (window.innerWidth - pad) - rect.right;
+             }
+             if (dx !== 0) {
+               var rdx = Math.round(dx);
+               tip.style.transform = 'translateX(calc(-50% + ' + rdx + 'px))';
+               tip.style.setProperty('--bl-arrow-dx', rdx + 'px');
+             }
+           });
+
+         $(document).off('click.blHelpTip', '.bl-help-badge')
+           .on('click.blHelpTip', '.bl-help-badge', function(e) {
+             e.preventDefault();
+             e.stopPropagation();
+           });
        });"
     ))
   )
