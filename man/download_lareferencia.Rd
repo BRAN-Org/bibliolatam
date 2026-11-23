@@ -10,7 +10,8 @@ download_lareferencia(
   years = NULL,
   convert = TRUE,
   progress = TRUE,
-  normalize_authors = TRUE
+  normalize_authors = TRUE,
+  timeout = 30
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ download_lareferencia(
 \item{progress}{Logical. If \code{TRUE} (default), prints progress messages during pagination.}
 
 \item{normalize_authors}{Logical. If \code{TRUE} (default), normalizes author names.}
+
+\item{timeout}{Numeric. Maximum seconds before connection timeout. Default is 30.}
 }
 \value{
 A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})

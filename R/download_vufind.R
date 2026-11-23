@@ -296,6 +296,7 @@ parse_vufind_records <- function(records, dbsource = c("bdtd", "oasisbr", "laref
 #'   `bibliometrixDB` data frame using [as_bibliometrix()].
 #' @param progress Logical. If `TRUE` (default), prints progress messages during pagination.
 #' @param normalize_authors Logical. If `TRUE` (default), normalizes author names.
+#' @param timeout Numeric. Maximum seconds before connection timeout. Default is 30.
 #' @return A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})
 #'   or a standard \code{data.frame} (when \code{convert = FALSE}) containing BDTD thesis and dissertation records.
 #' @export
@@ -311,7 +312,8 @@ download_bdtd <- function(query,
                           years = NULL,
                           convert = TRUE,
                           progress = TRUE,
-                          normalize_authors = TRUE) {
+                          normalize_authors = TRUE,
+                          timeout = 30) {
   if (!is.character(query) || length(query) != 1L || !nzchar(trimws(query))) {
     stop("O argumento 'query' deve ser uma string de busca nao vazia.", call. = FALSE)
   }
@@ -332,7 +334,7 @@ download_bdtd <- function(query,
       message(sprintf("[BDTD API] Consultando pagina %d (buscando ate %d registros)...", page, limit))
     }
 
-    resp <- query_vufind_api(base_url, query = query, limit = current_limit, page = page, years = years)
+    resp <- query_vufind_api(base_url, query = query, limit = current_limit, page = page, years = years, timeout = timeout)
 
     batch <- resp$records
     if (length(batch) == 0L) {
@@ -376,6 +378,7 @@ download_bdtd <- function(query,
 #'   `bibliometrixDB` data frame using [as_bibliometrix()].
 #' @param progress Logical. If `TRUE` (default), prints progress messages during pagination.
 #' @param normalize_authors Logical. If `TRUE` (default), normalizes author names.
+#' @param timeout Numeric. Maximum seconds before connection timeout. Default is 30.
 #' @return A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})
 #'   or a standard \code{data.frame} (when \code{convert = FALSE}) containing Oasisbr multidisciplinary records.
 #' @export
@@ -391,7 +394,8 @@ download_oasisbr <- function(query,
                              years = NULL,
                              convert = TRUE,
                              progress = TRUE,
-                             normalize_authors = TRUE) {
+                             normalize_authors = TRUE,
+                             timeout = 30) {
   if (!is.character(query) || length(query) != 1L || !nzchar(trimws(query))) {
     stop("O argumento 'query' deve ser uma string de busca nao vazia.", call. = FALSE)
   }
@@ -412,7 +416,7 @@ download_oasisbr <- function(query,
       message(sprintf("[Oasisbr API] Consultando pagina %d (buscando ate %d registros)...", page, limit))
     }
 
-    resp <- query_vufind_api(base_url, query = query, limit = current_limit, page = page, years = years)
+    resp <- query_vufind_api(base_url, query = query, limit = current_limit, page = page, years = years, timeout = timeout)
 
     batch <- resp$records
     if (length(batch) == 0L) {
@@ -457,6 +461,7 @@ download_oasisbr <- function(query,
 #'   `bibliometrixDB` data frame using [as_bibliometrix()].
 #' @param progress Logical. If `TRUE` (default), prints progress messages during pagination.
 #' @param normalize_authors Logical. If `TRUE` (default), normalizes author names.
+#' @param timeout Numeric. Maximum seconds before connection timeout. Default is 30.
 #' @return A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})
 #'   or a standard \code{data.frame} (when \code{convert = FALSE}) containing LA Referencia records.
 #' @export
@@ -472,7 +477,8 @@ download_lareferencia <- function(query,
                                   years = NULL,
                                   convert = TRUE,
                                   progress = TRUE,
-                                  normalize_authors = TRUE) {
+                                  normalize_authors = TRUE,
+                                  timeout = 30) {
   if (!is.character(query) || length(query) != 1L || !nzchar(trimws(query))) {
     stop("O argumento 'query' deve ser uma string de busca nao vazia.", call. = FALSE)
   }
@@ -493,7 +499,7 @@ download_lareferencia <- function(query,
       message(sprintf("[LA Referencia API] Consultando pagina %d (buscando ate %d registros)...", page, limit))
     }
 
-    resp <- query_vufind_api(base_url, query = query, limit = current_limit, page = page, years = years)
+    resp <- query_vufind_api(base_url, query = query, limit = current_limit, page = page, years = years, timeout = timeout)
 
     batch <- resp$records
     if (length(batch) == 0L) {

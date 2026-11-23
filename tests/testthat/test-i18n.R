@@ -43,9 +43,12 @@ test_that("UI functions accept lang parameter and render localized text across a
   ui_omni_pt <- omnisearchUI(lang = "pt")
   ui_omni_es <- omnisearchUI(lang = "es")
 
-  expect_true(grepl("Latin American Omnisearch Engine", as.character(ui_omni_en)))
-  expect_true(grepl("Mecanismo Omnisearch Latino-Americano", as.character(ui_omni_pt)))
-  expect_true(grepl("Motor Omnisearch Latinoamericano", as.character(ui_omni_es)))
+  expect_true(grepl(">Omnisearch Engine<", as.character(ui_omni_en), fixed = TRUE))
+  expect_true(grepl(">Mecanismo Omnisearch<", as.character(ui_omni_pt), fixed = TRUE))
+  expect_true(grepl(">Motor Omnisearch<", as.character(ui_omni_es), fixed = TRUE))
+  expect_true(grepl("Advanced Settings", as.character(ui_omni_en), fixed = TRUE))
+  expect_true(grepl("Configuracoes Avancadas", as.character(ui_omni_pt), fixed = TRUE))
+  expect_true(grepl("Configuracion Avanzada", as.character(ui_omni_es), fixed = TRUE))
 
   # SciELO
   ui_scielo_en <- scieloUI(lang = "en")

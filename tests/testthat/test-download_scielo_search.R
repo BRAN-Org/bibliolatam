@@ -4,6 +4,23 @@ test_that("download_scielo_search validates input arguments correctly", {
   expect_error(download_scielo_search(123), "deve ser uma string de busca nao vazia")
   expect_error(download_scielo_search("dengue", limit = 0), "deve ser um inteiro positivo")
   expect_error(download_scielo_search("dengue", limit = -5), "deve ser um inteiro positivo")
+  expect_error(download_scielo_search("dengue", collections = character(0L)), "colecao ou prefixo DOI valido")
+  expect_error(download_scielo_search("dengue", collections = "invalid_country"), "Nenhuma colecao SciELO valida")
+})
+
+test_that("resolve_scielo_prefixes maps all six national SciELO collections and raw prefixes", {
+  all_px <- bibliolatam:::resolve_scielo_prefixes()
+  expect_equal(
+    all_px,
+    c("10.1590", "10.4067", "10.4321", "10.15517", "10.17843", "10.26461")
+  )
+  expect_equal(bibliolatam:::resolve_scielo_prefixes("all"), all_px)
+  expect_equal(bibliolatam:::resolve_scielo_prefixes(c("CL", "es")), c("10.4067", "10.4321"))
+  expect_equal(bibliolatam:::resolve_scielo_prefixes(c("cr", "pe", "uy")), c("10.15517", "10.17843", "10.26461"))
+  expect_equal(bibliolatam:::resolve_scielo_prefixes(c("br", "10.1590", "10.99999")), c("10.1590", "10.99999"))
+  expect_error(bibliolatam:::resolve_scielo_prefixes(NULL), "colecao ou prefixo DOI valido")
+  expect_error(bibliolatam:::resolve_scielo_prefixes(""), "colecao ou prefixo DOI valido")
+  expect_error(bibliolatam:::resolve_scielo_prefixes("xx"), "Nenhuma colecao SciELO valida")
 })
 
 test_that("parse_crossref_scielo_items handles empty or malformed items cleanly", {
@@ -60,7 +77,7 @@ test_that("download_scielo_search retrieves live data from Crossref API", {
   }
 })
 
-test_that("download_scielo_search constructs Crossref year filters properly", {
+test_that("download_scielo_search constructs Crossref year and multi-country prefix filters properly", {
   mock_called_url <- NULL
   testthat::with_mocked_bindings(
     url = function(description, ...) {
@@ -69,16 +86,18 @@ test_that("download_scielo_search constructs Crossref year filters properly", {
     },
     .package = "base",
     {
-      # Range
+      # Default multi-country prefixes + year range
       suppressWarnings(download_scielo_search("dengue", limit = 5L, years = c(2021, 2024), progress = FALSE))
-      expect_true(grepl("from-pub-date:2021,until-pub-date:2024", mock_called_url))
+      expect_true(grepl("prefix:10.1590,prefix:10.4067,prefix:10.4321,prefix:10.15517,prefix:10.17843,prefix:10.26461", mock_called_url, fixed = TRUE))
+      expect_true(grepl("from-pub-date:2021,until-pub-date:2024", mock_called_url, fixed = TRUE))
 
-      # Single year
-      suppressWarnings(download_scielo_search("dengue", limit = 5L, years = 2022, progress = FALSE))
-      expect_true(grepl("from-pub-date:2022,until-pub-date:2022", mock_called_url))
+      # Single country (Chile) + single year
+      suppressWarnings(download_scielo_search("dengue", limit = 5L, years = 2022, collections = "cl", progress = FALSE))
+      expect_true(grepl("filter=prefix:10.4067,from-pub-date:2022,until-pub-date:2022", mock_called_url, fixed = TRUE))
 
-      # No filter
-      suppressWarnings(download_scielo_search("dengue", limit = 5L, years = NULL, progress = FALSE))
+      # Spain and Peru subset + no year filter
+      suppressWarnings(download_scielo_search("dengue", limit = 5L, years = NULL, collections = c("es", "pe"), progress = FALSE))
+      expect_true(grepl("filter=prefix:10.4321,prefix:10.17843&", mock_called_url, fixed = TRUE))
       expect_false(grepl("from-pub-date", mock_called_url))
     }
   )

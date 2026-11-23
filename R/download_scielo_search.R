@@ -1,9 +1,65 @@
+#' Official SciELO National Collection DOI Prefixes for Crossref Filtering
+#'
+#' @noRd
+SCIELO_DOI_PREFIXES <- c(
+  br = "10.1590",
+  cl = "10.4067",
+  es = "10.4321",
+  cr = "10.15517",
+  pe = "10.17843",
+  uy = "10.26461"
+)
+
+#' Resolve SciELO collection codes or raw DOI prefixes
+#'
+#' @param collections Character vector of country codes (`"br"`, `"cl"`, `"es"`, `"cr"`, `"pe"`, `"uy"`),
+#'   `"all"`, or raw Crossref DOI prefixes (e.g. `"10.1590"`).
+#' @return Character vector of unique Crossref DOI prefixes.
+#' @noRd
+resolve_scielo_prefixes <- function(collections = c("br", "cl", "es", "cr", "pe", "uy")) {
+  if (is.null(collections) || !is.character(collections) || length(collections) == 0L) {
+    stop("O argumento 'collections' deve especificar ao menos uma colecao ou prefixo DOI valido do SciELO.", call. = FALSE)
+  }
+
+  tokens <- tolower(trimws(collections))
+  tokens <- tokens[nzchar(tokens)]
+  if (length(tokens) == 0L) {
+    stop("O argumento 'collections' deve especificar ao menos uma colecao ou prefixo DOI valido do SciELO.", call. = FALSE)
+  }
+
+  if ("all" %in% tokens) {
+    return(unname(SCIELO_DOI_PREFIXES))
+  }
+
+  resolved <- character(0L)
+  for (tok in tokens) {
+    if (tok %in% names(SCIELO_DOI_PREFIXES)) {
+      resolved <- c(resolved, unname(SCIELO_DOI_PREFIXES[[tok]]))
+    } else if (grepl("^10\\.[0-9]{4,}$", tok)) {
+      resolved <- c(resolved, tok)
+    }
+  }
+
+  resolved <- unique(resolved)
+  if (length(resolved) == 0L) {
+    stop(
+      sprintf(
+        "Nenhuma colecao SciELO valida especificada. Escolha entre: %s (ou 'all').",
+        paste(names(SCIELO_DOI_PREFIXES), collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+  resolved
+}
+
 #' Search and download records from SciELO via Crossref API
 #'
-#' Queries the Crossref REST API filtered by the official SciELO DOI prefix (`10.1590`),
-#' retrieving metadata records for peer-reviewed journal articles across SciELO collections
-#' (Brazil, Colombia, Mexico, Chile, Argentina, etc.), and parses them into a standardized
-#' `bibliometrixDB` data frame.
+#' Queries the Crossref REST API filtered by official SciELO national DOI prefixes
+#' (Brazil `10.1590`, Chile `10.4067`, Spain `10.4321`, Costa Rica `10.15517`,
+#' Peru `10.17843`, and Uruguay `10.26461`), retrieving metadata records for
+#' peer-reviewed journal articles across SciELO collections and parsing them into a
+#' standardized `bibliometrixDB` data frame.
 #'
 #' @param query Character. Search terms or query expression (e.g. `"dengue vacina"`).
 #' @param limit Integer. Maximum number of records to retrieve. Default is 50.
@@ -15,6 +71,10 @@
 #' @param progress Logical. If `TRUE` (default), prints progress messages during pagination.
 #' @param normalize_authors Logical. If `TRUE` (default), normalizes author names.
 #' @param timeout Numeric. Maximum seconds before connection timeout. Default is 30.
+#' @param collections Character vector. SciELO national collections to query. Supported codes:
+#'   `"br"` (10.1590), `"cl"` (10.4067), `"es"` (10.4321), `"cr"` (10.15517),
+#'   `"pe"` (10.17843), `"uy"` (10.26461), `"all"`, or raw Crossref DOI prefixes.
+#'   Defaults to all six collections.
 #' @return A data frame with class \code{c("bibliometrixDB", "data.frame")} (when \code{convert = TRUE})
 #'   or a standard \code{data.frame} (when \code{convert = FALSE}) containing retrieved SciELO records, optionally enriched with cited references (\code{CR}).
 #' @export
@@ -32,7 +92,8 @@ download_scielo_search <- function(query,
                                    convert = TRUE,
                                    progress = TRUE,
                                    normalize_authors = TRUE,
-                                   timeout = 30) {
+                                   timeout = 30,
+                                   collections = c("br", "cl", "es", "cr", "pe", "uy")) {
   if (!is.character(query) || length(query) != 1L || !nzchar(trimws(query))) {
     stop("O argumento 'query' deve ser uma string de busca nao vazia.", call. = FALSE)
   }
@@ -61,6 +122,9 @@ download_scielo_search <- function(query,
     }
   }
 
+  scielo_prefixes <- resolve_scielo_prefixes(collections)
+  prefix_filter <- paste0("prefix:", scielo_prefixes, collapse = ",")
+
   base_url <- "https://api.crossref.org/works"
   page_size <- min(limit, 50L)
   accumulated_items <- list()
@@ -77,7 +141,7 @@ download_scielo_search <- function(query,
     req_url <- paste0(
       base_url,
       "?query=", utils::URLencode(query),
-      "&filter=prefix:10.1590", yr_filter,
+      "&filter=", prefix_filter, yr_filter,
       "&rows=", as.integer(current_rows),
       "&offset=", as.integer(offset)
     )
@@ -145,7 +209,7 @@ download_scielo_search <- function(query,
         message(sprintf("[SciELO JATS] Enriquecendo %d artigos com referencias citadas (CR)...", length(valid_dois)))
       }
       enriched_jats <- tryCatch(
-        download_scielo_jats(valid_dois, parse = TRUE, progress = progress),
+        download_scielo_jats(valid_dois, parse = TRUE, progress = progress, timeout = timeout),
         error = function(e) {
           warning(sprintf("Falha ao enriquecer referencias citadas via JATS: %s", e$message), call. = FALSE)
           NULL
