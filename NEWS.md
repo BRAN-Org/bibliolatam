@@ -1,5 +1,10 @@
 # bibliolatam (development version)
 
+- **Omnisearch Advanced Settings drawer & multi-country SciELO DOI prefixes (omnisearchUI, omnisearchServer, omnisearch_bibliolatam, download_scielo_search)**:
+  - Simplified the Omnisearch page heading (Omnisearch Engine) while retaining regional scope in the info banner, and fixed output$omniPreviewTable so the empty-filter notice no longer appears prior to running a search.
+  - Added a collapsible **Advanced Settings** drawer exposing deduplication controls (match_by, similarity_threshold, 
+ormalize_authors), post-retrieval corpus quality filters (doc_types, languages, equire_doi, equire_abstract), SciELO national DOI prefix selection, configurable API 	imeout across all four downloaders, semicolon/UTF-8 BOM CSV export for Excel, and a **Reset Defaults** action.
+  - Expanded download_scielo_search() with the collections parameter supporting six SciELO Crossref DOI prefixes: Brazil (10.1590), Chile (10.4067), Spain (10.4321), Costa Rica (10.15517), Peru (10.17843), and Uruguay (10.26461).
 - **Reversible Omnisearch panel collapse toggle (omnisearchUI, omnisearchServer)**: Replaced the destructive shiny::removeUI(selector = "#omnisearchContent", immediate = TRUE) observer with a reversible client-side jQuery slideToggle(300) toggle and data-i18n-title="btn_collapse", preserving reactive state across collapse/expand cycles, accompanied by expanded unit tests in 	est-shiny_omnisearch.R.
 - **Anti-false-positive guardrails in `merge_bibliolatam()`**:
   - Added series and part discrepancy detection (`extract_part_token`), preventing articles belonging to sequential series (e.g. "Part I" vs "Part II") from falsely merging despite high string similarity.

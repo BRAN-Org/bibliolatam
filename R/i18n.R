@@ -23,7 +23,7 @@ BL_I18N_DICT <- list(
   lang_label = list(en = "Language:", pt = "Idioma:", es = "Idioma:"),
 
   # Omnisearch
-  omni_title = list(en = "Latin American Omnisearch Engine", pt = "Mecanismo Omnisearch Latino-Americano", es = "Motor Omnisearch Latinoamericano"),
+  omni_title = list(en = "Omnisearch Engine", pt = "Mecanismo Omnisearch", es = "Motor Omnisearch"),
   omni_badge = list(en = "Federated Multi-Source Discovery", pt = "Descoberta Federada Multifonte", es = "Descubrimiento Federado Multifuente"),
   omni_banner = list(
     en = "Unified Latin American Search: Query SciELO, BDTD, Oasisbr, and LA Referencia simultaneously in a single operation. The engine queries each official repository, normalizes records into canonical bibliometrix format, and automatically fuses and deduplicates duplicate entries.",
@@ -67,6 +67,23 @@ BL_I18N_DICT <- list(
   omni_prog_finalizing = list(en = "Finalizing and integrating with Biblioshiny...", pt = "Finalizando e integrando com o Biblioshiny...", es = "Finalizando e integrando com o Biblioshiny..."),
   omni_err_during_query = list(en = "Error during query: %s", pt = "Erro durante a consulta: %s", es = "Error durante la consulta: %s"),
   omni_success_loaded = list(en = "Success! %d harmonized records loaded into active session.", pt = "Sucesso! %d registros harmonizados carregados na sessao ativa.", es = "Exito! %d registros armonizados cargados en la sesion activa."),
+  omni_adv_toggle = list(en = "Advanced Settings", pt = "Configuracoes Avancadas", es = "Configuracion Avanzada"),
+  omni_adv_sec_merge = list(en = "Entity Resolution & Deduplication", pt = "Resolucao de Entidades e Deduplicacao", es = "Resolucion de Entidades y Deduplicacion"),
+  omni_adv_match_by = list(en = "Matching Criteria:", pt = "Criterios de Correspondencia:", es = "Criterios de Coincidencia:"),
+  omni_adv_threshold = list(en = "Title Similarity Threshold:", pt = "Limiar de Similaridade de Titulo:", es = "Umbral de Similitud de Titulo:"),
+  omni_adv_norm_au = list(en = "Normalize Luso-Hispanic author names", pt = "Normalizar nomes de autores luso-hispanicos", es = "Normalizar nombres de autores luso-hispanos"),
+  omni_adv_sec_filters = list(en = "Corpus Quality Filters", pt = "Filtros de Qualidade do Corpus", es = "Filtros de Calidad del Corpus"),
+  omni_adv_doc_types = list(en = "Document Types (DT):", pt = "Tipos de Documento (DT):", es = "Tipos de Documento (DT):"),
+  omni_adv_languages = list(en = "Languages (LA):", pt = "Idiomas (LA):", es = "Idiomas (LA):"),
+  omni_adv_req_doi = list(en = "Only records with DOI", pt = "Apenas registros com DOI", es = "Solo registros con DOI"),
+  omni_adv_req_ab = list(en = "Only records with Abstract", pt = "Apenas registros com Resumo", es = "Solo registros con Resumen"),
+  omni_adv_sec_network = list(en = "SciELO Collections, Network & Export", pt = "Colecoes SciELO, Rede e Exportacao", es = "Colecciones SciELO, Red y Exportacion"),
+  omni_adv_scielo_col = list(en = "SciELO Collections (DOI Prefixes):", pt = "Colecoes SciELO (Prefixos DOI):", es = "Colecciones SciELO (Prefijos DOI):"),
+  omni_adv_timeout = list(en = "API Timeout (seconds):", pt = "Timeout da API (segundos):", es = "Timeout de la API (segundos):"),
+  omni_adv_csv_sep = list(en = "CSV Export Separator:", pt = "Separador de Exportacao CSV:", es = "Separador de Exportacion CSV:"),
+  omni_adv_csv_bom = list(en = "UTF-8 BOM (Excel compatibility)", pt = "UTF-8 BOM (compatibilidade Excel)", es = "UTF-8 BOM (compatibilidad Excel)"),
+  omni_adv_reset = list(en = "Reset Defaults", pt = "Restaurar Padroes", es = "Restaurar Valores"),
+  omni_adv_reset_ok = list(en = "Advanced settings restored to defaults.", pt = "Configuracoes avancadas restauradas para os padroes.", es = "Configuracion avanzada restaurada a los valores predeterminados."),
 
   # SciELO
   scielo_title = list(en = "SciELO Data Collection", pt = "Coleta de Dados SciELO", es = "Recoleccion de Datos SciELO"),
