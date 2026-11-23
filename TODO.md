@@ -96,6 +96,11 @@
     - Gerador de **Código R Reprodutível** correspondente à busca executada na GUI (para colar em scripts/artigos científicos).
   - [ ] **6.5. Gerenciamento de Sessão & Cabeçalho da Tela Inicial**:
     - Indicador discreto de coleção ativa no cabeçalho (ex.: contagem de registros em `values$M`), botão de acesso rápido **Settings** (aba dedicada ou modal), botão **"Resetar Padrões"**, botão **"Limpar Sessão Ativa"** e painel de diagnóstico do ambiente (versão R, `bibliolatam` e detecção de `bibliometrix`).
+- [ ] **Passo 7 (Busca Multilíngue Automática / Cross-Lingual Query Expansion PT <-> ES <-> EN)**:
+  - Permitir que o pesquisador informe uma palavra-chave ou tema em **um único idioma** (ex.: `"saude publica"`) e ative a expansão multilíngue automática para buscar simultaneamente o mesmo conceito em **Português, Espanhol e Inglês** (ex.: `"saude publica" OR "salud publica" OR "public health"`) sem precisar repetir a busca manualmente em 3 idiomas.
+  - Avaliar fontes abertas e reprodutíveis para resolução conceitual trilíngue (sem chaves pagas e 100% compatível com CRAN):
+    - **Vocabulários controlados abertos**: API **DeCS/MeSH** (BIREME/OPAS), **Tesauro da UNESCO** (SKOS) e **OpenAlex Topics/Concepts / Wikidata** (mapeamento nativo PT/ES/EN por conceito científico).
+    - **Transparência & Reprodutibilidade (FAIR)**: Exibir e permitir edição dos termos expandidos na interface (omnisearchUI / Advanced Settings) e registrar a query booleana expandida nos atributos do objeto ibliometrixDB para auditoria científica.
 - [ ] OpenAlex Latin American harvester backend
 - [ ] Canopy clustering e string distance heuristics para desambiguação avançada de autores
 - [ ] Automated co-citation and bibliographic coupling graph export for Gephi / Pajek

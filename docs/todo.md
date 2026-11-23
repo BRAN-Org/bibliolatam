@@ -75,3 +75,8 @@
 - [ ] **Padrões de Busca & Merge**: Limite padrão por base, coleções SciELO ativas (BR/CL/ES/CR/PE/UY), limiar de similaridade (`similarity_threshold`) e toggle global de `normalize_authors`
 - [ ] **Exportação & Reprodutibilidade**: Separador CSV (`,` vs `;`), opção UTF-8 com BOM para Excel, toggle de espelhamento `DE -> ID` e gerador de snippet de código R reproduzível
 - [ ] **Sessão & Cabeçalho**: Indicador de coleção ativa (`values$M`), botão **Settings**, *"Resetar Padrões"*, *"Limpar Sessão"* e diagnóstico do ambiente (R, `bibliolatam`, `bibliometrix`)
+---
+
+## Fase 9: Busca Multilíngue Automática (Cross-Lingual Query Expansion PT <-> ES <-> EN)
+- [ ] Projetar motor de expansão multilíngue de consultas (expand_query_multilingual()), permitindo digitar um termo em um único idioma (ex.: Português) e consultar automaticamente o tema equivalente em **Português, Espanhol e Inglês** nas bases federadas do omnisearch_bibliolatam()
+- [ ] Avaliar integração com vocabulários controlados abertos (**DeCS/MeSH**, **Tesauro UNESCO**, **OpenAlex/Wikidata**) com pré-visualização editável dos termos expandidos na gaveta *Advanced Settings* do Omnisearch para garantir transparência e reprodutibilidade científica
