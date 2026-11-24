@@ -48,16 +48,16 @@ extract_part_token <- function(norm_title) {
     "vi" = "6", "vii" = "7", "viii" = "8", "ix" = "9", "x" = "10"
   )
 
-  # 1. Verifica padroes com indicadores explicitos (parte, volume, secao, fase, ensaio)
-  m <- regexec("\\b(parte|part|volume|vol|secao|section|fase|phase|ensaio)\\s+([0-9]+|[ivxlcdm]+|[a-z])\\b", norm_title)
+  # 1. Verifica padroes com indicadores explicitos (PT, EN e ES: parte, volume/volumen, secao/seccion, fase, ensaio, tomo, entrega, capitulo)
+  m <- regexec("\\b(parte|part|volumen|volume|vol|secao|seccion|section|fase|phase|ensaio|tomo|entrega|capitulo)\\s+([0-9]+|[ivxlcdm]+|[a-z])\\b", norm_title)
   reg_res <- regmatches(norm_title, m)[[1]]
   if (length(reg_res) >= 3L) {
     indicator <- tolower(reg_res[2])
     val <- tolower(reg_res[3])
 
     if (indicator %in% c("part", "parte")) indicator <- "part"
-    if (indicator %in% c("volume", "vol")) indicator <- "vol"
-    if (indicator %in% c("section", "secao")) indicator <- "sec"
+    if (indicator %in% c("volume", "volumen", "vol")) indicator <- "vol"
+    if (indicator %in% c("section", "secao", "seccion")) indicator <- "sec"
     if (indicator %in% c("phase", "fase")) indicator <- "phase"
 
     if (val %in% names(roman_map)) {
@@ -97,7 +97,13 @@ extract_author_surnames <- function(au_str) {
     if (!nzchar(a)) next
 
     if (grepl(",", a, fixed = TRUE)) {
-      sn <- trimws(unlist(strsplit(a, ",", fixed = TRUE))[1])
+      comma_parts <- trimws(unlist(strsplit(a, ",", fixed = TRUE)))
+      sn <- comma_parts[1]
+      if (tolower(sn) %in% sufixos && length(comma_parts) >= 2L && nzchar(comma_parts[2])) {
+        after_toks <- unlist(strsplit(comma_parts[2], "\\s+"))
+        after_toks <- after_toks[nzchar(after_toks)]
+        if (length(after_toks) > 0L) sn <- after_toks[length(after_toks)]
+      }
     } else {
       tokens <- unlist(strsplit(a, "\\s+"))
       tokens <- tokens[nzchar(tokens)]
@@ -120,15 +126,18 @@ extract_author_surnames <- function(au_str) {
     sn_norm <- tolower(trimws(sn))
     sn_norm <- iconv(sn_norm, to = "ASCII//TRANSLIT")
     sn_clean <- gsub("[^a-z]", "", sn_norm)
-    if (nzchar(sn_clean) && !sn_clean %in% c("anonymous", "anonimo", "desconhecido", "na")) {
+    non_distinctive <- c("anonymous", "anonimo", "desconhecido", "na", sufixos,
+                         "san", "santa", "santo", "sao", "van", "von")
+    if (nzchar(sn_clean) && !sn_clean %in% non_distinctive) {
       surnames <- c(surnames, toupper(sn_clean))
     }
     # Extrai tambem sub-tokens significativos de sobrenomes compostos (Achado #4)
     sn_words <- unlist(strsplit(sn_norm, "\\s+"))
-    sn_words <- sn_words[!sn_words %in% c("da", "de", "do", "das", "dos", "del", "la", "las", "los", "y", "e", sufixos)]
+    sn_words <- sn_words[!sn_words %in% c("da", "de", "do", "das", "dos", "del", "la", "las", "los", "y", "e",
+                                          non_distinctive)]
     for (w in sn_words) {
       w_clean <- gsub("[^a-z]", "", w)
-      if (nchar(w_clean) >= 3L && !w_clean %in% c("anonymous", "anonimo", "desconhecido", "na")) {
+      if (nchar(w_clean) >= 3L && !w_clean %in% non_distinctive) {
         surnames <- c(surnames, toupper(w_clean))
       }
     }
@@ -209,7 +218,9 @@ deduplicate_internal <- function(df,
   }
   doi_matches_count <- length(matched_pairs)
 
-  # 2. Matching por Titulo aproximado
+  # 2. Matching por Titulo aproximado (filtros O(1) vetorizados ANTES de loops de autoria e adist)
+  candidates_before_len <- 0L
+  pruned_by_len <- 0L
   if ("title" %in% match_by) {
     for (i in seq_len(n - 1L)) {
       if (merged_rows[i]) next
@@ -220,7 +231,7 @@ deduplicate_internal <- function(df,
       cand_indices <- which(!merged_rows & (seq_len(n) > i))
       if (length(cand_indices) == 0L) break
 
-      # 2.1 Conflito explicito de DOIs distintos (Achado #1)
+      # 2.1 Conflito explicito de DOIs distintos (Achado #1, O(1) vetorizado)
       d1 <- dois[i]
       if (!is.na(d1) && nzchar(d1)) {
         cand_d2 <- dois[cand_indices]
@@ -229,7 +240,7 @@ deduplicate_internal <- function(df,
       }
       if (length(cand_indices) == 0L) next
 
-      # 2.2 Guardrail de Tipo Documental (DT) (Achado #3)
+      # 2.2 Guardrail de Tipo Documental (DT) (Achado #3, O(1) vetorizado)
       t_doc1 <- dt[i]
       if (!is.na(t_doc1) && nzchar(t_doc1)) {
         is_thesis_1 <- t_doc1 %in% c("THESIS", "DISSERTATION")
@@ -244,7 +255,7 @@ deduplicate_internal <- function(df,
       }
       if (length(cand_indices) == 0L) next
 
-      # 2.3 Tolerancia de ano +- 1
+      # 2.3 Tolerancia de ano +- 1 (O(1) vetorizado)
       p1 <- py[i]
       if (!is.na(p1)) {
         cand_p2 <- py[cand_indices]
@@ -253,7 +264,7 @@ deduplicate_internal <- function(df,
       }
       if (length(cand_indices) == 0L) next
 
-      # 2.4 Guardrail de Series / Partes
+      # 2.4 Guardrail de Series / Partes (O(1) vetorizado)
       part1 <- parts[i]
       if (length(cand_indices) > 0L) {
         cand_parts2 <- parts[cand_indices]
@@ -266,52 +277,48 @@ deduplicate_internal <- function(df,
       }
       if (length(cand_indices) == 0L) next
 
-      # 2.5 Guardrail de Autoria
-      sn1 <- au_surnames[[i]]
-      if (length(sn1) > 0L && length(cand_indices) > 0L) {
-        valid_authors <- logical(length(cand_indices))
-        for (k in seq_along(cand_indices)) {
-          c_idx <- cand_indices[k]
-          sn2 <- au_surnames[[c_idx]]
-          if (length(sn2) == 0L) {
-            valid_authors[k] <- TRUE
-          } else {
-            valid_authors[k] <- surnames_compatible(sn1, sn2)
-          }
-        }
-        cand_indices <- cand_indices[valid_authors]
+      # 2.5 Length Bound Filter (O(1) vetorizado - poda ~90% antes de qualquer loop R ou adist)
+      candidates_before_len <- candidates_before_len + length(cand_indices)
+      if (similarity_threshold > 0) {
+        min_len <- ceiling(t1_len * similarity_threshold)
+        max_len <- floor(t1_len / similarity_threshold)
+        cand_lens <- titles_lens[cand_indices]
+        valid_len <- cand_lens >= min_len & cand_lens <= max_len
+        pruned_by_len <- pruned_by_len + sum(!valid_len)
+        cand_indices <- cand_indices[valid_len]
+        if (length(cand_indices) == 0L) next
       }
-      if (length(cand_indices) == 0L) next
 
       cand_titles <- titles[cand_indices]
+      sn1 <- au_surnames[[i]]
 
-      # 2.6 Exact match fast path
+      # 2.6 Exact match fast-path (O(1), checa autoria apenas nos candidatos de titulo identico)
       exact_match_pos <- which(cand_titles == t1)
       if (length(exact_match_pos) > 0L) {
-        if (length(exact_match_pos) > 1L && length(sn1) > 0L) {
-          has_au <- vapply(cand_indices[exact_match_pos], function(c_idx) {
-            length(au_surnames[[c_idx]]) > 0L
+        ex_cands <- cand_indices[exact_match_pos]
+        if (length(sn1) > 0L) {
+          ok_ex <- vapply(ex_cands, function(c_idx) {
+            sn2 <- au_surnames[[c_idx]]
+            length(sn2) == 0L || surnames_compatible(sn1, sn2)
           }, logical(1L))
-          if (any(has_au)) {
-            exact_match_pos <- exact_match_pos[has_au]
-          }
+          ex_cands <- ex_cands[ok_ex]
         }
-        target_j <- cand_indices[exact_match_pos[1L]]
-        matched_pairs[[length(matched_pairs) + 1L]] <- c(i, target_j)
-        merged_rows[target_j] <- TRUE
-        next
+        if (length(ex_cands) > 0L) {
+          if (length(ex_cands) > 1L && length(sn1) > 0L) {
+            has_au <- vapply(ex_cands, function(c_idx) length(au_surnames[[c_idx]]) > 0L, logical(1L))
+            if (any(has_au)) ex_cands <- ex_cands[has_au]
+          }
+          target_j <- ex_cands[1L]
+          matched_pairs[[length(matched_pairs) + 1L]] <- c(i, target_j)
+          merged_rows[target_j] <- TRUE
+          next
+        }
+        cand_indices <- cand_indices[-exact_match_pos]
+        if (length(cand_indices) == 0L) next
+        cand_titles <- titles[cand_indices]
       }
 
-      # 2.7 Length bound filter
-      min_len <- ceiling(t1_len * similarity_threshold)
-      max_len <- floor(t1_len / similarity_threshold)
-      cand_lens <- titles_lens[cand_indices]
-      valid_len <- cand_lens >= min_len & cand_lens <= max_len
-      cand_indices <- cand_indices[valid_len]
-      if (length(cand_indices) == 0L) next
-      cand_titles <- titles[cand_indices]
-
-      # 2.8 Canopy filter se > 15
+      # 2.7 Canopy filter se > 15 candidatos sobreviventes ao Length Bound
       if (length(cand_indices) > 15L) {
         sig_words <- unlist(regmatches(t1, gregexpr("[a-z0-9]{4,}", t1)))
         if (length(sig_words) > 0L) {
@@ -323,6 +330,19 @@ deduplicate_internal <- function(df,
           if (length(cand_indices) == 0L) next
           cand_titles <- titles[cand_indices]
         }
+      }
+
+      # 2.8 Guardrail de Autoria (executado apenas sobre o subconjunto podado)
+      if (length(sn1) > 0L && length(cand_indices) > 0L) {
+        valid_authors <- logical(length(cand_indices))
+        for (k in seq_along(cand_indices)) {
+          c_idx <- cand_indices[k]
+          sn2 <- au_surnames[[c_idx]]
+          valid_authors[k] <- length(sn2) == 0L || surnames_compatible(sn1, sn2)
+        }
+        cand_indices <- cand_indices[valid_authors]
+        if (length(cand_indices) == 0L) next
+        cand_titles <- titles[cand_indices]
       }
 
       # 2.9 Levenshtein fuzzy matching
@@ -424,7 +444,9 @@ deduplicate_internal <- function(df,
     doi_duplicates = doi_matches_count,
     title_duplicates = title_matches_count,
     total_duplicates = length(matched_pairs),
-    final_count = nrow(out)
+    final_count = nrow(out),
+    candidates_before_len = candidates_before_len,
+    length_bound_pruned = pruned_by_len
   )
 
   if (verbose) {
@@ -551,20 +573,35 @@ merge_bibliolatam <- function(df1,
 
   doi_matches_count <- length(matched_pairs)
 
-  # 2. Matching por Titulo aproximado (com tolerancia de ano +- 1 e guardrails anti-falso positivo)
+  # 2. Matching por Titulo aproximado (filtros O(1) vetorizados ANTES de loops de autoria e adist)
+  candidates_before_len <- 0L
+  pruned_by_len <- 0L
+  total_cartesian_len_pruned <- 0L
   if ("title" %in% match_by) {
     unmatched_1 <- setdiff(seq_len(n1), vapply(matched_pairs, function(p) p[1], integer(1L)))
+    titles1_lens <- nchar(titles1)
     titles2_lens <- nchar(titles2)
+
+    if (similarity_threshold > 0 && length(unmatched_1) > 0L) {
+      for (i_l in unmatched_1) {
+        l1_i <- titles1_lens[i_l]
+        if (l1_i >= 15L) {
+          min_l_i <- ceiling(l1_i * similarity_threshold)
+          max_l_i <- floor(l1_i / similarity_threshold)
+          total_cartesian_len_pruned <- total_cartesian_len_pruned + sum(titles2_lens < min_l_i | titles2_lens > max_l_i)
+        }
+      }
+    }
 
     for (i in unmatched_1) {
       t1 <- titles1[i]
-      if (!nzchar(t1) || nchar(t1) < 15) next # ignora titulos extremamente curtos para evitar falso positivo
-      t1_len <- nchar(t1)
+      t1_len <- titles1_lens[i]
+      if (!nzchar(t1) || t1_len < 15L) next # ignora titulos extremamente curtos para evitar falso positivo
 
       cand_indices <- which(!matched_in_2)
       if (length(cand_indices) == 0L) break
 
-      # 2.1 Conflito explicito de DOIs distintos (Achado #1)
+      # 2.1 Conflito explicito de DOIs distintos (Achado #1, O(1) vetorizado)
       d1 <- dois1[i]
       if (!is.na(d1) && nzchar(d1)) {
         cand_d2 <- dois2[cand_indices]
@@ -573,7 +610,7 @@ merge_bibliolatam <- function(df1,
       }
       if (length(cand_indices) == 0L) next
 
-      # 2.2 Guardrail de Tipo Documental (DT) (Achado #3)
+      # 2.2 Guardrail de Tipo Documental (DT) (Achado #3, O(1) vetorizado)
       t_doc1 <- dt1[i]
       if (!is.na(t_doc1) && nzchar(t_doc1)) {
         is_thesis_1 <- t_doc1 %in% c("THESIS", "DISSERTATION")
@@ -588,7 +625,7 @@ merge_bibliolatam <- function(df1,
       }
       if (length(cand_indices) == 0L) next
 
-      # 2.3 Filtra candidatos por aproximacao de ano se ambos tiverem PY (+- 1 ano)
+      # 2.3 Filtra candidatos por aproximacao de ano se ambos tiverem PY (+- 1 ano, O(1) vetorizado)
       p1 <- py1[i]
       if (!is.na(p1)) {
         cand_p2 <- py2[cand_indices]
@@ -597,7 +634,7 @@ merge_bibliolatam <- function(df1,
       }
       if (length(cand_indices) == 0L) next
 
-      # 2.4 Guardrail de Series / Partes / Volumes (evita fundir "Parte I" com "Parte II")
+      # 2.4 Guardrail de Series / Partes / Volumes (O(1) vetorizado)
       part1 <- parts1[i]
       if (length(cand_indices) > 0L) {
         cand_parts2 <- parts2[cand_indices]
@@ -611,54 +648,54 @@ merge_bibliolatam <- function(df1,
       }
       if (length(cand_indices) == 0L) next
 
-      # 2.5 Guardrail de Autoria (Compatibilidade de Sobrenomes de Autores)
-      sn1 <- au_surnames1[[i]]
-      if (length(sn1) > 0L && length(cand_indices) > 0L) {
-        valid_authors <- logical(length(cand_indices))
-        for (k in seq_along(cand_indices)) {
-          c_idx <- cand_indices[k]
-          sn2 <- au_surnames2[[c_idx]]
-          if (length(sn2) == 0L) {
-            # Candidato sem autor registrado: permite prosseguir sob threshold estrito posterior
-            valid_authors[k] <- TRUE
-          } else {
-            valid_authors[k] <- surnames_compatible(sn1, sn2)
-          }
-        }
-        cand_indices <- cand_indices[valid_authors]
+      # 2.5 Filtro Matematico de Extensao de String (Length Bound Filter, O(1) vetorizado)
+      # Executado ANTES de loops de autoria e adist, podando ~90% dos candidatos em nanossegundos
+      candidates_before_len <- candidates_before_len + length(cand_indices)
+      if (similarity_threshold > 0) {
+        min_len <- ceiling(t1_len * similarity_threshold)
+        max_len <- floor(t1_len / similarity_threshold)
+        cand_lens <- titles2_lens[cand_indices]
+        valid_len <- cand_lens >= min_len & cand_lens <= max_len
+        pruned_by_len <- pruned_by_len + sum(!valid_len)
+        cand_indices <- cand_indices[valid_len]
+        if (length(cand_indices) == 0L) next
       }
-      if (length(cand_indices) == 0L) next
 
       cand_titles <- titles2[cand_indices]
+      sn1 <- au_surnames1[[i]]
 
       # 2.6 Atalho de correspondencia exata de titulo (Exact Match Fast-Path, O(1))
       exact_match_pos <- which(cand_titles == t1)
       if (length(exact_match_pos) > 0L) {
-        if (length(exact_match_pos) > 1L && length(sn1) > 0L) {
-          # Prioriza candidato com autor explicitamente compativel sobre candidato anonimo
-          has_au <- vapply(cand_indices[exact_match_pos], function(c_idx) {
-            length(au_surnames2[[c_idx]]) > 0L
+        ex_cands <- cand_indices[exact_match_pos]
+        if (length(sn1) > 0L) {
+          ok_ex <- vapply(ex_cands, function(c_idx) {
+            sn2 <- au_surnames2[[c_idx]]
+            length(sn2) == 0L || surnames_compatible(sn1, sn2)
           }, logical(1L))
-          if (any(has_au)) {
-            exact_match_pos <- exact_match_pos[has_au]
-          }
+          ex_cands <- ex_cands[ok_ex]
         }
-        target_j <- cand_indices[exact_match_pos[1L]]
-        matched_pairs[[length(matched_pairs) + 1L]] <- c(i, target_j)
-        matched_in_2[target_j] <- TRUE
-        next
+        if (length(ex_cands) > 0L) {
+          if (length(ex_cands) > 1L && length(sn1) > 0L) {
+            # Prioriza candidato com autor explicitamente compativel sobre candidato anonimo
+            has_au <- vapply(ex_cands, function(c_idx) {
+              length(au_surnames2[[c_idx]]) > 0L
+            }, logical(1L))
+            if (any(has_au)) {
+              ex_cands <- ex_cands[has_au]
+            }
+          }
+          target_j <- ex_cands[1L]
+          matched_pairs[[length(matched_pairs) + 1L]] <- c(i, target_j)
+          matched_in_2[target_j] <- TRUE
+          next
+        }
+        cand_indices <- cand_indices[-exact_match_pos]
+        if (length(cand_indices) == 0L) next
+        cand_titles <- titles2[cand_indices]
       }
 
-      # 2.7 Filtro Matematico de Extensao de String (Length Bound Filter, O(1))
-      min_len <- ceiling(t1_len * similarity_threshold)
-      max_len <- floor(t1_len / similarity_threshold)
-      cand_lens <- titles2_lens[cand_indices]
-      valid_len <- cand_lens >= min_len & cand_lens <= max_len
-      cand_indices <- cand_indices[valid_len]
-      if (length(cand_indices) == 0L) next
-      cand_titles <- titles2[cand_indices]
-
-      # 2.8 Bloqueio por Palavras de Conteudo (Significant Content Word Canopy)
+      # 2.7 Bloqueio por Palavras de Conteudo (Significant Content Word Canopy)
       if (length(cand_indices) > 15L) {
         sig_words <- unlist(regmatches(t1, gregexpr("[a-z0-9]{4,}", t1)))
         if (length(sig_words) > 0L) {
@@ -670,6 +707,23 @@ merge_bibliolatam <- function(df1,
           if (length(cand_indices) == 0L) next
           cand_titles <- titles2[cand_indices]
         }
+      }
+
+      # 2.8 Guardrail de Autoria (Compatibilidade de Sobrenomes apenas nos sobreviventes)
+      if (length(sn1) > 0L && length(cand_indices) > 0L) {
+        valid_authors <- logical(length(cand_indices))
+        for (k in seq_along(cand_indices)) {
+          c_idx <- cand_indices[k]
+          sn2 <- au_surnames2[[c_idx]]
+          if (length(sn2) == 0L) {
+            valid_authors[k] <- TRUE
+          } else {
+            valid_authors[k] <- surnames_compatible(sn1, sn2)
+          }
+        }
+        cand_indices <- cand_indices[valid_authors]
+        if (length(cand_indices) == 0L) next
+        cand_titles <- titles2[cand_indices]
       }
 
       # 2.9 Distancia de Levenshtein Normalizada
@@ -781,7 +835,10 @@ merge_bibliolatam <- function(df1,
     doi_duplicates = doi_matches_count,
     title_duplicates = title_matches_count,
     total_duplicates = length(matched_pairs),
-    final_count = nrow(out)
+    final_count = nrow(out),
+    candidates_before_len = candidates_before_len,
+    length_bound_pruned = pruned_by_len,
+    cartesian_length_bound_pruned = total_cartesian_len_pruned
   )
 
   out

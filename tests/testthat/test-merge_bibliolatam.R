@@ -326,3 +326,192 @@ test_that("merge_bibliolatam resolve sobrenomes compostos hispanicos entre bases
   expect_equal(nrow(merged), 1L)
 })
 
+
+test_that("merge_bibliolatam respeita janela temporal de PY (+- 1 ano) e bloqueia titulos recorrentes distantes", {
+  df_2022 <- as_bibliometrix(data.frame(
+    AU = "OLIVEIRA M; COSTA P",
+    TI = "Indicadores anuais de ciencia tecnologia e inovacao nas universidades federais",
+    SO = "Avaliacao (Campinas)",
+    PY = 2022,
+    DI = NA_character_,
+    stringsAsFactors = FALSE
+  ), "scielo")
+
+  # Ahead-of-print / atraso de indexacao (+1 ano): DEVE fundir
+  df_2023 <- df_2022
+  df_2023$PY <- 2023
+  expect_equal(nrow(merge_bibliolatam(df_2022, df_2023, match_by = "title")), 1L)
+
+  # Relatorio/artigo recorrente homonimo 4 anos antes (2018 vs 2022): NAO deve fundir
+  df_2018 <- df_2022
+  df_2018$PY <- 2018
+  expect_equal(nrow(merge_bibliolatam(df_2022, df_2018, match_by = "title")), 2L)
+})
+
+test_that("merge_bibliolatam eleva threshold adaptativamente para 0.95 quando falta autoria (AU = NA)", {
+  # Similaridade ~ 0.92 (acima de 0.90, mas abaixo de 0.95) sem autor: deve bloquear
+  df1 <- as_bibliometrix(data.frame(
+    AU = NA_character_,
+    TI = "Avaliacao da producao cientifica em saude coletiva nas regioes norte",
+    SO = "Cadernos de Saude Publica",
+    PY = 2022,
+    DI = NA_character_,
+    stringsAsFactors = FALSE
+  ), "scielo")
+
+  df2_92 <- as_bibliometrix(data.frame(
+    AU = "BARROS F",
+    TI = "Avaliacao da producao cientifica em saude coletiva nos estados sul",
+    SO = "Cadernos de Saude Publica",
+    PY = 2022,
+    DI = NA_character_,
+    stringsAsFactors = FALSE
+  ), "oasisbr")
+
+  expect_equal(nrow(merge_bibliolatam(df1, df2_92, match_by = "title", similarity_threshold = 0.90)), 2L)
+
+  # Similaridade >= 0.97 (apenas 1 caractere de ruido tipografico) mesmo sem autor: deve fundir
+  df2_98 <- df2_92
+  df2_98$TI <- "Avaliacao da producao cientifica em saude coletiva nas regioes nortes"
+  expect_equal(nrow(merge_bibliolatam(df1, df2_98, match_by = "title", similarity_threshold = 0.90)), 1L)
+})
+
+test_that("merge_bibliolatam ignora titulos genericos curtos (< 15 caracteres) sem DOI", {
+  df1 <- as_bibliometrix(data.frame(
+    AU = c("MENEGHINI R", "PACKER A"),
+    TI = c("Editorial", "Apresentação"),
+    SO = c("SciELO em Perspectiva", "Ciencia da Informacao"),
+    PY = c(2021, 2021),
+    DI = c(NA_character_, NA_character_),
+    stringsAsFactors = FALSE
+  ), "scielo")
+
+  df2 <- as_bibliometrix(data.frame(
+    AU = c("MENEGHINI R", "PACKER A"),
+    TI = c("Editorial", "Apresentacao"),
+    SO = c("Outro Fasciculo", "Outro Fasciculo"),
+    PY = c(2021, 2021),
+    DI = c(NA_character_, NA_character_),
+    stringsAsFactors = FALSE
+  ), "oasisbr")
+
+  expect_equal(nrow(merge_bibliolatam(df1, df2, match_by = "title")), 4L)
+})
+
+test_that("merge_bibliolatam protege sufixos agnaticos brasileiros (FILHO/JUNIOR/NETO) e prefixos hispanicos (SAN/SANTA)", {
+  # 1. Mesmo autor com sufixo agnatico em formatos diferentes deve fundir
+  df_a1 <- as_bibliometrix(data.frame(
+    AU = "MOREIRA FILHO, CARLOS ALBERTO",
+    TI = "Determinantes sociais e epidemiologia clinica na atencao primaria",
+    SO = "Revista de Saude Publica", PY = 2022, DI = NA_character_, stringsAsFactors = FALSE
+  ), "scielo")
+  df_a2 <- as_bibliometrix(data.frame(
+    AU = "MOREIRA FILHO C",
+    TI = "Determinantes sociais e epidemiologia clinica na atencao primaria",
+    SO = "Revista de Saude Publica", PY = 2022, DI = NA_character_, stringsAsFactors = FALSE
+  ), "oasisbr")
+  expect_equal(nrow(merge_bibliolatam(df_a1, df_a2, match_by = "title")), 1L)
+
+  # 2. Dois autores diferentes com sufixo FILHO mal formatado ou prefixo SAN/SANTA NAO devem colidir
+  df_b1 <- as_bibliometrix(data.frame(
+    AU = c("FILHO, JOAO", "SAN MARTIN J", "SANTA CRUZ R"),
+    TI = c(
+      "Politicas publicas de financiamento da educacao basica e superior",
+      "Reformas institucionales y educacion publica en America Latina",
+      "Salud comunitaria y participacion ciudadana en zonas rurales"
+    ),
+    SO = "Revista A", PY = 2022, DI = NA_character_, stringsAsFactors = FALSE
+  ), "scielo")
+
+  df_b2 <- as_bibliometrix(data.frame(
+    AU = c("OLIVEIRA FILHO M", "SAN ROMAN F", "SANTA MARIA T"),
+    TI = df_b1$TI,
+    SO = "Revista B", PY = 2022, DI = NA_character_, stringsAsFactors = FALSE
+  ), "oasisbr")
+
+  expect_equal(nrow(merge_bibliolatam(df_b1, df_b2, match_by = "title")), 6L)
+})
+
+test_that("merge_bibliolatam bloqueia series assimetricas e marcadores espanhois (Volumen/Seccion/Tomo com subtitulo)", {
+  # Assimetria: titulo base sem parte vs Parte 2 deve bloquear
+  df_base <- as_bibliometrix(data.frame(
+    AU = "DELGADO E", TI = "Comunicacion cientifica y acceso abierto en Iberoamerica",
+    SO = "El Profesional de la Informacion", PY = 2021, DI = NA_character_, stringsAsFactors = FALSE
+  ), "scielo")
+  df_p2 <- df_base
+  df_p2$TI <- "Comunicacion cientifica y acceso abierto en Iberoamerica: Parte 2"
+  expect_equal(nrow(merge_bibliolatam(df_base, df_p2, match_by = "title", similarity_threshold = 0.85)), 2L)
+
+  # Series em espanhol com subtitulo identico posterior
+  df_es1 <- as_bibliometrix(data.frame(
+    AU = c("RUIZ PEREZ R", "LOPEZ COZAR E", "JIMENEZ CONTRERAS E"),
+    TI = c(
+      "Historia social de la salud publica en Mexico, Volumen I: analisis regional",
+      "Evaluacion de revistas cientificas iberoamericanas, Sección 1: marco teorico",
+      "Estudios sobre educacion superior autonoma, Tomo I: epoca contemporanea"
+    ),
+    SO = "Salud Publica de Mexico", PY = 2022, DI = NA_character_, stringsAsFactors = FALSE
+  ), "scielo")
+  df_es2 <- df_es1
+  df_es2$TI <- c(
+    "Historia social de la salud publica en Mexico, Volumen II: analisis regional",
+    "Evaluacion de revistas cientificas iberoamericanas, Sección 2: marco teorico",
+    "Estudios sobre educacion superior autonoma, Tomo II: epoca contemporanea"
+  )
+  expect_equal(nrow(merge_bibliolatam(df_es1, df_es2, match_by = "title", similarity_threshold = 0.85)), 6L)
+})
+
+test_that("merge_bibliolatam aplica todos os guardrails no modo intra-fonte (df2 = NULL) e em cascata Reduce", {
+  # Intra-fonte: 1 duplicata verdadeira por titulo + 1 conflito DT + 1 conflito DOI + 1 serie Parte 1/2
+  df_intra <- as_bibliometrix(data.frame(
+    AU = c(
+      "VARGAS L", "VARGAS L",
+      "MENDES C", "MENDES C",
+      "ROCHA D", "ROCHA D",
+      "TORRES P", "TORRES P"
+    ),
+    TI = c(
+      "Governanca de dados de pesquisa em universidades publicas brasileiras",
+      "Governança de dados de pesquisa em universidades públicas brasileiras",
+      "Arquitetura de repositorios digitais federados na ciencia aberta",
+      "Arquitetura de repositorios digitais federados na ciencia aberta",
+      "Impacto cienciometrico de periodicos diamante na saude coletiva",
+      "Impacto cienciometrico de periodicos diamante na saude coletiva",
+      "Diretrizes de curadoria digital em acervos cientificos: Parte 1",
+      "Diretrizes de curadoria digital em acervos cientificos: Parte 2"
+    ),
+    SO = rep("Transinformacao", 8),
+    PY = rep(2023, 8),
+    DT = c("ARTICLE", "ARTICLE", "THESIS", "ARTICLE", "ARTICLE", "ARTICLE", "ARTICLE", "ARTICLE"),
+    DI = c(NA, NA, NA, NA, "10.1590/r1", "10.1590/r1.errata", NA, NA),
+    stringsAsFactors = FALSE
+  ), "oasisbr")
+
+  res_intra <- merge_bibliolatam(df_intra, match_by = c("doi", "title"), similarity_threshold = 0.90)
+  # Apenas o primeiro par (VARGAS L) deve fundir; os outros 3 pares sao bloqueados -> 7 registros finais
+  expect_equal(nrow(res_intra), 7L)
+  expect_equal(attr(res_intra, "merge_stats")$total_duplicates, 1L)
+
+  # Cascata Reduce entre 3 bases (SciELO + Oasisbr + Redalyc) preservando CR e rastreando DB
+  b1 <- as_bibliometrix(data.frame(
+    AU = "GARCIA MARQUEZ G", TI = "Cienciometria regional y soberania cientifica en America Latina",
+    SO = "Investigacion Bibliotecologica", PY = 2022, DI = NA_character_,
+    CR = "REF_SCIELO_1", DE = "cienciometria", DB = "scielo", stringsAsFactors = FALSE
+  ), "scielo")
+  b2 <- as_bibliometrix(data.frame(
+    AU = "MARQUEZ G", TI = "Cienciometria regional y soberania cientifica en America Latina",
+    SO = "Investigacion Bibliotecologica", PY = 2022, DI = "10.22201/iibi.2022.01",
+    CR = "REF_OASIS_2", DE = "acceso abierto", DB = "oasisbr", stringsAsFactors = FALSE
+  ), "oasisbr")
+  b3 <- as_bibliometrix(data.frame(
+    AU = "GARCIA-MARQUEZ, G", TI = "Cienciometria regional y soberania cientifica en America Latina",
+    SO = "Investigacion Bibliotecologica", PY = 2022, DI = "10.22201/iibi.2022.01",
+    CR = "REF_REDALYC_3", DE = "america latina", DB = "redalyc", stringsAsFactors = FALSE
+  ), "redalyc")
+
+  cascaded <- Reduce(function(x, y) merge_bibliolatam(x, y, match_by = c("doi", "title")), list(b1, b2, b3))
+  expect_equal(nrow(cascaded), 1L)
+  expect_equal(cascaded$DB, "scielo+oasisbr+redalyc")
+  expect_true(all(sapply(c("REF_SCIELO_1", "REF_OASIS_2", "REF_REDALYC_3"), grepl, cascaded$CR)))
+  expect_equal(length(unique(cascaded$SR)), 1L)
+})
