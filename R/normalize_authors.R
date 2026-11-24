@@ -69,10 +69,21 @@ normalize_single_author <- function(au_str) {
         norm_a <- toupper(tokens)
       } else {
         last_tok <- tolower(tokens[length(tokens)])
+        penult_tok <- if (length(tokens) >= 2L) tolower(tokens[length(tokens) - 1L]) else ""
+        antepenult_tok <- if (length(tokens) >= 3L) tolower(tokens[length(tokens) - 2L]) else ""
+
         # trata sufixo geracional (ex: Silva Junior)
-        if (last_tok %in% sufixos && length(tokens) >= 3) {
-          sobrenome <- toupper(paste(tokens[length(tokens) - 1], tokens[length(tokens)]))
-          prenomes <- tokens[1:(length(tokens) - 2)]
+        if (last_tok %in% sufixos && length(tokens) >= 3L) {
+          sobrenome <- toupper(paste(tokens[length(tokens) - 1L], tokens[length(tokens)]))
+          prenomes <- tokens[1:(length(tokens) - 2L)]
+        } else if (penult_tok %in% c("y", "e", "del") && length(tokens) >= 3L) {
+          # trata sobrenome composto com conectivo hispanico (ex: Jose Ortega y Gasset)
+          sobrenome <- toupper(paste(tokens[length(tokens) - 2L], tokens[length(tokens) - 1L], tokens[length(tokens)]))
+          prenomes <- tokens[1:(length(tokens) - 3L)]
+        } else if (antepenult_tok == "de" && penult_tok %in% c("la", "los", "las") && length(tokens) >= 4L) {
+          # trata sobrenome composto com locucao hispanica (ex: Maria Perez de la Hoz)
+          sobrenome <- toupper(paste(tokens[length(tokens) - 3L], tokens[length(tokens) - 2L], tokens[length(tokens) - 1L], tokens[length(tokens)]))
+          prenomes <- tokens[1:(length(tokens) - 4L)]
         } else {
           sobrenome <- toupper(tokens[length(tokens)])
           prenomes <- tokens[-length(tokens)]

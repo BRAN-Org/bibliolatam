@@ -165,21 +165,36 @@ omnisearch_bibliolatam <- function(query,
     return(empty_df)
   }
 
-  if (length(results_list) == 1L) {
-    out_df <- results_list[[1L]]
-  } else if (isTRUE(deduplicate)) {
-    if (isTRUE(progress)) {
-      message(sprintf("[Omnisearch] Executando deduplicacao e fusao de metadados em %d fontes...",
-                      length(results_list)))
+  if (isTRUE(deduplicate)) {
+    # Deduplicacao intra-fonte em cada repositorio antes da fusao cruzada (Achado #3)
+    results_list <- lapply(results_list, function(d) {
+      if (nrow(d) > 1L) {
+        merge_bibliolatam(
+          d,
+          match_by = valid_match,
+          similarity_threshold = similarity_threshold
+        )
+      } else {
+        d
+      }
+    })
+
+    if (length(results_list) == 1L) {
+      out_df <- results_list[[1L]]
+    } else {
+      if (isTRUE(progress)) {
+        message(sprintf("[Omnisearch] Executando deduplicacao e fusao de metadados em %d fontes...",
+                        length(results_list)))
+      }
+      out_df <- Reduce(function(acc, item) {
+        merge_bibliolatam(
+          acc,
+          item,
+          match_by = valid_match,
+          similarity_threshold = similarity_threshold
+        )
+      }, results_list)
     }
-    out_df <- Reduce(function(acc, item) {
-      merge_bibliolatam(
-        acc,
-        item,
-        match_by = valid_match,
-        similarity_threshold = similarity_threshold
-      )
-    }, results_list)
   } else {
     # Caso deduplicate = FALSE: empilha datasets harmonizando colunas
     all_cols <- unique(unlist(lapply(results_list, names)))

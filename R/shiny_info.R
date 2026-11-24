@@ -215,6 +215,10 @@ bibliolatamInfoUI <- function(lang = "en") {
                 shiny::span(bl_i18n("info_gov_license_desc", lang), `data-i18n` = "info_gov_license_desc")
               ),
               shiny::tags$li(
+                shiny::strong(bl_i18n("info_gov_conventions_title", lang), `data-i18n` = "info_gov_conventions_title"),
+                shiny::span(bl_i18n("info_gov_conventions_desc", lang), `data-i18n` = "info_gov_conventions_desc")
+              ),
+              shiny::tags$li(
                 shiny::strong(bl_i18n("info_gov_dev_title", lang), `data-i18n` = "info_gov_dev_title"),
                 shiny::tags$a(
                   href = "https://github.com/BRAN-Org/bibliolatam",

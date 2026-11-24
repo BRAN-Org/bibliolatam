@@ -217,3 +217,112 @@ test_that("merge_bibliolatam allows merge when author has minor phonetic spellin
   expect_equal(nrow(merged), 1L)
 })
 
+test_that("merge_bibliolatam bloqueia fusao por titulo quando ha conflito explicito de DOIs distintos (Achado #1)", {
+  # Artigo e Errata/Comentario com titulo rigorosamente identico e mesmo autor/ano, mas DOIs diferentes
+  df1 <- data.frame(
+    AU = "SILVA J",
+    TI = "Estudo sobre acesso aberto na America Latina: analise cienciometrica",
+    SO = "Revista de Ciencia da Informacao",
+    PY = 2023,
+    DI = "10.1590/rci.v50i1.001",
+    stringsAsFactors = FALSE
+  )
+  df1 <- as_bibliometrix(df1, dbsource = "scielo")
+
+  df2 <- data.frame(
+    AU = "SILVA J",
+    TI = "Estudo sobre acesso aberto na America Latina: analise cienciometrica",
+    SO = "Revista de Ciencia da Informacao",
+    PY = 2023,
+    DI = "10.1590/rci.v50i1.001.errata", # DOI diferente
+    stringsAsFactors = FALSE
+  )
+  df2 <- as_bibliometrix(df2, dbsource = "oasisbr")
+
+  merged <- merge_bibliolatam(df1, df2, match_by = c("doi", "title"), similarity_threshold = 0.85)
+  expect_equal(nrow(merged), 2L)
+  expect_equal(attr(merged, "merge_stats")$total_duplicates, 0L)
+})
+
+test_that("merge_bibliolatam bloqueia fusao por titulo entre THESIS e ARTICLE homonimos sem DOI compartilhado (Achado #3)", {
+  # Tese/dissertacao homonima a artigo publicado do mesmo autor sem DOI comum
+  df_thesis <- data.frame(
+    AU = "ALMEIDA R",
+    TI = "Politicas publicas de ciencia aberta no Brasil: trajetorias e desafios",
+    SO = "Universidade de Sao Paulo (USP)",
+    PY = 2022,
+    DT = "THESIS",
+    DI = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  df_thesis <- as_bibliometrix(df_thesis, dbsource = "bdtd")
+
+  df_article <- data.frame(
+    AU = "ALMEIDA R",
+    TI = "Politicas publicas de ciencia aberta no Brasil: trajetorias e desafios",
+    SO = "Perspectivas em Ciencia da Informacao",
+    PY = 2023,
+    DT = "ARTICLE",
+    DI = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  df_article <- as_bibliometrix(df_article, dbsource = "scielo")
+
+  merged <- merge_bibliolatam(df_thesis, df_article, match_by = c("doi", "title"), similarity_threshold = 0.90)
+  expect_equal(nrow(merged), 2L)
+  expect_equal(attr(merged, "merge_stats")$total_duplicates, 0L)
+})
+
+test_that("merge_bibliolatam deduplica internamente um unico dataset (intra-fonte) (Achado #3)", {
+  # Registros duplicados vindos de uma mesma fonte (ex: espelhamento no Oasisbr)
+  df_single <- data.frame(
+    AU = c("SANTOS M", "SANTOS M", "OLIVEIRA P"),
+    TI = c(
+      "Acesso aberto e soberania de dados no Sul Global",
+      "Acesso aberto e soberania de dados no Sul Global",
+      "Outro estudo cienciometrico regional"
+    ),
+    SO = c("Repositorio USP", "Repositorio UNESP", "Revista Iberoamericana"),
+    PY = c(2022, 2022, 2023),
+    DI = c("10.1111/repo.001", "10.1111/repo.001", "10.1111/repo.002"),
+    CR = c("REF A", NA_character_, "REF C"),
+    AB = c(NA_character_, "Resumo detalhado no segundo repositorio", "Resumo C"),
+    stringsAsFactors = FALSE
+  )
+  df_single <- as_bibliometrix(df_single, dbsource = "oasisbr")
+
+  deduped <- merge_bibliolatam(df_single, match_by = c("doi", "title"))
+  expect_equal(nrow(deduped), 2L)
+  expect_equal(attr(deduped, "merge_stats")$total_duplicates, 1L)
+
+  # Valida que fundiu metadados complementares (CR de 1 e AB de 2)
+  merged_rec <- deduped[grepl("SANTOS M", deduped$AU), ]
+  expect_equal(merged_rec$CR, "REF A")
+  expect_equal(merged_rec$AB, "Resumo detalhado no segundo repositorio")
+})
+
+test_that("merge_bibliolatam resolve sobrenomes compostos hispanicos entre bases com/sem virgula (Achado #4)", {
+  df1 <- data.frame(
+    AU = "GARCIA MARQUEZ G",
+    TI = "Cien anos de soledad cientifica en las publicaciones iberoamericanas",
+    SO = "Revista Mexicana de Sociologia",
+    PY = 2021,
+    DI = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  df1 <- as_bibliometrix(df1, dbsource = "scielo")
+
+  df2 <- data.frame(
+    AU = "MARQUEZ G",
+    TI = "Cien anos de soledad cientifica en las publicaciones iberoamericanas",
+    SO = "Revista Mexicana de Sociologia",
+    PY = 2021,
+    DI = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  df2 <- as_bibliometrix(df2, dbsource = "redalyc")
+
+  merged <- merge_bibliolatam(df1, df2, match_by = "title", similarity_threshold = 0.90)
+  expect_equal(nrow(merged), 1L)
+})
+

@@ -289,3 +289,53 @@ test_that("asymptotic optimizations: length bound filter and token canopy scale 
   expect_lt(elapsed, 2.0) # Deve resolver rapidamente graças aos filtros assintóticos
 })
 
+test_that("adversarial merge benchmark: DOI conflict and Document Type (DT) traps achieve 0.0% false positive rate", {
+  # 20 pares adversariais com titulos rigorosamente identicos, mesmo autor e ano, mas DOIs distintos (ex: artigo vs errata)
+  doi_trap_titles <- paste("Adversarial DOI Collision Trap Record Number", 1:20)
+  df_doi_trap_1 <- as_bibliometrix(data.frame(
+    AU = paste0("PESQUISADOR", 1:20, " A"),
+    TI = doi_trap_titles,
+    SO = "Revista Cientifica Alpha",
+    PY = 2023,
+    DI = paste0("10.1590/alpha.2023.00", 1:20),
+    stringsAsFactors = FALSE
+  ), "scielo")
+
+  df_doi_trap_2 <- as_bibliometrix(data.frame(
+    AU = paste0("PESQUISADOR", 1:20, " A"),
+    TI = doi_trap_titles,
+    SO = "Revista Cientifica Alpha",
+    PY = 2023,
+    DI = paste0("10.1590/alpha.2023.00", 1:20, ".errata"),
+    stringsAsFactors = FALSE
+  ), "oasisbr")
+
+  merged_doi_traps <- merge_bibliolatam(df_doi_trap_1, df_doi_trap_2, match_by = c("doi", "title"), similarity_threshold = 0.85)
+  expect_equal(nrow(merged_doi_traps), 40L) # 20 + 20 = 40 mantidos, zero falso positivos
+
+  # 20 pares adversariais entre THESIS e ARTICLE homonimos sem DOI compartilhado
+  dt_trap_titles <- paste("Estudo Monografico e Artigo Derivado Homonimo Caso", 1:20)
+  df_dt_thesis <- as_bibliometrix(data.frame(
+    AU = paste0("ACADEMICO", 1:20, " M"),
+    TI = dt_trap_titles,
+    SO = "Universidade Federal",
+    PY = 2022,
+    DT = "THESIS",
+    DI = NA_character_,
+    stringsAsFactors = FALSE
+  ), "bdtd")
+
+  df_dt_article <- as_bibliometrix(data.frame(
+    AU = paste0("ACADEMICO", 1:20, " M"),
+    TI = dt_trap_titles,
+    SO = "Revista de Pos-Graduacao",
+    PY = 2023,
+    DT = "ARTICLE",
+    DI = NA_character_,
+    stringsAsFactors = FALSE
+  ), "scielo")
+
+  merged_dt_traps <- merge_bibliolatam(df_dt_thesis, df_dt_article, match_by = c("doi", "title"), similarity_threshold = 0.90)
+  expect_equal(nrow(merged_dt_traps), 40L) # 20 + 20 = 40 mantidos, zero falso positivos
+})
+

@@ -69,3 +69,14 @@ test_that("normalize_authors suporta vetores de caracteres diretamente", {
   # Vetor todo vazio
   expect_equal(normalize_authors(c(NA_character_, NA_character_)), c(NA_character_, NA_character_))
 })
+
+test_that("normalize_authors preserva sobrenomes compostos hispanicos com conectivos", {
+  # conectivo y / e
+  expect_equal(normalize_authors("Jose Ortega y Gasset"), "ORTEGA Y GASSET J")
+  expect_equal(normalize_authors("Santiago Ramon y Cajal"), "RAMON Y CAJAL S")
+  expect_equal(normalize_authors("Ortega y Gasset, Jose"), "ORTEGA Y GASSET J")
+
+  # locucao del / de la
+  expect_equal(normalize_authors("Fernando Gomez del Castillo"), "GOMEZ DEL CASTILLO F")
+  expect_equal(normalize_authors("Maria Perez de la Hoz"), "PEREZ DE LA HOZ M")
+})

@@ -6,7 +6,7 @@
 \usage{
 merge_bibliolatam(
   df1,
-  df2,
+  df2 = NULL,
   match_by = c("doi", "title"),
   similarity_threshold = 0.9,
   verbose = FALSE
@@ -15,7 +15,8 @@ merge_bibliolatam(
 \arguments{
 \item{df1}{A data frame with class \code{bibliometrixDB} or conforming to standard tags.}
 
-\item{df2}{A data frame with class \code{bibliometrixDB} or conforming to standard tags.}
+\item{df2}{An optional second data frame with class \code{bibliometrixDB} or conforming to standard tags.
+If \code{NULL} (default), performs intra-source deduplication on \code{df1}.}
 
 \item{match_by}{Character vector specifying matching criteria: \code{"doi"} and/or \code{"title"}.
 Defaults to \code{c("doi", "title")}.}
@@ -30,9 +31,10 @@ A data frame with class \code{c("bibliometrixDB", "data.frame")} containing the 
 and merged bibliographic records with fused metadata tags.
 }
 \description{
-Merges two bibliographic datasets (e.g. SciELO, Oasisbr, SPELL, BDTD, or Redalyc),
-identifies cross-database duplicates through canonical DOI resolution and normalized
-title fuzzy matching, and fuses complementary metadata fields into a unified corpus.
+Merges two bibliographic datasets (e.g. SciELO, Oasisbr, SPELL, BDTD, or Redalyc) or performs
+intra-source deduplication on a single dataset when \code{df2} is \code{NULL}. Identifies duplicates
+through canonical DOI resolution and normalized title fuzzy matching, fusing complementary
+metadata fields into a unified corpus.
 }
 \examples{
 df1 <- data.frame(
