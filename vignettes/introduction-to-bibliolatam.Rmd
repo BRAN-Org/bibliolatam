@@ -103,11 +103,22 @@ nrow(merged)
 
 ---
 
-## 6. Standalone Interactive Application
+## 6. Methodological Transparency and Regional Conventions
+
+To ensure reproducible scientometric workflows and seamless downstream compatibility with `{bibliometrix}`, `bibliolatam` adopts explicit methodological conventions:
+
+- **Times Cited (`TC = 0`):** In regional repositories without global citation indexing (such as BDTD, Oasisbr, LA Referencia, and SPELL), citation counts are absent. `as_bibliometrix()` imputes `0` for missing `TC` values because `{bibliometrix}` calculation routines fail on `NA` or non-numeric values. This indicates that citations are *not indexed in that source*, rather than confirming zero real-world citations.
+- **Keywords Plus (`ID <- DE`):** In platforms where Keywords Plus is not provided, `as_bibliometrix()` mirrors Author Keywords (`DE`) into `ID` so that conceptual structure algorithms in `{bibliometrix}` can function without manual intervention.
+- **Cited References (`CR`):** For co-citation and bibliographic coupling analyses, structured cited references are extracted from SciELO NLM/JATS XML. In aggregators and thesis catalogs lacking structured references, `CR` remains `NA`.
+- **Entity Resolution Guardrails:** `merge_bibliolatam()` enforces deterministic guardrails, preventing false merges when records have conflicting valid DOIs, incompatible document types (thesis vs. journal article), differing series/volume tokens, or incompatible author surnames.
+
+---
+
+## 7. Standalone Interactive Application
 
 `bibliolatam` provides a complete standalone Shiny web interface integrating all search, download, parsing, and merging capabilities:
 
-```r
+```{r app, eval=FALSE}
 if (interactive()) {
   bibliolatam::run_app()
 }
@@ -115,7 +126,7 @@ if (interactive()) {
 
 ---
 
-## 7. Citation
+## 8. Citation
 
 If you use `bibliolatam` in your research, please cite:
 

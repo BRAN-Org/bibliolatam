@@ -331,6 +331,16 @@ BL_I18N_DICT <- list(
     pt = "Repositorio no GitHub (BRAN-Org/bibliolatam)",
     es = "Repositorio en GitHub (BRAN-Org/bibliolatam)"
   ),
+  info_gov_conventions_title = list(
+    en = "Methodological Transparency: ",
+    pt = "Transparencia Metodologica: ",
+    es = "Transparencia Metodologica: "
+  ),
+  info_gov_conventions_desc = list(
+    en = "Times Cited (TC = 0) reflects unindexed citation counts in regional aggregators rather than confirmed zero citations. Keywords Plus (ID <- DE) mirrors Author Keywords when absent for bibliometrix downstream compatibility.",
+    pt = "Citacoes (TC = 0) reflete ausencia de indexacao de citacoes no agregador regional e nao zero citacoes reais. Keywords Plus (ID <- DE) espelha palavras-chave do autor quando ausente para compatibilidade com bibliometrix.",
+    es = "Citas (TC = 0) refleja falta de indexacion de citas en el agregador regional y no cero citas reales. Keywords Plus (ID <- DE) refleja palabras clave del autor cuando ausente para compatibilidad con bibliometrix."
+  ),
   info_fair = list(en = "FAIR Principles & Regional Sovereignty", pt = "Principios FAIR e Soberania Regional", es = "Principios FAIR y Soberania Regional"),
 
   # Common

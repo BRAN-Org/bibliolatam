@@ -2,7 +2,25 @@
 #'
 #' @param df A data frame containing parsed bibliographic records.
 #' @param dbsource Character string identifying the regional source (e.g. "spell", "scielo", "bdtd").
-#' @return A data frame with class \code{c("bibliometrixDB", "data.frame")} containing standardized Web of Science tags (TI, AU, SO, PY, CR, etc.) compatible with bibliometrix routines.
+#' @details
+#' \bold{Methodological Conventions & Downstream Compatibility:}
+#' \itemize{
+#'   \item \bold{Times Cited (TC = 0):} When \code{TC} is missing or \code{NA},
+#'     \code{as_bibliometrix()} imputes \code{0}. This is a technical convention
+#'     required by \code{bibliometrix} routines, which fail during matrix and network
+#'     calculations if \code{TC} contains non-numeric or missing values. In regional
+#'     sources without native citation indexing (such as BDTD, Oasisbr, LA Referencia,
+#'     and SPELL), this indicates that citations are not indexed in that source,
+#'     rather than confirming zero real-world citations.
+#'   \item \bold{Keywords Plus (ID <- DE):} When \code{ID} (Keywords Plus) is absent,
+#'     \code{as_bibliometrix()} mirrors \code{DE} (Author Keywords) into \code{ID}.
+#'     This ensures that conceptual structure and co-word mapping functions in
+#'     \code{bibliometrix} that query \code{ID} by default can operate seamlessly.
+#'   \item \bold{Cited References (CR):} In regional repositories that do not provide
+#'     structured citation lists, \code{CR} remains \code{NA} unless enriched via
+#'     SciELO NLM/JATS XML parsing (\code{read_scielo_jats()} or
+#'     \code{download_scielo_jats(enrich_references = TRUE)}).
+#' }
 #' @export
 #' @examples
 #' df <- data.frame(

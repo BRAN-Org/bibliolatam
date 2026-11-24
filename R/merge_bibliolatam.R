@@ -119,9 +119,18 @@ extract_author_surnames <- function(au_str) {
 
     sn_norm <- tolower(trimws(sn))
     sn_norm <- iconv(sn_norm, to = "ASCII//TRANSLIT")
-    sn_norm <- gsub("[^a-z]", "", sn_norm)
-    if (nzchar(sn_norm) && !sn_norm %in% c("anonymous", "anonimo", "desconhecido", "na")) {
-      surnames <- c(surnames, toupper(sn_norm))
+    sn_clean <- gsub("[^a-z]", "", sn_norm)
+    if (nzchar(sn_clean) && !sn_clean %in% c("anonymous", "anonimo", "desconhecido", "na")) {
+      surnames <- c(surnames, toupper(sn_clean))
+    }
+    # Extrai tambem sub-tokens significativos de sobrenomes compostos (Achado #4)
+    sn_words <- unlist(strsplit(sn_norm, "\\s+"))
+    sn_words <- sn_words[!sn_words %in% c("da", "de", "do", "das", "dos", "del", "la", "las", "los", "y", "e", sufixos)]
+    for (w in sn_words) {
+      w_clean <- gsub("[^a-z]", "", w)
+      if (nchar(w_clean) >= 3L && !w_clean %in% c("anonymous", "anonimo", "desconhecido", "na")) {
+        surnames <- c(surnames, toupper(w_clean))
+      }
     }
   }
   unique(surnames)
@@ -146,14 +155,296 @@ surnames_compatible <- function(sn1, sn2) {
   FALSE
 }
 
+#' Internal deduplication for a single bibliographic dataset
+#'
+#' @param df Data frame conforming to bibliometrixDB tags.
+#' @param match_by Character vector specifying matching criteria: "doi" and/or "title".
+#' @param similarity_threshold Numeric threshold for title matching.
+#' @param verbose Logical flag.
+#' @return Deduplicated data frame.
+#' @noRd
+deduplicate_internal <- function(df,
+                                 match_by = c("doi", "title"),
+                                 similarity_threshold = 0.90,
+                                 verbose = FALSE) {
+  if (nrow(df) <= 1L) {
+    class(df) <- unique(c("bibliometrixDB", class(df)))
+    return(df)
+  }
+
+  req_cols <- c("AU", "TI", "SO", "PY")
+  missing_req <- setdiff(req_cols, names(df))
+  if (length(missing_req) > 0L) {
+    stop(sprintf("Data frame nao contem as colunas minimas necessarias: %s",
+                 paste(missing_req, collapse = ", ")), call. = FALSE)
+  }
+
+  all_cols <- names(df)
+  n <- nrow(df)
+
+  dois <- if ("DI" %in% names(df)) clean_doi(df$DI) else rep(NA_character_, n)
+  titles <- normalize_title_str(df$TI)
+  titles_lens <- nchar(titles)
+  parts <- vapply(titles, extract_part_token, character(1L), USE.NAMES = FALSE)
+  au_surnames <- lapply(df$AU, extract_author_surnames)
+  py <- suppressWarnings(as.numeric(df$PY))
+  dt <- if ("DT" %in% names(df)) toupper(trimws(as.character(df$DT))) else rep(NA_character_, n)
+
+  matched_pairs <- list()
+  merged_rows <- logical(n)
+
+  # 1. Matching por DOI exato
+  if ("doi" %in% match_by) {
+    for (i in seq_len(n - 1L)) {
+      if (merged_rows[i]) next
+      d1 <- dois[i]
+      if (!is.na(d1) && nzchar(d1)) {
+        pos <- which(!merged_rows & (seq_len(n) > i) & !is.na(dois) & dois == d1)
+        for (j in pos) {
+          matched_pairs[[length(matched_pairs) + 1L]] <- c(i, j)
+          merged_rows[j] <- TRUE
+        }
+      }
+    }
+  }
+  doi_matches_count <- length(matched_pairs)
+
+  # 2. Matching por Titulo aproximado
+  if ("title" %in% match_by) {
+    for (i in seq_len(n - 1L)) {
+      if (merged_rows[i]) next
+      t1 <- titles[i]
+      if (!nzchar(t1) || nchar(t1) < 15L) next
+      t1_len <- titles_lens[i]
+
+      cand_indices <- which(!merged_rows & (seq_len(n) > i))
+      if (length(cand_indices) == 0L) break
+
+      # 2.1 Conflito explicito de DOIs distintos (Achado #1)
+      d1 <- dois[i]
+      if (!is.na(d1) && nzchar(d1)) {
+        cand_d2 <- dois[cand_indices]
+        doi_conflict <- !is.na(cand_d2) & nzchar(cand_d2) & cand_d2 != d1
+        cand_indices <- cand_indices[!doi_conflict]
+      }
+      if (length(cand_indices) == 0L) next
+
+      # 2.2 Guardrail de Tipo Documental (DT) (Achado #3)
+      t_doc1 <- dt[i]
+      if (!is.na(t_doc1) && nzchar(t_doc1)) {
+        is_thesis_1 <- t_doc1 %in% c("THESIS", "DISSERTATION")
+        is_article_1 <- t_doc1 %in% c("ARTICLE", "JOURNAL ARTICLE", "JOURNAL")
+        if (is_thesis_1 || is_article_1) {
+          cand_dt2 <- dt[cand_indices]
+          cand_is_thesis_2 <- cand_dt2 %in% c("THESIS", "DISSERTATION")
+          cand_is_article_2 <- cand_dt2 %in% c("ARTICLE", "JOURNAL ARTICLE", "JOURNAL")
+          dt_incompatible <- (is_thesis_1 & cand_is_article_2) | (is_article_1 & cand_is_thesis_2)
+          cand_indices <- cand_indices[!dt_incompatible]
+        }
+      }
+      if (length(cand_indices) == 0L) next
+
+      # 2.3 Tolerancia de ano +- 1
+      p1 <- py[i]
+      if (!is.na(p1)) {
+        cand_p2 <- py[cand_indices]
+        valid_year <- is.na(cand_p2) | abs(cand_p2 - p1) <= 1
+        cand_indices <- cand_indices[valid_year]
+      }
+      if (length(cand_indices) == 0L) next
+
+      # 2.4 Guardrail de Series / Partes
+      part1 <- parts[i]
+      if (length(cand_indices) > 0L) {
+        cand_parts2 <- parts[cand_indices]
+        both_have_diff_parts <- !is.na(part1) & !is.na(cand_parts2) & part1 != cand_parts2
+        is_sequel_1 <- !is.na(part1) && grepl("_(2|3|4|5|6|7|8|9|10)$", part1)
+        sequel_discrepancy_1 <- is_sequel_1 & is.na(cand_parts2)
+        sequel_discrepancy_2 <- is.na(part1) & !is.na(cand_parts2) & grepl("_(2|3|4|5|6|7|8|9|10)$", cand_parts2)
+        valid_parts <- !both_have_diff_parts & !sequel_discrepancy_1 & !sequel_discrepancy_2
+        cand_indices <- cand_indices[valid_parts]
+      }
+      if (length(cand_indices) == 0L) next
+
+      # 2.5 Guardrail de Autoria
+      sn1 <- au_surnames[[i]]
+      if (length(sn1) > 0L && length(cand_indices) > 0L) {
+        valid_authors <- logical(length(cand_indices))
+        for (k in seq_along(cand_indices)) {
+          c_idx <- cand_indices[k]
+          sn2 <- au_surnames[[c_idx]]
+          if (length(sn2) == 0L) {
+            valid_authors[k] <- TRUE
+          } else {
+            valid_authors[k] <- surnames_compatible(sn1, sn2)
+          }
+        }
+        cand_indices <- cand_indices[valid_authors]
+      }
+      if (length(cand_indices) == 0L) next
+
+      cand_titles <- titles[cand_indices]
+
+      # 2.6 Exact match fast path
+      exact_match_pos <- which(cand_titles == t1)
+      if (length(exact_match_pos) > 0L) {
+        if (length(exact_match_pos) > 1L && length(sn1) > 0L) {
+          has_au <- vapply(cand_indices[exact_match_pos], function(c_idx) {
+            length(au_surnames[[c_idx]]) > 0L
+          }, logical(1L))
+          if (any(has_au)) {
+            exact_match_pos <- exact_match_pos[has_au]
+          }
+        }
+        target_j <- cand_indices[exact_match_pos[1L]]
+        matched_pairs[[length(matched_pairs) + 1L]] <- c(i, target_j)
+        merged_rows[target_j] <- TRUE
+        next
+      }
+
+      # 2.7 Length bound filter
+      min_len <- ceiling(t1_len * similarity_threshold)
+      max_len <- floor(t1_len / similarity_threshold)
+      cand_lens <- titles_lens[cand_indices]
+      valid_len <- cand_lens >= min_len & cand_lens <= max_len
+      cand_indices <- cand_indices[valid_len]
+      if (length(cand_indices) == 0L) next
+      cand_titles <- titles[cand_indices]
+
+      # 2.8 Canopy filter se > 15
+      if (length(cand_indices) > 15L) {
+        sig_words <- unlist(regmatches(t1, gregexpr("[a-z0-9]{4,}", t1)))
+        if (length(sig_words) > 0L) {
+          shared_term <- logical(length(cand_indices))
+          for (w in sig_words) {
+            shared_term <- shared_term | grepl(w, cand_titles, fixed = TRUE)
+          }
+          cand_indices <- cand_indices[shared_term]
+          if (length(cand_indices) == 0L) next
+          cand_titles <- titles[cand_indices]
+        }
+      }
+
+      # 2.9 Levenshtein fuzzy matching
+      dists <- utils::adist(t1, cand_titles)[1, ]
+      max_lens <- pmax(t1_len, titles_lens[cand_indices])
+      sims <- 1 - (dists / max_lens)
+
+      best_idx <- which.max(sims)
+      if (length(best_idx) > 0L) {
+        max_sim <- sims[best_idx]
+        c_idx <- cand_indices[best_idx]
+
+        eff_thresh <- similarity_threshold
+        if (length(sn1) == 0L || length(au_surnames[[c_idx]]) == 0L) {
+          eff_thresh <- max(eff_thresh, 0.95)
+        }
+
+        if (max_sim >= eff_thresh) {
+          matched_pairs[[length(matched_pairs) + 1L]] <- c(i, c_idx)
+          merged_rows[c_idx] <- TRUE
+        }
+      }
+    }
+  }
+  title_matches_count <- length(matched_pairs) - doi_matches_count
+
+  # Fusao dos pares duplicados internos
+  out_df <- df
+  for (pair in matched_pairs) {
+    i <- pair[1]
+    j <- pair[2]
+    row1 <- out_df[i, , drop = FALSE]
+    row2 <- out_df[j, , drop = FALSE]
+
+    fused_row <- row1
+    for (col in all_cols) {
+      val1 <- row1[[col]][1]
+      val2 <- row2[[col]][1]
+
+      if (is.null(val1) || is.na(val1) || !nzchar(trimws(as.character(val1)))) {
+        if (!is.null(val2) && !is.na(val2) && nzchar(trimws(as.character(val2)))) {
+          fused_row[[col]][1] <- val2
+        }
+      } else if (col %in% c("CR", "DE")) {
+        refs1 <- unlist(strsplit(as.character(val1), ";\\s*"))
+        refs2 <- if (!is.na(val2)) unlist(strsplit(as.character(val2), ";\\s*")) else character(0L)
+        all_refs <- unique(c(trimws(refs1), trimws(refs2)))
+        all_refs <- all_refs[nzchar(all_refs)]
+        if (length(all_refs) > 0L) {
+          fused_row[[col]][1] <- paste(all_refs, collapse = "; ")
+        }
+      }
+    }
+    db1 <- if ("DB" %in% names(row1) && !is.na(row1$DB[1])) as.character(row1$DB[1]) else "DB1"
+    db2 <- if ("DB" %in% names(row2) && !is.na(row2$DB[1])) as.character(row2$DB[1]) else "DB2"
+    fused_row$DB[1] <- if (identical(db1, db2)) db1 else paste0(db1, "+", db2)
+
+    out_df[i, ] <- fused_row
+  }
+
+  out <- out_df[!merged_rows, , drop = FALSE]
+
+  # Regenera SR
+  first_author <- gsub(";.*$", "", out$AU)
+  first_author <- trimws(first_author)
+  first_author[is.na(first_author) | !nzchar(first_author)] <- "ANONYMOUS"
+
+  py_val <- if ("PY" %in% names(out)) out$PY else ""
+  py_val[is.na(py_val)] <- ""
+
+  so_val <- if ("SO" %in% names(out)) trimws(out$SO) else ""
+  so_val[is.na(so_val)] <- ""
+
+  vl_val <- if ("VL" %in% names(out)) paste0("V", trimws(out$VL)) else ""
+  vl_val[is.na(out$VL) | !nzchar(out$VL)] <- ""
+
+  bp_val <- if ("BP" %in% names(out)) paste0("P", trimws(out$BP)) else ""
+  bp_val[is.na(out$BP) | !nzchar(out$BP)] <- ""
+
+  sr_vec <- character(nrow(out))
+  for (i in seq_len(nrow(out))) {
+    parts_i <- c(first_author[i], py_val[i], so_val[i], vl_val[i], bp_val[i])
+    parts_i <- parts_i[nzchar(parts_i)]
+    sr_vec[i] <- paste(parts_i, collapse = ", ")
+  }
+  out$SR <- make.unique(toupper(sr_vec), sep = "-")
+  out$SR_FULL <- out$SR
+
+  orig_db <- attr(df, "dbsource")
+  if (is.null(orig_db)) {
+    orig_db <- if ("DB" %in% names(df) && nrow(df) > 0L && !is.na(df$DB[1])) as.character(df$DB[1]) else "deduplicated"
+  }
+
+  class(out) <- unique(c("bibliometrixDB", class(out)))
+  attr(out, "dbsource") <- orig_db
+  attr(out, "merge_stats") <- list(
+    n1 = n,
+    n2 = 0L,
+    doi_duplicates = doi_matches_count,
+    title_duplicates = title_matches_count,
+    total_duplicates = length(matched_pairs),
+    final_count = nrow(out)
+  )
+
+  if (verbose) {
+    message(sprintf("[merge_bibliolatam] Intra-source deduplicacao: %d registros iniciais -> %d duplicatas fundidas -> %d finais",
+                    n, length(matched_pairs), nrow(out)))
+  }
+
+  out
+}
+
 #' Merge and Deduplicate Regional Bibliographic Collections
 #'
-#' Merges two bibliographic datasets (e.g. SciELO, Oasisbr, SPELL, BDTD, or Redalyc),
-#' identifies cross-database duplicates through canonical DOI resolution and normalized
-#' title fuzzy matching, and fuses complementary metadata fields into a unified corpus.
+#' Merges two bibliographic datasets (e.g. SciELO, Oasisbr, SPELL, BDTD, or Redalyc) or performs
+#' intra-source deduplication on a single dataset when `df2` is `NULL`. Identifies duplicates
+#' through canonical DOI resolution and normalized title fuzzy matching, fusing complementary
+#' metadata fields into a unified corpus.
 #'
 #' @param df1 A data frame with class `bibliometrixDB` or conforming to standard tags.
-#' @param df2 A data frame with class `bibliometrixDB` or conforming to standard tags.
+#' @param df2 An optional second data frame with class `bibliometrixDB` or conforming to standard tags.
+#'   If `NULL` (default), performs intra-source deduplication on `df1`.
 #' @param match_by Character vector specifying matching criteria: `"doi"` and/or `"title"`.
 #'   Defaults to `c("doi", "title")`.
 #' @param similarity_threshold Numeric between 0 and 1. Minimum normalized string similarity
@@ -176,12 +467,21 @@ surnames_compatible <- function(sn1, sn2) {
 #' merged <- merge_bibliolatam(as_bibliometrix(df1, "scielo"), as_bibliometrix(df2, "bdtd"))
 #' nrow(merged)
 merge_bibliolatam <- function(df1,
-                              df2,
+                              df2 = NULL,
                               match_by = c("doi", "title"),
                               similarity_threshold = 0.90,
                               verbose = FALSE) {
-  if (!is.data.frame(df1) || !is.data.frame(df2)) {
+  if (!is.null(df2) && (!is.data.frame(df1) || !is.data.frame(df2))) {
     stop("Ambos os objetos df1 e df2 precisam ser data frames.", call. = FALSE)
+  }
+  if (is.null(df2) && !is.data.frame(df1)) {
+    stop("O objeto df1 precisa ser um data frame.", call. = FALSE)
+  }
+
+  if (is.null(df2)) {
+    return(deduplicate_internal(df1, match_by = match_by,
+                                similarity_threshold = similarity_threshold,
+                                verbose = verbose))
   }
 
   if (nrow(df1) == 0L && nrow(df2) == 0L) {
@@ -228,6 +528,9 @@ merge_bibliolatam <- function(df1,
   py1 <- suppressWarnings(as.numeric(df1$PY))
   py2 <- suppressWarnings(as.numeric(df2$PY))
 
+  dt1 <- if ("DT" %in% names(df1)) toupper(trimws(as.character(df1$DT))) else rep(NA_character_, n1)
+  dt2 <- if ("DT" %in% names(df2)) toupper(trimws(as.character(df2$DT))) else rep(NA_character_, n2)
+
   matched_pairs <- list() # cada entrada: c(i_in_df1, j_in_df2)
   matched_in_2 <- logical(n2)
 
@@ -261,7 +564,31 @@ merge_bibliolatam <- function(df1,
       cand_indices <- which(!matched_in_2)
       if (length(cand_indices) == 0L) break
 
-      # 2.1 Filtra candidatos por aproximacao de ano se ambos tiverem PY (+- 1 ano)
+      # 2.1 Conflito explicito de DOIs distintos (Achado #1)
+      d1 <- dois1[i]
+      if (!is.na(d1) && nzchar(d1)) {
+        cand_d2 <- dois2[cand_indices]
+        doi_conflict <- !is.na(cand_d2) & nzchar(cand_d2) & cand_d2 != d1
+        cand_indices <- cand_indices[!doi_conflict]
+      }
+      if (length(cand_indices) == 0L) next
+
+      # 2.2 Guardrail de Tipo Documental (DT) (Achado #3)
+      t_doc1 <- dt1[i]
+      if (!is.na(t_doc1) && nzchar(t_doc1)) {
+        is_thesis_1 <- t_doc1 %in% c("THESIS", "DISSERTATION")
+        is_article_1 <- t_doc1 %in% c("ARTICLE", "JOURNAL ARTICLE", "JOURNAL")
+        if (is_thesis_1 || is_article_1) {
+          cand_dt2 <- dt2[cand_indices]
+          cand_is_thesis_2 <- cand_dt2 %in% c("THESIS", "DISSERTATION")
+          cand_is_article_2 <- cand_dt2 %in% c("ARTICLE", "JOURNAL ARTICLE", "JOURNAL")
+          dt_incompatible <- (is_thesis_1 & cand_is_article_2) | (is_article_1 & cand_is_thesis_2)
+          cand_indices <- cand_indices[!dt_incompatible]
+        }
+      }
+      if (length(cand_indices) == 0L) next
+
+      # 2.3 Filtra candidatos por aproximacao de ano se ambos tiverem PY (+- 1 ano)
       p1 <- py1[i]
       if (!is.na(p1)) {
         cand_p2 <- py2[cand_indices]
@@ -270,7 +597,7 @@ merge_bibliolatam <- function(df1,
       }
       if (length(cand_indices) == 0L) next
 
-      # 2.2 Guardrail de Series / Partes / Volumes (evita fundir "Parte I" com "Parte II")
+      # 2.4 Guardrail de Series / Partes / Volumes (evita fundir "Parte I" com "Parte II")
       part1 <- parts1[i]
       if (length(cand_indices) > 0L) {
         cand_parts2 <- parts2[cand_indices]
@@ -284,7 +611,7 @@ merge_bibliolatam <- function(df1,
       }
       if (length(cand_indices) == 0L) next
 
-      # 2.3 Guardrail de Autoria (Compatibilidade de Sobrenomes de Autores)
+      # 2.5 Guardrail de Autoria (Compatibilidade de Sobrenomes de Autores)
       sn1 <- au_surnames1[[i]]
       if (length(sn1) > 0L && length(cand_indices) > 0L) {
         valid_authors <- logical(length(cand_indices))
@@ -304,7 +631,7 @@ merge_bibliolatam <- function(df1,
 
       cand_titles <- titles2[cand_indices]
 
-      # 2.4 Atalho de correspondencia exata de titulo (Exact Match Fast-Path, O(1))
+      # 2.6 Atalho de correspondencia exata de titulo (Exact Match Fast-Path, O(1))
       exact_match_pos <- which(cand_titles == t1)
       if (length(exact_match_pos) > 0L) {
         if (length(exact_match_pos) > 1L && length(sn1) > 0L) {
@@ -322,9 +649,7 @@ merge_bibliolatam <- function(df1,
         next
       }
 
-      # 2.5 Filtro Matematico de Extensao de String (Length Bound Filter, O(1))
-      # Pela desigualdade triangular de Levenshtein: dist(t1, t2) >= |len(t1) - len(t2)|.
-      # Logo, para sim >= theta, len(t2) deve estar em [ceiling(len(t1) * theta), floor(len(t1) / theta)].
+      # 2.7 Filtro Matematico de Extensao de String (Length Bound Filter, O(1))
       min_len <- ceiling(t1_len * similarity_threshold)
       max_len <- floor(t1_len / similarity_threshold)
       cand_lens <- titles2_lens[cand_indices]
@@ -333,54 +658,45 @@ merge_bibliolatam <- function(df1,
       if (length(cand_indices) == 0L) next
       cand_titles <- titles2[cand_indices]
 
-      # 2.6 Bloqueio por Palavras de Conteudo (Significant Content Word Canopy)
-      # Para conjuntos densos de candidatos (> 15), filtra por compartilhamento
-      # de pelo menos um termo significativo (>= 4 caracteres).
+      # 2.8 Bloqueio por Palavras de Conteudo (Significant Content Word Canopy)
       if (length(cand_indices) > 15L) {
         sig_words <- unlist(regmatches(t1, gregexpr("[a-z0-9]{4,}", t1)))
         if (length(sig_words) > 0L) {
-          long_words <- sig_words[nchar(sig_words) >= 5]
-          if (length(long_words) == 0L) long_words <- sig_words
-          pat <- paste0("\\b(", paste(unique(long_words), collapse = "|"), ")\\b")
-          has_word <- grepl(pat, cand_titles)
-          if (any(has_word)) {
-            cand_indices <- cand_indices[has_word]
-            cand_titles <- cand_titles[has_word]
+          shared_term <- logical(length(cand_indices))
+          for (w in sig_words) {
+            shared_term <- shared_term | grepl(w, cand_titles, fixed = TRUE)
           }
+          cand_indices <- cand_indices[shared_term]
+          if (length(cand_indices) == 0L) next
+          cand_titles <- titles2[cand_indices]
         }
       }
 
-      # 2.7 Matriz de Edicao de Levenshtein (calculada apenas sobre candidatos podados)
-      dists <- utils::adist(t1, cand_titles, ignore.case = TRUE)[1, ]
-      max_len <- pmax(t1_len, titles2_lens[cand_indices])
-      sims <- 1 - (dists / max_len)
+      # 2.9 Distancia de Levenshtein Normalizada
+      dists <- utils::adist(t1, cand_titles)[1, ]
+      max_lens <- pmax(t1_len, titles2_lens[cand_indices])
+      sims <- 1 - (dists / max_lens)
 
-      # 2.8 Threshold adaptativo: se algum dos registros nao possui autor, exige threshold rigoroso (>= 0.95)
-      eff_thresholds <- rep(similarity_threshold, length(cand_indices))
-      if (length(sn1) == 0L) {
-        eff_thresholds <- pmax(eff_thresholds, 0.95)
-      } else {
-        for (k in seq_along(cand_indices)) {
-          c_idx <- cand_indices[k]
-          if (length(au_surnames2[[c_idx]]) == 0L) {
-            eff_thresholds[k] <- max(eff_thresholds[k], 0.95)
-          }
+      best_idx <- which.max(sims)
+      if (length(best_idx) > 0L) {
+        max_sim <- sims[best_idx]
+        c_idx <- cand_indices[best_idx]
+
+        eff_thresh <- similarity_threshold
+        if (length(sn1) == 0L || length(au_surnames2[[c_idx]]) == 0L) {
+          eff_thresh <- max(eff_thresh, 0.95)
         }
-      }
 
-      best_match_pos <- which(sims >= eff_thresholds)
-      if (length(best_match_pos) > 0L) {
-        # pega a maior similaridade
-        best_idx <- best_match_pos[which.max(sims[best_match_pos])]
-        target_j <- cand_indices[best_idx]
-
-        matched_pairs[[length(matched_pairs) + 1L]] <- c(i, target_j)
-        matched_in_2[target_j] <- TRUE
+        if (max_sim >= eff_thresh) {
+          matched_pairs[[length(matched_pairs) + 1L]] <- c(i, c_idx)
+          matched_in_2[c_idx] <- TRUE
+        }
       }
     }
   }
 
   title_matches_count <- length(matched_pairs) - doi_matches_count
+
 
   if (isTRUE(verbose)) {
     message(sprintf("[Merge Bibliolatam] Registros Colecao 1: %d | Colecao 2: %d", n1, n2))
