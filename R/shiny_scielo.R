@@ -46,7 +46,8 @@ scieloUI <- function(lang = "en") {
               shiny::icon("chevron-up"),
               class = "btn-sm btn-default",
               style = "padding: 5px 10px;",
-              title = bl_i18n("btn_collapse", lang)
+              title = bl_i18n("btn_collapse", lang),
+              `data-i18n-title` = "btn_collapse"
             )
           ),
 
@@ -67,7 +68,136 @@ scieloUI <- function(lang = "en") {
               id = "scieloModeTabs",
               type = "pills",
 
-              # TAB 1: Online Retrieval by Identifiers
+              # TAB 1: Online Keyword Search (Crossref / SciELO Prefixes + Optional JATS CR Enrichment)
+              shiny::tabPanel(
+                title = shiny::tagList(shiny::icon("search"), shiny::tags$span(bl_i18n("scielo_tab_search", lang), `data-i18n` = "scielo_tab_search")),
+                value = "mode_search",
+                shiny::div(
+                  style = "margin-top: 15px; padding: 15px; background-color: #fafbfc; border: 1px solid #e1e4e8; border-radius: 4px;",
+                  shiny::fluidRow(
+                    shiny::column(
+                      width = 6,
+                      shiny::tags$label(
+                        bl_i18n("scielo_query_label", lang),
+                        `data-i18n` = "scielo_query_label",
+                        `for` = "scieloSearchQuery",
+                        style = "font-weight: 600; color: #34495e; margin-bottom: 5px; display: block;"
+                      ),
+                      shiny::tags$input(
+                        id = "scieloSearchQuery",
+                        type = "text",
+                        class = "form-control",
+                        placeholder = bl_i18n("scielo_query_ph", lang),
+                        `data-i18n-ph` = "scielo_query_ph",
+                        style = "width: 100%;"
+                      )
+                    ),
+                    shiny::column(
+                      width = 2,
+                      shiny::tags$label(
+                        bl_i18n("omni_year_start", lang),
+                        `data-i18n` = "omni_year_start",
+                        `for` = "scieloYearStart",
+                        style = "font-weight: 600; color: #34495e; margin-bottom: 5px; display: block;"
+                      ),
+                      shiny::numericInput(
+                        "scieloYearStart",
+                        label = NULL,
+                        value = NA,
+                        min = 1900,
+                        max = 2030,
+                        width = "100%"
+                      )
+                    ),
+                    shiny::column(
+                      width = 2,
+                      shiny::tags$label(
+                        bl_i18n("omni_year_end", lang),
+                        `data-i18n` = "omni_year_end",
+                        `for` = "scieloYearEnd",
+                        style = "font-weight: 600; color: #34495e; margin-bottom: 5px; display: block;"
+                      ),
+                      shiny::numericInput(
+                        "scieloYearEnd",
+                        label = NULL,
+                        value = NA,
+                        min = 1900,
+                        max = 2030,
+                        width = "100%"
+                      )
+                    ),
+                    shiny::column(
+                      width = 2,
+                      shiny::tags$label(
+                        bl_i18n("bdtd_limit_label", lang),
+                        `data-i18n` = "bdtd_limit_label",
+                        `for` = "scieloSearchLimit",
+                        style = "font-weight: 600; color: #34495e; margin-bottom: 5px; display: block;"
+                      ),
+                      shiny::numericInput(
+                        "scieloSearchLimit",
+                        label = NULL,
+                        value = 50,
+                        min = 5,
+                        max = 500,
+                        step = 10,
+                        width = "100%"
+                      )
+                    )
+                  ),
+                  shiny::fluidRow(
+                    style = "margin-top: 12px;",
+                    shiny::column(
+                      width = 7,
+                      shiny::tags$label(
+                        bl_i18n("scielo_collections_label", lang),
+                        `data-i18n` = "scielo_collections_label",
+                        style = "font-weight: 600; color: #34495e; margin-bottom: 5px; display: block;"
+                      ),
+                      shiny::checkboxGroupInput(
+                        "scieloSearchCollections",
+                        label = NULL,
+                        choiceNames = list(
+                          shiny::tags$span(bl_i18n("scielo_col_br", lang), `data-i18n` = "scielo_col_br"),
+                          shiny::tags$span(bl_i18n("scielo_col_cl", lang), `data-i18n` = "scielo_col_cl"),
+                          shiny::tags$span(bl_i18n("scielo_col_es", lang), `data-i18n` = "scielo_col_es"),
+                          shiny::tags$span(bl_i18n("scielo_col_cr", lang), `data-i18n` = "scielo_col_cr"),
+                          shiny::tags$span(bl_i18n("scielo_col_pe", lang), `data-i18n` = "scielo_col_pe"),
+                          shiny::tags$span(bl_i18n("scielo_col_uy", lang), `data-i18n` = "scielo_col_uy")
+                        ),
+                        choiceValues = c("br", "cl", "es", "cr", "pe", "uy"),
+                        selected = c("br", "cl", "es", "cr", "pe", "uy"),
+                        inline = TRUE
+                      )
+                    ),
+                    shiny::column(
+                      width = 5,
+                      shiny::checkboxInput(
+                        "scieloSearchEnrichCR",
+                        shiny::tags$span(bl_i18n("omni_enrich_cr", lang), `data-i18n` = "omni_enrich_cr"),
+                        value = FALSE
+                      ),
+                      shiny::checkboxInput(
+                        "scieloSearchNormalizeAuthors",
+                        shiny::tags$span(bl_i18n("scielo_norm_au_label", lang), `data-i18n` = "scielo_norm_au_label"),
+                        value = TRUE
+                      )
+                    )
+                  ),
+                  shiny::div(
+                    style = "margin-top: 10px; display: flex; justify-content: flex-end;",
+                    shiny::actionButton(
+                      "scieloSearchBtn",
+                      label = shiny::tags$span(bl_i18n("scielo_search_btn", lang), `data-i18n` = "scielo_search_btn"),
+                      icon = shiny::icon("search"),
+                      class = "btn-success",
+                      style = "font-weight: bold;"
+                    )
+                  )
+                )
+              ),
+
+              # TAB 2: Online Retrieval by Identifiers
               shiny::tabPanel(
                 title = shiny::tagList(shiny::icon("cloud-download-alt"), shiny::tags$span(bl_i18n("scielo_tab_download", lang), `data-i18n` = "scielo_tab_download")),
                 value = "mode_download",
@@ -91,14 +221,14 @@ scieloUI <- function(lang = "en") {
                     shiny::div(
                       shiny::checkboxInput(
                         "scieloNormalizeAuthors",
-                        "Normalize Brazilian & Hispanic author names (generational suffixes & particles)",
+                        shiny::tags$span(bl_i18n("scielo_norm_au_label", lang), `data-i18n` = "scielo_norm_au_label"),
                         value = TRUE
                       )
                     ),
                     shiny::div(
                       shiny::actionButton(
                         "scieloClearIds",
-                        "Clear",
+                        label = shiny::tags$span(bl_i18n("scielo_clear_btn", lang), `data-i18n` = "scielo_clear_btn"),
                         icon = shiny::icon("times"),
                         class = "btn-default"
                       ),
@@ -114,7 +244,7 @@ scieloUI <- function(lang = "en") {
                 )
               ),
 
-              # TAB 2: Offline File Upload
+              # TAB 3: Offline File Upload
               shiny::tabPanel(
                 title = shiny::tagList(shiny::icon("file-upload"), shiny::tags$span(bl_i18n("scielo_tab_upload", lang), `data-i18n` = "scielo_tab_upload")),
                 value = "mode_upload",
@@ -122,11 +252,13 @@ scieloUI <- function(lang = "en") {
                   style = "margin-top: 15px; padding: 15px; background-color: #fafbfc; border: 1px solid #e1e4e8; border-radius: 4px;",
                   shiny::radioButtons(
                     "scieloUploadType",
-                    "Select file format:",
-                    choices = c(
-                      "Full-text JATS XML package (.zip or .xml)" = "jats",
-                      "Tabular metadata export (.csv)" = "csv"
+                    label = shiny::tags$span(bl_i18n("scielo_upload_format_label", lang), `data-i18n` = "scielo_upload_format_label"),
+                    choiceNames = list(
+                      shiny::tags$span(bl_i18n("scielo_fmt_jats", lang), `data-i18n` = "scielo_fmt_jats"),
+                      shiny::tags$span(bl_i18n("scielo_fmt_csv", lang), `data-i18n` = "scielo_fmt_csv")
                     ),
+                    choiceValues = c("jats", "csv"),
+                    selected = "jats",
                     inline = TRUE
                   ),
                   shiny::fileInput(
@@ -166,8 +298,8 @@ scieloUI <- function(lang = "en") {
               style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;",
               shiny::h4(bl_i18n("scielo_preview_title", lang), `data-i18n` = "scielo_preview_title", style = "font-weight: bold; margin: 0; color: #2c3e50;"),
               shiny::div(
-                shiny::downloadButton("scieloDownloadExcel", "Export Excel", class = "btn-sm btn-default"),
-                shiny::downloadButton("scieloDownloadRData", "Export .RData", class = "btn-sm btn-info", style = "margin-left: 5px;"),
+                shiny::downloadButton("scieloDownloadExcel", label = shiny::tags$span(bl_i18n("export_csv_btn", lang), `data-i18n` = "export_csv_btn"), class = "btn-sm btn-default"),
+                shiny::downloadButton("scieloDownloadRData", label = shiny::tags$span(bl_i18n("export_rdata_btn", lang), `data-i18n` = "export_rdata_btn"), class = "btn-sm btn-info", style = "margin-left: 5px;"),
                 shiny::actionButton(
                   "scieloLoadToApp",
                   label = shiny::tags$span(bl_i18n("scielo_load_app_btn", lang), `data-i18n` = "scielo_load_app_btn"),
@@ -237,6 +369,80 @@ scieloServer <- function(input, output, session, values = NULL) {
   # Clear inputs
   shiny::observeEvent(input$scieloClearIds, {
     shiny::updateTextAreaInput(session, "scieloInputIds", value = "")
+  })
+
+  # Handle Online Keyword Search via Crossref / SciELO DOI Prefixes
+  shiny::observeEvent(input$scieloSearchBtn, {
+    query <- trimws(as.character(input$scieloSearchQuery))
+    if (!nzchar(query)) {
+      shiny::showModal(shiny::modalDialog(
+        title = "Empty Query",
+        "Please enter keywords or a search query before searching SciELO.",
+        easyClose = TRUE,
+        footer = shiny::modalButton("OK")
+      ))
+      return()
+    }
+
+    cols <- input$scieloSearchCollections
+    if (is.null(cols) || length(cols) == 0L) {
+      shiny::showModal(shiny::modalDialog(
+        title = "No Collection Selected",
+        "Please select at least one SciELO national collection.",
+        easyClose = TRUE,
+        footer = shiny::modalButton("OK")
+      ))
+      return()
+    }
+
+    limit <- suppressWarnings(as.integer(input$scieloSearchLimit))
+    if (is.na(limit) || limit <= 0L) limit <- 50L
+
+    y_start <- suppressWarnings(as.integer(input$scieloYearStart))
+    y_end <- suppressWarnings(as.integer(input$scieloYearEnd))
+    years_vec <- c(y_start, y_end)
+    years_vec <- years_vec[!is.na(years_vec)]
+    if (length(years_vec) == 0L) years_vec <- NULL
+
+    shiny::withProgress(message = "Searching SciELO collections...", value = 0.2, {
+      tryCatch({
+        df <- download_scielo_search(
+          query = query,
+          limit = limit,
+          years = years_vec,
+          enrich_references = isTRUE(input$scieloSearchEnrichCR),
+          convert = TRUE,
+          progress = FALSE,
+          normalize_authors = isTRUE(input$scieloSearchNormalizeAuthors),
+          collections = cols
+        )
+
+        if (nrow(df) == 0L) {
+          shiny::showModal(shiny::modalDialog(
+            title = "No Records Found",
+            "No SciELO articles matched your search query and filters.",
+            easyClose = TRUE,
+            footer = shiny::modalButton("OK")
+          ))
+          return()
+        }
+
+        scielo_data(df)
+
+        shiny::showNotification(
+          sprintf("Successfully retrieved %d SciELO journal articles.", nrow(df)),
+          type = "message",
+          duration = 5
+        )
+      }, error = function(e) {
+        shiny::showModal(shiny::modalDialog(
+          title = "SciELO Search Error",
+          paste("Failed to query SciELO collections:", e$message),
+          easyClose = TRUE,
+          footer = shiny::modalButton("OK")
+        ))
+      })
+    })
   })
 
   # Handle Online Retrieval

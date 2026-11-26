@@ -119,3 +119,51 @@ test_that("bl_i18n_script generates valid script tag containing dictionary", {
   expect_true(grepl("localStorage", script_str))
   expect_true(grepl("data-i18n-html", script_str))
 })
+
+test_that("secondary tabs and SPELL render complete trilingual internal labels, options, and buttons", {
+  skip_if_not_installed("shiny")
+
+  # BDTD internal options & buttons
+  bdtd_pt <- as.character(bdtdUI(lang = "pt"))
+  bdtd_es <- as.character(bdtdUI(lang = "es"))
+  expect_true(grepl("Apenas Teses (Doutorado)", bdtd_pt, fixed = TRUE))
+  expect_true(grepl("Solo Tesis (Doctorado)", bdtd_es, fixed = TRUE))
+  expect_true(grepl("Exportar CSV", bdtd_pt, fixed = TRUE))
+  expect_true(grepl("Carregar no Biblioshiny", bdtd_pt, fixed = TRUE))
+  expect_true(grepl("Cargar en Biblioshiny", bdtd_es, fixed = TRUE))
+
+  # Oasisbr internal select options & labels
+  oasis_pt <- as.character(oasisbrUI(lang = "pt"))
+  oasis_es <- as.character(oasisbrUI(lang = "es"))
+  expect_true(grepl("Limite Maximo de Registros:", oasis_pt, fixed = TRUE))
+  expect_true(grepl("Apenas Artigos de Periodicos", oasis_pt, fixed = TRUE))
+  expect_true(grepl("Solo Articulos de Revistas", oasis_es, fixed = TRUE))
+  expect_true(grepl("Anais de Eventos", oasis_pt, fixed = TRUE))
+  expect_true(grepl("Memorias de Congresos", oasis_es, fixed = TRUE))
+
+  # Redalyc banner & checkbox
+  red_pt <- as.character(redalycUI(lang = "pt"))
+  red_es <- as.character(redalycUI(lang = "es"))
+  expect_true(grepl("Periodicos Ibero-Americanos de Acesso Aberto Diamante", red_pt, fixed = TRUE))
+  expect_true(grepl("Revistas Iberoamericanas de Acceso Abierto Diamante", red_es, fixed = TRUE))
+  expect_true(grepl("Normalizar sobrenomes compostos hispanicos", red_pt, fixed = TRUE))
+  expect_true(grepl("Normalizar apellidos compuestos hispanos", red_es, fixed = TRUE))
+
+  # Merge banner, radio choices, criteria & slider
+  mrg_pt <- as.character(bibliolatamMergeUI(lang = "pt"))
+  mrg_es <- as.character(bibliolatamMergeUI(lang = "es"))
+  expect_true(grepl("Harmonize e Funda Colecoes Latino-Americanas", mrg_pt, fixed = TRUE))
+  expect_true(grepl("Armonice y Fusione Colecciones Latinoamericanas", mrg_es, fixed = TRUE))
+  expect_true(grepl("Colecao Atualmente Carregada no App", mrg_pt, fixed = TRUE))
+  expect_true(grepl("DOI Canonico Higienizado", mrg_pt, fixed = TRUE))
+  expect_true(grepl("Limiar de Similaridade de Titulo:", mrg_pt, fixed = TRUE))
+  expect_true(grepl("Umbral de Similitud de Titulo:", mrg_es, fixed = TRUE))
+
+  # SPELL UI across EN, PT, ES
+  sp_en <- as.character(spellUI(lang = "en"))
+  sp_pt <- as.character(spellUI(lang = "pt"))
+  sp_es <- as.character(spellUI(lang = "es"))
+  expect_true(grepl("SPELL / ANPAD Collection", sp_en, fixed = TRUE))
+  expect_true(grepl("Coleta SPELL / ANPAD", sp_pt, fixed = TRUE))
+  expect_true(grepl("Recoleccion SPELL / ANPAD", sp_es, fixed = TRUE))
+})

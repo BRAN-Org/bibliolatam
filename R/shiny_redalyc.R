@@ -45,7 +45,8 @@ redalycUI <- function(lang = "en") {
               shiny::icon("chevron-up"),
               class = "btn-sm btn-default",
               style = "padding: 5px 10px;",
-              title = bl_i18n("btn_collapse", lang)
+              title = bl_i18n("btn_collapse", lang),
+              `data-i18n-title` = "btn_collapse"
             )
           ),
 
@@ -53,8 +54,10 @@ redalycUI <- function(lang = "en") {
           shiny::div(
             style = "margin-bottom: 20px; padding: 12px 15px; background-color: #fbeee6; border-radius: 4px; border-left: 4px solid #d35400; color: #78281f;",
             shiny::icon("book-open", style = "margin-right: 8px; font-size: 16px;"),
-            shiny::strong("Ibero-American Diamond Open Access Journals: "),
-            "Upload bibliographic export files from Redalyc or AmeliCA in BibTeX (.bib), RIS (.ris), or CSV format. Standardizes Hispanic compound author surnames, journal sources, and keywords."
+            shiny::tags$span(
+              bl_i18n("redalyc_banner", lang),
+              `data-i18n` = "redalyc_banner"
+            )
           ),
 
           # Main Content
@@ -79,7 +82,7 @@ redalycUI <- function(lang = "en") {
                     style = "margin-top: 25px;",
                     shiny::checkboxInput(
                       "redalycNormalizeAuthors",
-                      "Normalize Hispanic compound surnames",
+                      shiny::tags$span(bl_i18n("redalyc_norm_label", lang), `data-i18n` = "redalyc_norm_label"),
                       value = TRUE
                     )
                   )
@@ -113,9 +116,9 @@ redalycUI <- function(lang = "en") {
               style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;",
               shiny::h4(bl_i18n("redalyc_preview_title", lang), `data-i18n` = "redalyc_preview_title", style = "font-weight: bold; margin: 0; color: #2c3e50;"),
               shiny::div(
-                shiny::downloadButton("redalycDownloadCSV", "Export CSV", class = "btn-sm btn-default"),
-                shiny::downloadButton("redalycDownloadRData", "Export .RData", class = "btn-sm btn-info", style = "margin-left: 5px;"),
-                shiny::actionButton("redalycLoadToApp", "Load into Biblioshiny", icon = shiny::icon("play"), class = "btn-sm btn-success", style = "margin-left: 10px; font-weight: bold;")
+                shiny::downloadButton("redalycDownloadCSV", label = shiny::tags$span(bl_i18n("export_csv_btn", lang), `data-i18n` = "export_csv_btn"), class = "btn-sm btn-default"),
+                shiny::downloadButton("redalycDownloadRData", label = shiny::tags$span(bl_i18n("export_rdata_btn", lang), `data-i18n` = "export_rdata_btn"), class = "btn-sm btn-info", style = "margin-left: 5px;"),
+                shiny::actionButton("redalycLoadToApp", label = shiny::tags$span(bl_i18n("load_biblioshiny_btn", lang), `data-i18n` = "load_biblioshiny_btn"), icon = shiny::icon("play"), class = "btn-sm btn-success", style = "margin-left: 10px; font-weight: bold;")
               )
             ),
             shiny::uiOutput("redalycSummaryBoxes"),
@@ -210,6 +213,7 @@ redalycServer <- function(input, output, session, values = NULL) {
   output$redalycSummaryBoxes <- shiny::renderUI({
     df <- redalyc_data()
     shiny::req(df)
+    lang <- if (!is.null(input$current_lang) && nzchar(input$current_lang)) tolower(input$current_lang) else "en"
 
     n_docs <- nrow(df)
     unique_authors <- length(unique(unlist(strsplit(df$AU, ";\\s*"))))
@@ -225,7 +229,7 @@ redalycServer <- function(input, output, session, values = NULL) {
           class = "info-box bg-red",
           style = "border-radius: 4px; padding: 10px;",
           shiny::div(class = "info-box-content",
-            shiny::span(class = "info-box-text", "TOTAL ARTICLES"),
+            shiny::tags$span(class = "info-box-text", bl_i18n("kpi_total_articles", lang), `data-i18n` = "kpi_total_articles"),
             shiny::span(class = "info-box-number", style = "font-size: 24px; font-weight: bold;", n_docs)
           )
         )
@@ -236,7 +240,7 @@ redalycServer <- function(input, output, session, values = NULL) {
           class = "info-box bg-maroon",
           style = "border-radius: 4px; padding: 10px;",
           shiny::div(class = "info-box-content",
-            shiny::span(class = "info-box-text", "AUTHORS"),
+            shiny::tags$span(class = "info-box-text", bl_i18n("kpi_authors", lang), `data-i18n` = "kpi_authors"),
             shiny::span(class = "info-box-number", style = "font-size: 24px; font-weight: bold;", unique_authors)
           )
         )
@@ -247,7 +251,7 @@ redalycServer <- function(input, output, session, values = NULL) {
           class = "info-box bg-orange",
           style = "border-radius: 4px; padding: 10px;",
           shiny::div(class = "info-box-content",
-            shiny::span(class = "info-box-text", "JOURNALS"),
+            shiny::tags$span(class = "info-box-text", bl_i18n("kpi_journals", lang), `data-i18n` = "kpi_journals"),
             shiny::span(class = "info-box-number", style = "font-size: 24px; font-weight: bold;", unique_journals)
           )
         )
@@ -258,7 +262,7 @@ redalycServer <- function(input, output, session, values = NULL) {
           class = "info-box bg-purple",
           style = "border-radius: 4px; padding: 10px;",
           shiny::div(class = "info-box-content",
-            shiny::span(class = "info-box-text", "TIMESPAN"),
+            shiny::tags$span(class = "info-box-text", bl_i18n("kpi_timespan", lang), `data-i18n` = "kpi_timespan"),
             shiny::span(class = "info-box-number", style = "font-size: 24px; font-weight: bold;", timespan)
           )
         )
