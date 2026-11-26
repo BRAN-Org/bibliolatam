@@ -116,6 +116,98 @@ normalize_title_str <- function(titles) {
   trimws(t)
 }
 
+#' Extract normalized language segments from bilingual concatenated titles
+#'
+#' Handles OAI-PMH / DSpace / VuFind records that concatenate two language editions
+#' in a single `TI` field (e.g., `"Titulo em Portugues / English Title"` or
+#' `"Titulo = English Title"`).
+#'
+#' @param raw_titles Character vector of raw titles.
+#' @return List of normalized character vectors (length >= 2 only when bilingual).
+#' @noRd
+extract_bilingual_segments <- function(raw_titles) {
+  n <- length(raw_titles)
+  out <- vector("list", n)
+  if (n == 0L) return(out)
+  s <- as.character(raw_titles)
+  has_delim <- !is.na(s) & grepl("\\s+(/+|\\||=)\\s+", s)
+  for (idx in which(has_delim)) {
+    parts <- unlist(strsplit(s[idx], "\\s+(/+|\\||=)\\s+"))
+    norm_parts <- unique(normalize_title_str(parts))
+    norm_parts <- norm_parts[nchar(norm_parts) >= 15L]
+    if (length(norm_parts) >= 2L) {
+      out[[idx]] <- norm_parts
+    }
+  }
+  out
+}
+
+#' Compute best normalized Levenshtein similarity across bilingual title segments
+#'
+#' @noRd
+bilingual_title_sim <- function(t1, segs1_i, t2, segs2_j) {
+  v1 <- unique(c(t1, segs1_i))
+  v2 <- unique(c(t2, segs2_j))
+  v1 <- v1[nchar(v1) >= 15L]
+  v2 <- v2[nchar(v2) >= 15L]
+  if (length(v1) == 0L || length(v2) == 0L) return(0)
+  if (any(v1 %in% v2)) return(1)
+  dmat <- utils::adist(v1, v2)
+  lmat <- outer(nchar(v1), nchar(v2), pmax)
+  max(1 - (dmat / lmat))
+}
+
+#' Detect unambiguous Portuguese vs Spanish language tag for PT<->ES cognate guard
+#'
+#' Uses explicit `LA` metadata (for non-bilingual titles) and falls back to
+#' exclusive orthographic/lexical markers on raw titles. Returns `"pt"`, `"es"`,
+#' or `NA_character_` (mixed/uncertain titles never block).
+#'
+#' @param raw_titles Character vector of raw titles.
+#' @param la_col Optional character vector from `LA` column.
+#' @param is_bilingual Optional logical vector flagging bilingual concatenated titles.
+#' @return Character vector of `"pt"`, `"es"`, or `NA_character_`.
+#' @noRd
+detect_pt_es_lang <- function(raw_titles, la_col = NULL, is_bilingual = NULL) {
+  n <- length(raw_titles)
+  out <- rep(NA_character_, n)
+  if (n == 0L) return(out)
+  if (is.null(is_bilingual)) is_bilingual <- rep(FALSE, n)
+
+  if (!is.null(la_col) && length(la_col) == n) {
+    la_norm <- tolower(trimws(as.character(la_col)))
+    is_pt_la <- !is.na(la_norm) & grepl("^(pt|por|portuguese|portugues|portugu\u00eas)$", la_norm)
+    is_es_la <- !is.na(la_norm) & grepl("^(es|spa|spanish|espanol|espa\u00f1ol)$", la_norm)
+    out[is_pt_la & !is_bilingual] <- "pt"
+    out[is_es_la & !is_bilingual] <- "es"
+  }
+
+  need_detect <- is.na(out) & !is_bilingual & !is.na(raw_titles) & nzchar(trimws(as.character(raw_titles)))
+  if (any(need_detect)) {
+    raw_low <- tolower(as.character(raw_titles[need_detect]))
+    ascii_low <- tolower(iconv(raw_low, to = "ASCII//TRANSLIT"))
+    ascii_low[is.na(ascii_low)] <- raw_low[is.na(ascii_low)]
+
+    pt_ortho <- grepl("[\u00e7\u00e3\u00f5\u00ea\u00f4]", raw_low)
+    pt_digraph <- grepl("(nh|lh)[aeiou]", ascii_low)
+    pt_suffix <- grepl("\\b[a-z]{3,}(cao|coes)\\b", ascii_low)
+    pt_words <- grepl("\\b(da|das|na|nas|pela|pelas|pelo|pelos|uma|umas|com|nao|sao|ao|aos|saude|atencao|educacao|avaliacao|gestao|producao|vacinacao|populacao|informacao|inovacao|analise|brasileira|brasileiro)\\b", ascii_low)
+    pt_score <- as.integer(pt_ortho) * 2L + as.integer(pt_digraph) + as.integer(pt_suffix) * 2L + as.integer(pt_words)
+
+    es_ortho <- grepl("[\u00f1\u00bf\u00a1]", raw_low)
+    es_suffix <- grepl("\\b[a-z]{3,}(cion|ciones)\\b", ascii_low)
+    es_words <- grepl("\\b(del|los|las|una|unas|con|salud|atencion|educacion|evaluacion|gestion|produccion|vacunacion|poblacion|informacion|innovacion|analisis|investigacion|espanol|espanola|ninos|anos)\\b", ascii_low)
+    es_score <- as.integer(es_ortho) * 2L + as.integer(es_suffix) * 2L + as.integer(es_words)
+
+    det <- rep(NA_character_, length(raw_low))
+    det[pt_score >= 2L & es_score == 0L] <- "pt"
+    det[es_score >= 2L & pt_score == 0L] <- "es"
+    out[need_detect] <- det
+  }
+
+  out
+}
+
 #' Extract normalized series/part token from normalized title
 #'
 #' @param norm_title Normalized lowercase ASCII title string.
@@ -275,6 +367,9 @@ deduplicate_internal <- function(df,
   dois <- if ("DI" %in% names(df)) clean_doi(df$DI) else rep(NA_character_, n)
   titles <- normalize_title_str(df$TI)
   titles_lens <- nchar(titles)
+  segs <- extract_bilingual_segments(df$TI)
+  has_seg <- lengths(segs) >= 2L
+  langs <- detect_pt_es_lang(df$TI, la_col = if ("LA" %in% names(df)) df$LA else NULL, is_bilingual = has_seg)
   parts <- vapply(titles, extract_part_token, character(1L), USE.NAMES = FALSE)
   au_surnames <- lapply(df$AU, extract_author_surnames)
   py <- suppressWarnings(as.numeric(df$PY))
@@ -365,6 +460,15 @@ deduplicate_internal <- function(df,
       }
       if (length(cand_indices) == 0L) next
 
+      # 2.4b Guardrail de colisao translinguistica PT <-> ES sem DOI (O(1) vetorizado)
+      l1 <- langs[i]
+      if (!is.na(l1)) {
+        cand_l2 <- langs[cand_indices]
+        pt_es_conflict <- !is.na(cand_l2) & cand_l2 != l1 & titles[cand_indices] != t1
+        cand_indices <- cand_indices[!pt_es_conflict]
+      }
+      if (length(cand_indices) == 0L) next
+
       # 2.5 Length Bound Filter (O(1) vetorizado - poda ~90% antes de qualquer loop R ou adist)
       candidates_before_len <- candidates_before_len + length(cand_indices)
       if (similarity_threshold > 0) {
@@ -372,6 +476,22 @@ deduplicate_internal <- function(df,
         max_len <- floor(t1_len / similarity_threshold)
         cand_lens <- titles_lens[cand_indices]
         valid_len <- cand_lens >= min_len & cand_lens <= max_len
+        if (has_seg[i] || any(has_seg[cand_indices])) {
+          s1_lens <- if (has_seg[i]) c(t1_len, nchar(segs[[i]])) else t1_len
+          for (k in which(!valid_len)) {
+            c_idx <- cand_indices[k]
+            if (!has_seg[i] && !has_seg[c_idx]) next
+            s2_lens <- if (has_seg[c_idx]) c(cand_lens[k], nchar(segs[[c_idx]])) else cand_lens[k]
+            ok_seg <- FALSE
+            for (l_seg in s1_lens) {
+              if (any(s2_lens >= ceiling(l_seg * similarity_threshold) & s2_lens <= floor(l_seg / similarity_threshold))) {
+                ok_seg <- TRUE
+                break
+              }
+            }
+            if (ok_seg) valid_len[k] <- TRUE
+          }
+        }
         pruned_by_len <- pruned_by_len + sum(!valid_len)
         cand_indices <- cand_indices[valid_len]
         if (length(cand_indices) == 0L) next
@@ -437,6 +557,15 @@ deduplicate_internal <- function(df,
       dists <- utils::adist(t1, cand_titles)[1, ]
       max_lens <- pmax(t1_len, titles_lens[cand_indices])
       sims <- 1 - (dists / max_lens)
+      if (has_seg[i] || any(has_seg[cand_indices])) {
+        for (k in seq_along(cand_indices)) {
+          c_idx <- cand_indices[k]
+          if (has_seg[i] || has_seg[c_idx]) {
+            b_sim <- bilingual_title_sim(t1, segs[[i]], cand_titles[k], segs[[c_idx]])
+            if (b_sim > sims[k]) sims[k] <- b_sim
+          }
+        }
+      }
 
       best_idx <- which.max(sims)
       if (length(best_idx) > 0L) {
@@ -712,6 +841,13 @@ merge_bibliolatam <- function(df1,
   titles1 <- normalize_title_str(df1$TI)
   titles2 <- normalize_title_str(df2$TI)
 
+  segs1 <- extract_bilingual_segments(df1$TI)
+  segs2 <- extract_bilingual_segments(df2$TI)
+  has_seg1 <- lengths(segs1) >= 2L
+  has_seg2 <- lengths(segs2) >= 2L
+  lang1 <- detect_pt_es_lang(df1$TI, la_col = if ("LA" %in% names(df1)) df1$LA else NULL, is_bilingual = has_seg1)
+  lang2 <- detect_pt_es_lang(df2$TI, la_col = if ("LA" %in% names(df2)) df2$LA else NULL, is_bilingual = has_seg2)
+
   parts1 <- vapply(titles1, extract_part_token, character(1L), USE.NAMES = FALSE)
   parts2 <- vapply(titles2, extract_part_token, character(1L), USE.NAMES = FALSE)
 
@@ -827,6 +963,15 @@ merge_bibliolatam <- function(df1,
       }
       if (length(cand_indices) == 0L) next
 
+      # 2.4b Guardrail de colisao translinguistica PT <-> ES sem DOI (O(1) vetorizado)
+      l1 <- lang1[i]
+      if (!is.na(l1)) {
+        cand_l2 <- lang2[cand_indices]
+        pt_es_conflict <- !is.na(cand_l2) & cand_l2 != l1 & titles2[cand_indices] != t1
+        cand_indices <- cand_indices[!pt_es_conflict]
+      }
+      if (length(cand_indices) == 0L) next
+
       # 2.5 Filtro Matematico de Extensao de String (Length Bound Filter, O(1) vetorizado)
       # Executado ANTES de loops de autoria e adist, podando ~90% dos candidatos em nanossegundos
       candidates_before_len <- candidates_before_len + length(cand_indices)
@@ -835,6 +980,22 @@ merge_bibliolatam <- function(df1,
         max_len <- floor(t1_len / similarity_threshold)
         cand_lens <- titles2_lens[cand_indices]
         valid_len <- cand_lens >= min_len & cand_lens <= max_len
+        if (has_seg1[i] || any(has_seg2[cand_indices])) {
+          s1_lens <- if (has_seg1[i]) c(t1_len, nchar(segs1[[i]])) else t1_len
+          for (k in which(!valid_len)) {
+            c_idx <- cand_indices[k]
+            if (!has_seg1[i] && !has_seg2[c_idx]) next
+            s2_lens <- if (has_seg2[c_idx]) c(cand_lens[k], nchar(segs2[[c_idx]])) else cand_lens[k]
+            ok_seg <- FALSE
+            for (l_seg in s1_lens) {
+              if (any(s2_lens >= ceiling(l_seg * similarity_threshold) & s2_lens <= floor(l_seg / similarity_threshold))) {
+                ok_seg <- TRUE
+                break
+              }
+            }
+            if (ok_seg) valid_len[k] <- TRUE
+          }
+        }
         pruned_by_len <- pruned_by_len + sum(!valid_len)
         cand_indices <- cand_indices[valid_len]
         if (length(cand_indices) == 0L) next
@@ -909,6 +1070,15 @@ merge_bibliolatam <- function(df1,
       dists <- utils::adist(t1, cand_titles)[1, ]
       max_lens <- pmax(t1_len, titles2_lens[cand_indices])
       sims <- 1 - (dists / max_lens)
+      if (has_seg1[i] || any(has_seg2[cand_indices])) {
+        for (k in seq_along(cand_indices)) {
+          c_idx <- cand_indices[k]
+          if (has_seg1[i] || has_seg2[c_idx]) {
+            b_sim <- bilingual_title_sim(t1, segs1[[i]], cand_titles[k], segs2[[c_idx]])
+            if (b_sim > sims[k]) sims[k] <- b_sim
+          }
+        }
+      }
 
       best_idx <- which.max(sims)
       if (length(best_idx) > 0L) {
