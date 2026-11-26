@@ -592,3 +592,97 @@ test_that("merge_bibliolatam resolves translated non-DOI editions via structural
   diff_doi_2 <- en_ed; diff_doi_2$DI <- "10.1590/csp.2022.002"
   expect_equal(nrow(merge_bibliolatam(diff_doi_1, diff_doi_2, match_by = c("doi", "title"))), 2L)
 })
+
+test_that("merge_bibliolatam resolves bilingual concatenated OAI-PMH titles without DOI safely", {
+  # 1. Titulo monolingue PT vs titulo bilingue concatenado com " / " (~2x comprimento, sem DOI)
+  mono_pt <- as_bibliometrix(data.frame(
+    AU = "ALMEIDA C; COSTA R",
+    TI = "Determinantes sociais da saude mental na atencao primaria brasileira",
+    SO = "Cadernos de Saude Publica",
+    PY = 2023,
+    DI = NA_character_,
+    CR = "REF_SCIELO_1",
+    stringsAsFactors = FALSE
+  ), "scielo")
+  biling_slash <- as_bibliometrix(data.frame(
+    AU = "ALMEIDA C; COSTA R",
+    TI = "Determinantes sociais da saude mental na atencao primaria brasileira / Social determinants of mental health in Brazilian primary care",
+    SO = "Oasisbr Repository",
+    PY = 2023,
+    DI = NA_character_,
+    CR = "REF_OASIS_2",
+    stringsAsFactors = FALSE
+  ), "oasisbr")
+
+  m_slash <- merge_bibliolatam(mono_pt, biling_slash, match_by = c("doi", "title"))
+  expect_equal(nrow(m_slash), 1L)
+  expect_true(grepl("REF_SCIELO_1", m_slash$CR) && grepl("REF_OASIS_2", m_slash$CR))
+
+  # 2. Titulo monolingue EN vs titulo bilingue concatenado com " = "
+  mono_en <- as_bibliometrix(data.frame(
+    AU = "ALMEIDA C; COSTA R",
+    TI = "Social determinants of mental health in Brazilian primary care",
+    SO = "Public Health Reports",
+    PY = 2023,
+    DI = NA_character_,
+    stringsAsFactors = FALSE
+  ), "scielo")
+  biling_eq <- biling_slash
+  biling_eq$TI <- "Determinantes sociais da saude mental na atencao primaria brasileira = Social determinants of mental health in Brazilian primary care"
+  expect_equal(nrow(merge_bibliolatam(mono_en, biling_eq, match_by = c("doi", "title"))), 1L)
+
+  # 3. Autores disjuntos continuam bloqueando mesmo com segmento bilingue identico
+  biling_diff_au <- biling_slash
+  biling_diff_au$AU <- "ZIMMERMANN K"
+  expect_equal(nrow(merge_bibliolatam(mono_pt, biling_diff_au, match_by = c("doi", "title"))), 2L)
+
+  # 4. Deduplicacao intra-fonte tambem resolve titulo bilingue concatenado
+  intra_df <- rbind(mono_pt, biling_slash)
+  intra_dedup <- deduplicate_internal(intra_df, match_by = c("doi", "title"))
+  expect_equal(nrow(intra_dedup), 1L)
+})
+
+test_that("merge_bibliolatam blocks PT<->ES cross-lingual cognate collisions without DOI", {
+  # 1. Artigos distintos PT vs ES sobre tema cognato com sobrenomes ibericos irmaos (sem LA, sem DOI)
+  art_pt <- as_bibliometrix(data.frame(
+    AU = "RODRIGUES M; GOMES A",
+    TI = "Analise epidemiologica da vacinacao infantil na atencao primaria de saude",
+    SO = "Revista Brasileira de Epidemiologia",
+    PY = 2023,
+    DI = NA_character_,
+    LA = NA_character_,
+    stringsAsFactors = FALSE
+  ), "scielo")
+  art_es <- as_bibliometrix(data.frame(
+    AU = "RODRIGUEZ M; GOMEZ A",
+    TI = "Analisis epidemiologico de la vacunacion infantil en la atencion primaria de salud",
+    SO = "Revista Espanola de Salud Publica",
+    PY = 2023,
+    DI = NA_character_,
+    LA = NA_character_,
+    stringsAsFactors = FALSE
+  ), "redalyc")
+  expect_equal(nrow(merge_bibliolatam(art_pt, art_es, match_by = c("doi", "title"))), 2L)
+
+  # 2. Mesmo bloqueio quando LA explicita "pt" vs "es"
+  art_pt_la <- art_pt; art_pt_la$LA <- "pt"
+  art_es_la <- art_es; art_es_la$LA <- "es"
+  expect_equal(nrow(merge_bibliolatam(art_pt_la, art_es_la, match_by = c("doi", "title"))), 2L)
+
+  # 3. Nao deve gerar falso negativo quando o titulo normalizado e exatamente identico (ex.: titulo EN com LA divergente)
+  en_1 <- as_bibliometrix(data.frame(
+    AU = "SILVA J",
+    TI = "Machine learning approaches for tropical forest monitoring",
+    SO = "Journal A",
+    PY = 2023,
+    LA = "pt",
+    stringsAsFactors = FALSE
+  ), "oasisbr")
+  en_2 <- en_1; en_2$LA <- "es"; en_2$DB <- "REDALYC"
+  expect_equal(nrow(merge_bibliolatam(en_1, en_2, match_by = c("doi", "title"))), 1L)
+
+  # 4. Duplicata real no mesmo idioma (PT com vs sem acento) continua sendo fundida
+  art_pt_acc <- art_pt
+  art_pt_acc$TI <- "An\u00e1lise epidemiol\u00f3gica da vacina\u00e7\u00e3o infantil na aten\u00e7\u00e3o prim\u00e1ria de sa\u00fade"
+  expect_equal(nrow(merge_bibliolatam(art_pt, art_pt_acc, match_by = c("doi", "title"))), 1L)
+})
