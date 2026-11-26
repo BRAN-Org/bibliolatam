@@ -515,3 +515,80 @@ test_that("merge_bibliolatam aplica todos os guardrails no modo intra-fonte (df2
   expect_true(all(sapply(c("REF_SCIELO_1", "REF_OASIS_2", "REF_REDALYC_3"), grepl, cascaded$CR)))
   expect_equal(length(unique(cascaded$SR)), 1L)
 })
+
+test_that("merge_bibliolatam handles DOI separator variants safely while blocking digit-boundary shifts (Kara et al. 2025)", {
+  # 1. Mesmo artigo com troca de separador '_' vs '-' no sufixo do DOI: libera veto e funde por titulo+autor
+  d1 <- as_bibliometrix(data.frame(
+    AU = "ALMEIDA R; COSTA M",
+    TI = "Epidemiologia social e acesso aberto na saude coletiva latino-americana",
+    SO = "Revista de Saude Publica",
+    PY = 2023,
+    DI = "10.7189/jogh.12_05057",
+    stringsAsFactors = FALSE
+  ), "scielo")
+  d2 <- d1
+  d2$DI <- "10.7189/jogh.12-05057"
+  res_var <- merge_bibliolatam(d1, d2, match_by = c("doi", "title"))
+  expect_equal(nrow(res_var), 1L)
+  expect_equal(attr(res_var, "merge_stats")$title_duplicates, 1L)
+
+  # 2. Troca de fronteira entre digitos (ex: volume 5 pag 350 vs volume 53 pag 50): DEVE BLOQUEAR!
+  p1 <- as_bibliometrix(data.frame(
+    AU = "SILVA J",
+    TI = "Estudo experimental sobre espalhamento de particulas em redes",
+    SO = "Physical Review C",
+    PY = 2022,
+    DI = "10.1103/physrevc.5.350",
+    stringsAsFactors = FALSE
+  ), "scielo")
+  p2 <- p1
+  p2$DI <- "10.1103/physrevc.53.50"
+  res_shift <- merge_bibliolatam(p1, p2, match_by = c("doi", "title"))
+  expect_equal(nrow(res_shift), 2L)
+})
+
+test_that("merge_bibliolatam resolves translated non-DOI editions via structural SO+VL+BP+AU fallback safely", {
+  # 1. Mesmo artigo publicado em Portugues no Oasisbr e em Ingles no SciELO SEM DOI, mas mesmo SO/VL/BP/AU
+  pt_ed <- as_bibliometrix(data.frame(
+    AU = "FERREIRA L; SANTOS M",
+    TI = "Determinantes sociais da saude mental na atencao primaria brasileira",
+    SO = "Cadernos de Saude Publica",
+    PY = 2022,
+    VL = "38",
+    BP = "15",
+    DI = NA_character_,
+    CR = "REF_PT_1",
+    stringsAsFactors = FALSE
+  ), "oasisbr")
+  en_ed <- as_bibliometrix(data.frame(
+    AU = "FERREIRA L; SANTOS M",
+    TI = "Social determinants of mental health in Brazilian primary care",
+    SO = "Cadernos de Saúde Pública",
+    PY = 2022,
+    VL = "38.0",
+    BP = "15-29",
+    DI = NA_character_,
+    CR = "REF_EN_2",
+    stringsAsFactors = FALSE
+  ), "scielo")
+
+  merged_tr <- merge_bibliolatam(pt_ed, en_ed, match_by = c("doi", "title"))
+  expect_equal(nrow(merged_tr), 1L)
+  expect_equal(attr(merged_tr, "merge_stats")$structural_duplicates, 1L)
+  expect_true(grepl("REF_PT_1", merged_tr$CR) && grepl("REF_EN_2", merged_tr$CR))
+
+  # 2. Artigo diferente na mesma revista/volume/ano mas pagina inicial diferente: NAO deve fundir
+  other_pg <- en_ed
+  other_pg$BP <- "42"
+  expect_equal(nrow(merge_bibliolatam(pt_ed, other_pg, match_by = c("doi", "title"))), 2L)
+
+  # 3. Autores disjuntos na mesma revista/volume/pagina: NAO deve fundir
+  other_au <- en_ed
+  other_au$AU <- "ZIMMERMANN K"
+  expect_equal(nrow(merge_bibliolatam(pt_ed, other_au, match_by = c("doi", "title"))), 2L)
+
+  # 4. Conflito explicito de DOIs reais bloqueia ate o fallback estrutural
+  diff_doi_1 <- pt_ed; diff_doi_1$DI <- "10.1590/csp.2022.001"
+  diff_doi_2 <- en_ed; diff_doi_2$DI <- "10.1590/csp.2022.002"
+  expect_equal(nrow(merge_bibliolatam(diff_doi_1, diff_doi_2, match_by = c("doi", "title"))), 2L)
+})
