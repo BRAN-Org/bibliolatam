@@ -21,4 +21,10 @@ test_that("run_app constructs a valid shiny.appobj across configurations", {
 
   # Invalid language rejection
   expect_error(run_app(default_lang = "fr", launch.browser = FALSE))
+
+  # Verify SPELL and SciELO online search widgets are mounted inside run_app UI
+  req_env <- list(REQUEST_METHOD = "GET", PATH_INFO = "/", HTTP_HOST = "127.0.0.1", QUERY_STRING = "")
+  resp_pt <- app_pt$httpHandler(req_env)
+  expect_true(grepl("Coleta SPELL / ANPAD", resp_pt$content, fixed = TRUE))
+  expect_true(grepl("scieloSearchQuery", resp_pt$content, fixed = TRUE))
 })

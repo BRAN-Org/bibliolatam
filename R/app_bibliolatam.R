@@ -51,6 +51,7 @@ run_app <- function(port = getOption("shiny.port"),
     shiny::tabPanel(bl_i18n("tab_bdtd", default_lang), bdtdUI(lang = default_lang)),
     shiny::tabPanel(bl_i18n("tab_oasisbr", default_lang), oasisbrUI(lang = default_lang)),
     shiny::tabPanel(bl_i18n("tab_redalyc", default_lang), redalycUI(lang = default_lang)),
+    shiny::tabPanel(bl_i18n("tab_spell", default_lang), spellUI(lang = default_lang)),
     shiny::tabPanel(bl_i18n("tab_merge", default_lang), bibliolatamMergeUI(lang = default_lang)),
     shiny::tabPanel(bl_i18n("tab_about", default_lang), bibliolatamInfoUI(lang = default_lang))
   )
@@ -62,6 +63,7 @@ run_app <- function(port = getOption("shiny.port"),
     bdtdServer(input, output, session, values)
     oasisbrServer(input, output, session, values)
     redalycServer(input, output, session, values)
+    spellServer(input, output, session, values)
     bibliolatamMergeServer(input, output, session, values)
   }
 

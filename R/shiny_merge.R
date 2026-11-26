@@ -45,7 +45,8 @@ bibliolatamMergeUI <- function(lang = "en") {
               shiny::icon("chevron-up"),
               class = "btn-sm btn-default",
               style = "padding: 5px 10px;",
-              title = bl_i18n("btn_collapse", lang)
+              title = bl_i18n("btn_collapse", lang),
+              `data-i18n-title` = "btn_collapse"
             )
           ),
 
@@ -53,8 +54,10 @@ bibliolatamMergeUI <- function(lang = "en") {
           shiny::div(
             style = "margin-bottom: 20px; padding: 12px 15px; background-color: #f4f0fa; border-radius: 4px; border-left: 4px solid #605ca8; color: #3d246c;",
             shiny::icon("object-group", style = "margin-right: 8px; font-size: 16px;"),
-            shiny::strong("Harmonize & Fuse Latin American Collections: "),
-            "Merge two datasets (e.g. SciELO + Oasisbr or SciELO + SPELL), automatically resolve duplicate records using canonical DOI cleaning and fuzzy title matching, and enrich complementary fields (Cited References, Abstracts, Keywords)."
+            shiny::tags$span(
+              bl_i18n("merge_banner", lang),
+              `data-i18n` = "merge_banner"
+            )
           ),
 
           # Content
@@ -68,16 +71,21 @@ bibliolatamMergeUI <- function(lang = "en") {
                   shiny::h4(bl_i18n("merge_d1_title", lang), `data-i18n` = "merge_d1_title", style = "font-weight: bold; color: #2c3e50; margin-top: 0;"),
                   shiny::radioButtons(
                     "mergeSource1",
-                    "Choose Source for Dataset 1:",
-                    choices = c(
-                      "Currently Loaded Collection in App" = "active",
-                      "Upload New File (.csv, .RData, .tsv, .bib, .ris)" = "file"
+                    label = shiny::tags$span(bl_i18n("merge_source1_label", lang), `data-i18n` = "merge_source1_label"),
+                    choiceNames = list(
+                      shiny::tags$span(bl_i18n("merge_s1_active", lang), `data-i18n` = "merge_s1_active"),
+                      shiny::tags$span(bl_i18n("merge_s1_file", lang), `data-i18n` = "merge_s1_file")
                     ),
+                    choiceValues = c("active", "file"),
                     selected = "active"
                   ),
                   shiny::conditionalPanel(
                     condition = "input.mergeSource1 == 'file'",
-                    shiny::fileInput("mergeFile1", "Select Dataset 1 File:", width = "100%")
+                    shiny::fileInput(
+                      "mergeFile1",
+                      label = shiny::tags$span(bl_i18n("merge_file1_label", lang), `data-i18n` = "merge_file1_label"),
+                      width = "100%"
+                    )
                   )
                 ),
                 shiny::column(
@@ -85,7 +93,7 @@ bibliolatamMergeUI <- function(lang = "en") {
                   shiny::h4(bl_i18n("merge_d2_title", lang), `data-i18n` = "merge_d2_title", style = "font-weight: bold; color: #2c3e50; margin-top: 0;"),
                   shiny::fileInput(
                     "mergeFile2",
-                    "Select Dataset 2 File (.csv, .RData, .tsv, .bib, .ris):",
+                    label = shiny::tags$span(bl_i18n("merge_source2_label", lang), `data-i18n` = "merge_source2_label"),
                     width = "100%"
                   )
                 )
@@ -96,8 +104,12 @@ bibliolatamMergeUI <- function(lang = "en") {
                   width = 6,
                   shiny::checkboxGroupInput(
                     "mergeMatchCriteria",
-                    "Matching & Deduplication Criteria:",
-                    choices = c("Canonical Clean DOI" = "doi", "Fuzzy Title Matching" = "title"),
+                    label = shiny::tags$span(bl_i18n("merge_criteria_label", lang), `data-i18n` = "merge_criteria_label"),
+                    choiceNames = list(
+                      shiny::tags$span(bl_i18n("merge_crit_doi", lang), `data-i18n` = "merge_crit_doi"),
+                      shiny::tags$span(bl_i18n("merge_crit_title", lang), `data-i18n` = "merge_crit_title")
+                    ),
+                    choiceValues = c("doi", "title"),
                     selected = c("doi", "title"),
                     inline = TRUE
                   )
@@ -106,7 +118,7 @@ bibliolatamMergeUI <- function(lang = "en") {
                   width = 6,
                   shiny::sliderInput(
                     "mergeSimilarityThreshold",
-                    "Title Similarity Threshold:",
+                    label = shiny::tags$span(bl_i18n("merge_thresh_label", lang), `data-i18n` = "merge_thresh_label"),
                     min = 0.80,
                     max = 1.00,
                     value = 0.90,
@@ -119,7 +131,7 @@ bibliolatamMergeUI <- function(lang = "en") {
                 style = "margin-top: 10px; display: flex; justify-content: flex-end;",
                 shiny::actionButton(
                   "mergeRunAction",
-                  "Merge & Deduplicate Collections",
+                  label = shiny::tags$span(bl_i18n("merge_btn", lang), `data-i18n` = "merge_btn"),
                   icon = shiny::icon("random"),
                   class = "btn-primary",
                   style = "font-weight: bold; background-color: #605ca8; border-color: #4b4691;"
@@ -143,9 +155,9 @@ bibliolatamMergeUI <- function(lang = "en") {
               style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;",
               shiny::h4(bl_i18n("merge_metrics_title", lang), `data-i18n` = "merge_metrics_title", style = "font-weight: bold; margin: 0; color: #2c3e50;"),
               shiny::div(
-                shiny::downloadButton("mergeDownloadCSV", "Export CSV", class = "btn-sm btn-default"),
-                shiny::downloadButton("mergeDownloadRData", "Export .RData", class = "btn-sm btn-info", style = "margin-left: 5px;"),
-                shiny::actionButton("mergeLoadToApp", "Load into Biblioshiny", icon = shiny::icon("play"), class = "btn-sm btn-success", style = "margin-left: 10px; font-weight: bold;")
+                shiny::downloadButton("mergeDownloadCSV", label = shiny::tags$span(bl_i18n("export_csv_btn", lang), `data-i18n` = "export_csv_btn"), class = "btn-sm btn-default"),
+                shiny::downloadButton("mergeDownloadRData", label = shiny::tags$span(bl_i18n("export_rdata_btn", lang), `data-i18n` = "export_rdata_btn"), class = "btn-sm btn-info", style = "margin-left: 5px;"),
+                shiny::actionButton("mergeLoadToApp", label = shiny::tags$span(bl_i18n("load_biblioshiny_btn", lang), `data-i18n` = "load_biblioshiny_btn"), icon = shiny::icon("play"), class = "btn-sm btn-success", style = "margin-left: 10px; font-weight: bold;")
               )
             ),
             shiny::uiOutput("bibliolatamMergeSummaryBoxes"),
@@ -325,6 +337,7 @@ bibliolatamMergeServer <- function(input, output, session, values = NULL) {
   output$bibliolatamMergeSummaryBoxes <- shiny::renderUI({
     df <- merged_dataset()
     shiny::req(df)
+    lang <- if (!is.null(input$current_lang) && nzchar(input$current_lang)) tolower(input$current_lang) else "en"
     stats <- attr(df, "merge_stats")
     if (is.null(stats)) stats <- list(n1 = nrow(df), n2 = 0, doi_duplicates = 0, title_duplicates = 0, total_duplicates = 0, final_count = nrow(df))
 
@@ -335,7 +348,7 @@ bibliolatamMergeServer <- function(input, output, session, values = NULL) {
           class = "info-box bg-purple",
           style = "border-radius: 4px; padding: 10px;",
           shiny::div(class = "info-box-content",
-            shiny::span(class = "info-box-text", "INITIAL COMBINED"),
+            shiny::tags$span(class = "info-box-text", bl_i18n("kpi_initial_combined", lang), `data-i18n` = "kpi_initial_combined"),
             shiny::span(class = "info-box-number", style = "font-size: 24px; font-weight: bold;", stats$n1 + stats$n2)
           )
         )
@@ -346,7 +359,7 @@ bibliolatamMergeServer <- function(input, output, session, values = NULL) {
           class = "info-box bg-yellow",
           style = "border-radius: 4px; padding: 10px;",
           shiny::div(class = "info-box-content",
-            shiny::span(class = "info-box-text", "DUPLICATES RESOLVED"),
+            shiny::tags$span(class = "info-box-text", bl_i18n("kpi_dups_resolved", lang), `data-i18n` = "kpi_dups_resolved"),
             shiny::span(class = "info-box-number", style = "font-size: 16px; font-weight: bold;",
                         sprintf("Total: %d (DOI: %d | Title: %d)", stats$total_duplicates, stats$doi_duplicates, stats$title_duplicates))
           )
@@ -358,7 +371,7 @@ bibliolatamMergeServer <- function(input, output, session, values = NULL) {
           class = "info-box bg-green",
           style = "border-radius: 4px; padding: 10px;",
           shiny::div(class = "info-box-content",
-            shiny::span(class = "info-box-text", "FINAL UNIQUE WORKS"),
+            shiny::tags$span(class = "info-box-text", bl_i18n("kpi_final_unique", lang), `data-i18n` = "kpi_final_unique"),
             shiny::span(class = "info-box-number", style = "font-size: 24px; font-weight: bold;", stats$final_count)
           )
         )
@@ -369,7 +382,7 @@ bibliolatamMergeServer <- function(input, output, session, values = NULL) {
           class = "info-box bg-teal",
           style = "border-radius: 4px; padding: 10px;",
           shiny::div(class = "info-box-content",
-            shiny::span(class = "info-box-text", "SOURCES FUSED"),
+            shiny::tags$span(class = "info-box-text", bl_i18n("kpi_sources_fused", lang), `data-i18n` = "kpi_sources_fused"),
             shiny::span(class = "info-box-number", style = "font-size: 24px; font-weight: bold;", length(unique(df$DB)))
           )
         )

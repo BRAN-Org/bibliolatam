@@ -56,9 +56,9 @@
 
 ## Fase 6: Polimento da Aplicação Shiny (`run_app()`) & UX
 - [x] Corrigir botão de recolher painel no Omnisearch (`R/shiny_omnisearch.R`), substituindo `shiny::removeUI(selector = "#omnisearchContent")` por `slideToggle(300)` reversível (com 61 testes unitários)
-- [ ] Completar cobertura 100% trilíngue (i18n) nos rótulos internos, banners, cartões KPI e seletores das abas `bdtdUI`, `oasisbrUI`, `redalycUI` e `bibliolatamMergeUI`
-- [ ] Integrar busca online por palavra-chave (`download_scielo_search()`) na aba dedicada SciELO (`scieloUI` / `scieloServer`), além da busca por lista de DOIs/PIDs
-- [ ] Expor upload e pré-visualização explícita para arquivos CSV do SPELL / ANPAD (`read_spell()`) na interface gráfica do `run_app()`
+- [x] Completar cobertura 100% trilíngue (i18n) nos rótulos internos, banners, cartões KPI e seletores das abas `bdtdUI`, `oasisbrUI`, `redalycUI` e `bibliolatamMergeUI`
+- [x] Integrar busca online por palavra-chave (`download_scielo_search()`) na aba dedicada SciELO (`scieloUI` / `scieloServer`), além da busca por lista de DOIs/PIDs
+- [x] Expor upload e pré-visualização explícita para arquivos CSV do SPELL / ANPAD (`read_spell()` via `spellUI` / `spellServer`) na interface gráfica do `run_app()`
 
 ---
 

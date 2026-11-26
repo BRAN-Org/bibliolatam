@@ -46,7 +46,8 @@ bdtdUI <- function(lang = "en") {
               shiny::icon("chevron-up"),
               class = "btn-sm btn-default",
               style = "padding: 5px 10px;",
-              title = bl_i18n("btn_collapse", lang)
+              title = bl_i18n("btn_collapse", lang),
+              `data-i18n-title` = "btn_collapse"
             )
           ),
 
@@ -121,11 +122,12 @@ bdtdUI <- function(lang = "en") {
                       shiny::radioButtons(
                         "bdtdOnlineDegreeFilter",
                         label = NULL,
-                        choices = c(
-                          "All (Theses & Dissertations)" = "all",
-                          "Only Theses (Doutorado)" = "thesis",
-                          "Only Dissertations (Mestrado)" = "dissertation"
+                        choiceNames = list(
+                          shiny::tags$span(bl_i18n("bdtd_choice_all", lang), `data-i18n` = "bdtd_choice_all"),
+                          shiny::tags$span(bl_i18n("bdtd_choice_thesis", lang), `data-i18n` = "bdtd_choice_thesis"),
+                          shiny::tags$span(bl_i18n("bdtd_choice_diss", lang), `data-i18n` = "bdtd_choice_diss")
                         ),
+                        choiceValues = c("all", "thesis", "dissertation"),
                         selected = "all",
                         inline = TRUE
                       )
@@ -179,11 +181,12 @@ bdtdUI <- function(lang = "en") {
                       shiny::radioButtons(
                         "bdtdDegreeFilter",
                         label = NULL,
-                        choices = c(
-                          "All (Theses & Dissertations)" = "all",
-                          "Only Theses (Doutorado)" = "thesis",
-                          "Only Dissertations (Mestrado)" = "dissertation"
+                        choiceNames = list(
+                          shiny::tags$span(bl_i18n("bdtd_choice_all", lang), `data-i18n` = "bdtd_choice_all"),
+                          shiny::tags$span(bl_i18n("bdtd_choice_thesis", lang), `data-i18n` = "bdtd_choice_thesis"),
+                          shiny::tags$span(bl_i18n("bdtd_choice_diss", lang), `data-i18n` = "bdtd_choice_diss")
                         ),
+                        choiceValues = c("all", "thesis", "dissertation"),
                         selected = "all",
                         inline = TRUE
                       )
@@ -194,7 +197,7 @@ bdtdUI <- function(lang = "en") {
                     shiny::div(
                       shiny::checkboxInput(
                         "bdtdNormalizeAuthors",
-                        "Normalize Brazilian author and advisor names (suffixes like Filho, Neto, Junior)",
+                        shiny::tags$span(bl_i18n("bdtd_normalize_label", lang), `data-i18n` = "bdtd_normalize_label"),
                         value = TRUE
                       )
                     ),
@@ -226,9 +229,9 @@ bdtdUI <- function(lang = "en") {
               style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;",
               shiny::h4(bl_i18n("bdtd_preview_title", lang), `data-i18n` = "bdtd_preview_title", style = "font-weight: bold; margin: 0; color: #2c3e50;"),
               shiny::div(
-                shiny::downloadButton("bdtdDownloadCSV", "Export CSV", class = "btn-sm btn-default"),
-                shiny::downloadButton("bdtdDownloadRData", "Export .RData", class = "btn-sm btn-info", style = "margin-left: 5px;"),
-                shiny::actionButton("bdtdLoadToApp", "Load into Biblioshiny", icon = shiny::icon("play"), class = "btn-sm btn-success", style = "margin-left: 10px; font-weight: bold;")
+                shiny::downloadButton("bdtdDownloadCSV", label = shiny::tags$span(bl_i18n("export_csv_btn", lang), `data-i18n` = "export_csv_btn"), class = "btn-sm btn-default"),
+                shiny::downloadButton("bdtdDownloadRData", label = shiny::tags$span(bl_i18n("export_rdata_btn", lang), `data-i18n` = "export_rdata_btn"), class = "btn-sm btn-info", style = "margin-left: 5px;"),
+                shiny::actionButton("bdtdLoadToApp", label = shiny::tags$span(bl_i18n("load_biblioshiny_btn", lang), `data-i18n` = "load_biblioshiny_btn"), icon = shiny::icon("play"), class = "btn-sm btn-success", style = "margin-left: 10px; font-weight: bold;")
               )
             ),
             shiny::uiOutput("bdtdSummaryBoxes"),
@@ -421,6 +424,7 @@ bdtdServer <- function(input, output, session, values = NULL) {
   output$bdtdSummaryBoxes <- shiny::renderUI({
     df <- bdtd_data()
     shiny::req(df)
+    lang <- if (!is.null(input$current_lang) && nzchar(input$current_lang)) tolower(input$current_lang) else "en"
 
     n_docs <- nrow(df)
     n_thesis <- sum(df$DT == "THESIS", na.rm = TRUE)
@@ -438,7 +442,7 @@ bdtdServer <- function(input, output, session, values = NULL) {
           class = "info-box bg-blue",
           style = "border-radius: 4px; padding: 10px;",
           shiny::div(class = "info-box-content",
-            shiny::span(class = "info-box-text", "TOTAL WORKS"),
+            shiny::tags$span(class = "info-box-text", bl_i18n("kpi_total_works", lang), `data-i18n` = "kpi_total_works"),
             shiny::span(class = "info-box-number", style = "font-size: 24px; font-weight: bold;", n_docs)
           )
         )
@@ -449,7 +453,7 @@ bdtdServer <- function(input, output, session, values = NULL) {
           class = "info-box bg-green",
           style = "border-radius: 4px; padding: 10px;",
           shiny::div(class = "info-box-content",
-            shiny::span(class = "info-box-text", "THESES / DISSERTATIONS"),
+            shiny::tags$span(class = "info-box-text", bl_i18n("kpi_theses_diss", lang), `data-i18n` = "kpi_theses_diss"),
             shiny::span(class = "info-box-number", style = "font-size: 16px; font-weight: bold;", sprintf("T: %d | D: %d", n_thesis, n_diss))
           )
         )
@@ -460,7 +464,7 @@ bdtdServer <- function(input, output, session, values = NULL) {
           class = "info-box bg-teal",
           style = "border-radius: 4px; padding: 10px;",
           shiny::div(class = "info-box-content",
-            shiny::span(class = "info-box-text", "INSTITUTIONS"),
+            shiny::tags$span(class = "info-box-text", bl_i18n("kpi_institutions", lang), `data-i18n` = "kpi_institutions"),
             shiny::span(class = "info-box-number", style = "font-size: 24px; font-weight: bold;", unique_institutions)
           )
         )
@@ -471,7 +475,7 @@ bdtdServer <- function(input, output, session, values = NULL) {
           class = "info-box bg-purple",
           style = "border-radius: 4px; padding: 10px;",
           shiny::div(class = "info-box-content",
-            shiny::span(class = "info-box-text", "TIMESPAN"),
+            shiny::tags$span(class = "info-box-text", bl_i18n("kpi_timespan", lang), `data-i18n` = "kpi_timespan"),
             shiny::span(class = "info-box-number", style = "font-size: 24px; font-weight: bold;", timespan)
           )
         )

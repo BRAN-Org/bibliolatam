@@ -46,7 +46,8 @@ oasisbrUI <- function(lang = "en") {
               shiny::icon("chevron-up"),
               class = "btn-sm btn-default",
               style = "padding: 5px 10px;",
-              title = bl_i18n("btn_collapse", lang)
+              title = bl_i18n("btn_collapse", lang),
+              `data-i18n-title` = "btn_collapse"
             )
           ),
 
@@ -86,16 +87,22 @@ oasisbrUI <- function(lang = "en") {
                         id = "oasisbrSearchQuery",
                         type = "text",
                         class = "form-control",
-                        placeholder = "e.g. artificial intelligence, biotechnology, public health",
+                        placeholder = bl_i18n("omni_query_ph", lang),
                         `data-i18n-ph` = "omni_query_ph",
                         style = "width: 100%;"
                       )
                     ),
                     shiny::column(
                       width = 4,
+                      shiny::tags$label(
+                        bl_i18n("oasisbr_limit_label", lang),
+                        `data-i18n` = "oasisbr_limit_label",
+                        `for` = "oasisbrSearchLimit",
+                        style = "font-weight: 600; color: #34495e; margin-bottom: 5px; display: block;"
+                      ),
                       shiny::numericInput(
                         "oasisbrSearchLimit",
-                        label = "Max Records to Retrieve:",
+                        label = NULL,
                         value = 50,
                         min = 10,
                         max = 500,
@@ -107,18 +114,24 @@ oasisbrUI <- function(lang = "en") {
                   shiny::fluidRow(
                     shiny::column(
                       width = 6,
-                      shiny::selectInput(
-                        "oasisbrOnlineDocTypeFilter",
-                        label = "Filter Document Type (DT):",
-                        choices = c(
-                          "All Types" = "all",
-                          "Journal Articles" = "ARTICLE",
-                          "Theses & Dissertations" = "THESIS_DISSERTATION",
-                          "Books & Chapters" = "BOOK",
-                          "Conference Proceedings" = "CONFERENCE"
-                        ),
-                        selected = "all",
-                        width = "100%"
+                      shiny::tags$label(
+                        bl_i18n("oasisbr_filter_label", lang),
+                        `data-i18n` = "oasisbr_filter_label",
+                        `for` = "oasisbrOnlineDocTypeFilter",
+                        style = "font-weight: 600; color: #34495e; margin-bottom: 5px; display: block;"
+                      ),
+                      shiny::tags$div(
+                        class = "form-group shiny-input-container",
+                        style = "width: 100%;",
+                        shiny::tags$select(
+                          id = "oasisbrOnlineDocTypeFilter",
+                          class = "form-control",
+                          shiny::tags$option(value = "all", selected = "selected", `data-i18n` = "oasisbr_choice_all", bl_i18n("oasisbr_choice_all", lang)),
+                          shiny::tags$option(value = "ARTICLE", `data-i18n` = "oasisbr_choice_articles", bl_i18n("oasisbr_choice_articles", lang)),
+                          shiny::tags$option(value = "THESIS_DISSERTATION", `data-i18n` = "oasisbr_choice_theses", bl_i18n("oasisbr_choice_theses", lang)),
+                          shiny::tags$option(value = "BOOK", `data-i18n` = "oasisbr_choice_books", bl_i18n("oasisbr_choice_books", lang)),
+                          shiny::tags$option(value = "CONFERENCE", `data-i18n` = "oasisbr_choice_conf", bl_i18n("oasisbr_choice_conf", lang))
+                        )
                       )
                     ),
                     shiny::column(
@@ -127,7 +140,7 @@ oasisbrUI <- function(lang = "en") {
                         style = "margin-top: 25px;",
                         shiny::checkboxInput(
                           "oasisbrOnlineNormalizeAuthors",
-                          "Normalize Brazilian author names (generational suffixes & particles)",
+                          shiny::tags$span(bl_i18n("oasisbr_norm_label", lang), `data-i18n` = "oasisbr_norm_label"),
                           value = TRUE
                         )
                       )
@@ -157,7 +170,7 @@ oasisbrUI <- function(lang = "en") {
                       width = 6,
                       shiny::fileInput(
                         "oasisbrFile",
-                        label = shiny::tags$span(bl_i18n("oasisbr_tab_upload", lang), `data-i18n` = "oasisbr_tab_upload"),
+                        label = shiny::tags$span(bl_i18n("oasisbr_upload_label", lang), `data-i18n` = "oasisbr_upload_label"),
                         multiple = FALSE,
                         accept = c(".csv", ".tsv", ".txt"),
                         width = "100%"
@@ -165,17 +178,23 @@ oasisbrUI <- function(lang = "en") {
                     ),
                     shiny::column(
                       width = 6,
-                      shiny::selectInput(
-                        "oasisbrDocTypeFilter",
-                        label = "Filter Document Type:",
-                        choices = c(
-                          "All Types" = "all",
-                          "Theses & Dissertations" = "THESIS_DISSERTATION",
-                          "Only Theses (Doutorado)" = "THESIS",
-                          "Only Dissertations (Mestrado)" = "DISSERTATION"
-                        ),
-                        selected = "all",
-                        width = "100%"
+                      shiny::tags$label(
+                        bl_i18n("oasisbr_filter_label", lang),
+                        `data-i18n` = "oasisbr_filter_label",
+                        `for` = "oasisbrDocTypeFilter",
+                        style = "font-weight: 600; color: #34495e; margin-bottom: 5px; display: block;"
+                      ),
+                      shiny::tags$div(
+                        class = "form-group shiny-input-container",
+                        style = "width: 100%;",
+                        shiny::tags$select(
+                          id = "oasisbrDocTypeFilter",
+                          class = "form-control",
+                          shiny::tags$option(value = "all", selected = "selected", `data-i18n` = "oasisbr_choice_all", bl_i18n("oasisbr_choice_all", lang)),
+                          shiny::tags$option(value = "THESIS_DISSERTATION", `data-i18n` = "oasisbr_choice_theses", bl_i18n("oasisbr_choice_theses", lang)),
+                          shiny::tags$option(value = "THESIS", `data-i18n` = "oasisbr_choice_thesis_only", bl_i18n("oasisbr_choice_thesis_only", lang)),
+                          shiny::tags$option(value = "DISSERTATION", `data-i18n` = "oasisbr_choice_diss_only", bl_i18n("oasisbr_choice_diss_only", lang))
+                        )
                       )
                     )
                   ),
@@ -184,7 +203,7 @@ oasisbrUI <- function(lang = "en") {
                     shiny::div(
                       shiny::checkboxInput(
                         "oasisbrNormalizeAuthors",
-                        "Normalize Brazilian author names",
+                        shiny::tags$span(bl_i18n("oasisbr_norm_label", lang), `data-i18n` = "oasisbr_norm_label"),
                         value = TRUE
                       )
                     ),
@@ -216,9 +235,9 @@ oasisbrUI <- function(lang = "en") {
               style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;",
               shiny::h4(bl_i18n("oasisbr_preview_title", lang), `data-i18n` = "oasisbr_preview_title", style = "font-weight: bold; margin: 0; color: #2c3e50;"),
               shiny::div(
-                shiny::downloadButton("oasisbrDownloadCSV", "Export CSV", class = "btn-sm btn-default"),
-                shiny::downloadButton("oasisbrDownloadRData", "Export .RData", class = "btn-sm btn-info", style = "margin-left: 5px;"),
-                shiny::actionButton("oasisbrLoadToApp", "Load into Biblioshiny", icon = shiny::icon("play"), class = "btn-sm btn-success", style = "margin-left: 10px; font-weight: bold;")
+                shiny::downloadButton("oasisbrDownloadCSV", label = shiny::tags$span(bl_i18n("export_csv_btn", lang), `data-i18n` = "export_csv_btn"), class = "btn-sm btn-default"),
+                shiny::downloadButton("oasisbrDownloadRData", label = shiny::tags$span(bl_i18n("export_rdata_btn", lang), `data-i18n` = "export_rdata_btn"), class = "btn-sm btn-info", style = "margin-left: 5px;"),
+                shiny::actionButton("oasisbrLoadToApp", label = shiny::tags$span(bl_i18n("load_biblioshiny_btn", lang), `data-i18n` = "load_biblioshiny_btn"), icon = shiny::icon("play"), class = "btn-sm btn-success", style = "margin-left: 10px; font-weight: bold;")
               )
             ),
             shiny::uiOutput("oasisbrSummaryBoxes"),
@@ -409,6 +428,7 @@ oasisbrServer <- function(input, output, session, values = NULL) {
   output$oasisbrSummaryBoxes <- shiny::renderUI({
     df <- oasisbr_data()
     shiny::req(df)
+    lang <- if (!is.null(input$current_lang) && nzchar(input$current_lang)) tolower(input$current_lang) else "en"
 
     n_docs <- nrow(df)
     unique_authors <- length(unique(unlist(strsplit(df$AU, ";\\s*"))))
@@ -425,7 +445,7 @@ oasisbrServer <- function(input, output, session, values = NULL) {
           class = "info-box bg-yellow",
           style = "border-radius: 4px; padding: 10px;",
           shiny::div(class = "info-box-content",
-            shiny::span(class = "info-box-text", "TOTAL WORKS"),
+            shiny::tags$span(class = "info-box-text", bl_i18n("kpi_total_works", lang), `data-i18n` = "kpi_total_works"),
             shiny::span(class = "info-box-number", style = "font-size: 24px; font-weight: bold;", n_docs)
           )
         )
@@ -436,7 +456,7 @@ oasisbrServer <- function(input, output, session, values = NULL) {
           class = "info-box bg-olive",
           style = "border-radius: 4px; padding: 10px;",
           shiny::div(class = "info-box-content",
-            shiny::span(class = "info-box-text", "AUTHORS"),
+            shiny::tags$span(class = "info-box-text", bl_i18n("kpi_authors", lang), `data-i18n` = "kpi_authors"),
             shiny::span(class = "info-box-number", style = "font-size: 24px; font-weight: bold;", unique_authors)
           )
         )
@@ -447,7 +467,7 @@ oasisbrServer <- function(input, output, session, values = NULL) {
           class = "info-box bg-teal",
           style = "border-radius: 4px; padding: 10px;",
           shiny::div(class = "info-box-content",
-            shiny::span(class = "info-box-text", "SOURCES / REPOSITORIES"),
+            shiny::tags$span(class = "info-box-text", bl_i18n("kpi_sources_repos", lang), `data-i18n` = "kpi_sources_repos"),
             shiny::span(class = "info-box-number", style = "font-size: 24px; font-weight: bold;", unique_sources)
           )
         )
@@ -458,7 +478,7 @@ oasisbrServer <- function(input, output, session, values = NULL) {
           class = "info-box bg-purple",
           style = "border-radius: 4px; padding: 10px;",
           shiny::div(class = "info-box-content",
-            shiny::span(class = "info-box-text", "TIMESPAN"),
+            shiny::tags$span(class = "info-box-text", bl_i18n("kpi_timespan", lang), `data-i18n` = "kpi_timespan"),
             shiny::span(class = "info-box-number", style = "font-size: 24px; font-weight: bold;", timespan)
           )
         )
