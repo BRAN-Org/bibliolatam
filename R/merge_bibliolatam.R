@@ -14,6 +14,87 @@ clean_doi <- function(doi) {
   d
 }
 
+#' Check if two cleaned DOIs differ only by safe separator spelling
+#'
+#' Narrow exception to the explicit DOI conflict veto, inspired by Kara et al. (2025)
+#' (BibexPy). Allows pairs whose registrant prefix and separator-free alphanumeric
+#' suffix core are identical, with differing separators limited to 1-to-1 substitutions
+#' (`-`, `.`, `_`) or internal insertions/deletions not splitting two adjacent digits
+#' (strictly rejecting volume/page partitioning shifts such as `5.350` vs `53.50`).
+#'
+#' @param d1 Character scalar (cleaned uppercase DOI).
+#' @param d2 Character scalar (cleaned uppercase DOI).
+#' @return Logical scalar.
+#' @noRd
+is_doi_separator_variant <- function(d1, d2) {
+  if (is.na(d1) || is.na(d2) || !nzchar(d1) || !nzchar(d2) || identical(d1, d2)) {
+    return(FALSE)
+  }
+  s1 <- regexpr("/", d1, fixed = TRUE)
+  s2 <- regexpr("/", d2, fixed = TRUE)
+  if (s1 < 2L || s2 < 2L) return(FALSE)
+
+  pref1 <- substr(d1, 1L, s1 - 1L)
+  pref2 <- substr(d2, 1L, s2 - 1L)
+  if (!identical(pref1, pref2)) return(FALSE)
+
+  suf1 <- substr(d1, s1 + 1L, nchar(d1))
+  suf2 <- substr(d2, s2 + 1L, nchar(d2))
+  if (!nzchar(suf1) || !nzchar(suf2)) return(FALSE)
+
+  profile_suffix <- function(suf) {
+    chars <- strsplit(suf, "", fixed = TRUE)[[1]]
+    core <- character(0L)
+    gaps <- list()
+    for (ch in chars) {
+      if (ch %in% c("-", ".", "_")) {
+        k <- as.character(length(core))
+        gaps[[k]] <- paste0(if (!is.null(gaps[[k]])) gaps[[k]] else "", ch)
+      } else {
+        core <- c(core, ch)
+      }
+    }
+    list(core = core, gaps = gaps)
+  }
+
+  p1 <- profile_suffix(suf1)
+  p2 <- profile_suffix(suf2)
+  if (!identical(p1$core, p2$core)) return(FALSE)
+
+  core_len <- length(p1$core)
+  all_pos <- union(names(p1$gaps), names(p2$gaps))
+  for (k in all_pos) {
+    x <- if (!is.null(p1$gaps[[k]])) p1$gaps[[k]] else ""
+    y <- if (!is.null(p2$gaps[[k]])) p2$gaps[[k]] else ""
+    if (identical(x, y)) next
+    if (nchar(x) == 1L && nchar(y) == 1L) next
+    if (nchar(x) > 1L || nchar(y) > 1L) return(FALSE)
+    pos <- as.integer(k)
+    if (pos <= 0L || pos >= core_len) return(FALSE)
+    if (grepl("^[0-9]$", p1$core[pos]) && grepl("^[0-9]$", p1$core[pos + 1L])) {
+      return(FALSE)
+    }
+  }
+  TRUE
+}
+
+#' Clean numeric bibliographic locator (volume VL or beginning page BP)
+#'
+#' @param x Character/numeric vector.
+#' @return Standardized uppercase locator string or NA.
+#' @noRd
+clean_bib_locator <- function(x) {
+  if (is.null(x)) return(character(0L))
+  s <- trimws(as.character(x))
+  s[is.na(x) | !nzchar(s) | toupper(s) == "NA"] <- NA_character_
+  s <- gsub("^([Vv][Oo][Ll]?\\.?|[Pp]{1,2}\\.?)\\s*", "", s)
+  s <- gsub("\\.0+$", "", s)
+  s <- sub("\\s*[-\u2013\u2014].*$", "", s)
+  s <- toupper(trimws(s))
+  s[!nzchar(s) | s == "NA"] <- NA_character_
+  s
+}
+
 #' Normalize title strings for fuzzy comparison
 #'
 #' @param titles Character vector of titles.
@@ -217,6 +298,7 @@ deduplicate_internal <- function(df,
     }
   }
   doi_matches_count <- length(matched_pairs)
+  dois_core <- gsub("[-._]", "", dois)
 
   # 2. Matching por Titulo aproximado (filtros O(1) vetorizados ANTES de loops de autoria e adist)
   candidates_before_len <- 0L
@@ -231,11 +313,17 @@ deduplicate_internal <- function(df,
       cand_indices <- which(!merged_rows & (seq_len(n) > i))
       if (length(cand_indices) == 0L) break
 
-      # 2.1 Conflito explicito de DOIs distintos (Achado #1, O(1) vetorizado)
+      # 2.1 Conflito explicito de DOIs distintos (Achado #1, O(1) vetorizado; libera variantes seguras de separador)
       d1 <- dois[i]
       if (!is.na(d1) && nzchar(d1)) {
         cand_d2 <- dois[cand_indices]
         doi_conflict <- !is.na(cand_d2) & nzchar(cand_d2) & cand_d2 != d1
+        if (any(doi_conflict)) {
+          same_core <- which(doi_conflict & dois_core[cand_indices] == dois_core[i])
+          for (cp in same_core) {
+            if (is_doi_separator_variant(d1, cand_d2[cp])) doi_conflict[cp] <- FALSE
+          }
+        }
         cand_indices <- cand_indices[!doi_conflict]
       }
       if (length(cand_indices) == 0L) next
@@ -369,6 +457,88 @@ deduplicate_internal <- function(df,
   }
   title_matches_count <- length(matched_pairs) - doi_matches_count
 
+  # 3. Fallback estrutural (SO >= 0.90 + VL + BP + PY +- 1 + AU compativel) para edicoes traduzidas sem DOI
+  # Inspirado em Kara et al. (2025) (BibexPy), preservando todos os guardrails de DOI/DT/Series/Autoria.
+  structural_matches_count <- 0L
+  if ("title" %in% match_by && all(c("SO", "VL", "BP") %in% names(df))) {
+    so_norm <- normalize_title_str(df$SO)
+    vl_clean <- clean_bib_locator(df$VL)
+    bp_clean <- clean_bib_locator(df$BP)
+
+    for (i in seq_len(n - 1L)) {
+      if (merged_rows[i]) next
+      if (is.na(vl_clean[i]) || is.na(bp_clean[i]) || nchar(so_norm[i]) < 5L) next
+      sn1 <- au_surnames[[i]]
+      if (length(sn1) == 0L) next
+
+      cand_indices <- which(!merged_rows & (seq_len(n) > i) &
+                              !is.na(vl_clean) & vl_clean == vl_clean[i] &
+                              !is.na(bp_clean) & bp_clean == bp_clean[i] &
+                              nchar(so_norm) >= 5L)
+      if (length(cand_indices) == 0L) next
+
+      d1 <- dois[i]
+      if (!is.na(d1) && nzchar(d1)) {
+        cand_d2 <- dois[cand_indices]
+        doi_conflict <- !is.na(cand_d2) & nzchar(cand_d2) & cand_d2 != d1
+        if (any(doi_conflict)) {
+          same_core <- which(doi_conflict & dois_core[cand_indices] == dois_core[i])
+          for (cp in same_core) {
+            if (is_doi_separator_variant(d1, cand_d2[cp])) doi_conflict[cp] <- FALSE
+          }
+        }
+        cand_indices <- cand_indices[!doi_conflict]
+      }
+      if (length(cand_indices) == 0L) next
+
+      t_doc1 <- dt[i]
+      if (!is.na(t_doc1) && nzchar(t_doc1)) {
+        is_th1 <- t_doc1 %in% c("THESIS", "DISSERTATION")
+        is_ar1 <- t_doc1 %in% c("ARTICLE", "JOURNAL ARTICLE", "JOURNAL")
+        if (is_th1 || is_ar1) {
+          cdt2 <- dt[cand_indices]
+          dt_inc <- (is_th1 & cdt2 %in% c("ARTICLE", "JOURNAL ARTICLE", "JOURNAL")) |
+                    (is_ar1 & cdt2 %in% c("THESIS", "DISSERTATION"))
+          cand_indices <- cand_indices[!dt_inc]
+        }
+      }
+      if (length(cand_indices) == 0L) next
+
+      p1 <- py[i]
+      if (!is.na(p1)) {
+        cand_p2 <- py[cand_indices]
+        cand_indices <- cand_indices[is.na(cand_p2) | abs(cand_p2 - p1) <= 1]
+      }
+      if (length(cand_indices) == 0L) next
+
+      part1 <- parts[i]
+      cand_parts2 <- parts[cand_indices]
+      both_diff <- !is.na(part1) & !is.na(cand_parts2) & part1 != cand_parts2
+      is_seq1 <- !is.na(part1) && grepl("_(2|3|4|5|6|7|8|9|10)$", part1)
+      seq1 <- is_seq1 & is.na(cand_parts2)
+      seq2 <- is.na(part1) & !is.na(cand_parts2) & grepl("_(2|3|4|5|6|7|8|9|10)$", cand_parts2)
+      cand_indices <- cand_indices[!both_diff & !seq1 & !seq2]
+      if (length(cand_indices) == 0L) next
+
+      ok_au <- vapply(cand_indices, function(c_idx) {
+        sn2 <- au_surnames[[c_idx]]
+        length(sn2) > 0L && surnames_compatible(sn1, sn2)
+      }, logical(1L))
+      cand_indices <- cand_indices[ok_au]
+      if (length(cand_indices) == 0L) next
+
+      so_dists <- utils::adist(so_norm[i], so_norm[cand_indices])[1, ]
+      so_sims <- 1 - (so_dists / pmax(nchar(so_norm[i]), nchar(so_norm[cand_indices])))
+      best_so <- which.max(so_sims)
+      if (length(best_so) > 0L && so_sims[best_so] >= 0.90) {
+        target_j <- cand_indices[best_so]
+        matched_pairs[[length(matched_pairs) + 1L]] <- c(i, target_j)
+        merged_rows[target_j] <- TRUE
+        structural_matches_count <- structural_matches_count + 1L
+      }
+    }
+  }
+
   # Fusao dos pares duplicados internos
   out_df <- df
   for (pair in matched_pairs) {
@@ -443,6 +613,7 @@ deduplicate_internal <- function(df,
     n2 = 0L,
     doi_duplicates = doi_matches_count,
     title_duplicates = title_matches_count,
+    structural_duplicates = structural_matches_count,
     total_duplicates = length(matched_pairs),
     final_count = nrow(out),
     candidates_before_len = candidates_before_len,
@@ -572,6 +743,8 @@ merge_bibliolatam <- function(df1,
   }
 
   doi_matches_count <- length(matched_pairs)
+  dois1_core <- gsub("[-._]", "", dois1)
+  dois2_core <- gsub("[-._]", "", dois2)
 
   # 2. Matching por Titulo aproximado (filtros O(1) vetorizados ANTES de loops de autoria e adist)
   candidates_before_len <- 0L
@@ -601,11 +774,17 @@ merge_bibliolatam <- function(df1,
       cand_indices <- which(!matched_in_2)
       if (length(cand_indices) == 0L) break
 
-      # 2.1 Conflito explicito de DOIs distintos (Achado #1, O(1) vetorizado)
+      # 2.1 Conflito explicito de DOIs distintos (Achado #1, O(1) vetorizado; libera variantes seguras de separador)
       d1 <- dois1[i]
       if (!is.na(d1) && nzchar(d1)) {
         cand_d2 <- dois2[cand_indices]
         doi_conflict <- !is.na(cand_d2) & nzchar(cand_d2) & cand_d2 != d1
+        if (any(doi_conflict)) {
+          same_core <- which(doi_conflict & dois2_core[cand_indices] == dois1_core[i])
+          for (cp in same_core) {
+            if (is_doi_separator_variant(d1, cand_d2[cp])) doi_conflict[cp] <- FALSE
+          }
+        }
         cand_indices <- cand_indices[!doi_conflict]
       }
       if (length(cand_indices) == 0L) next
@@ -751,6 +930,93 @@ merge_bibliolatam <- function(df1,
 
   title_matches_count <- length(matched_pairs) - doi_matches_count
 
+  # 3. Fallback estrutural (SO >= 0.90 + VL + BP + PY +- 1 + AU compativel) para edicoes traduzidas sem DOI
+  # Inspirado em Kara et al. (2025) (BibexPy), preservando todos os guardrails de DOI/DT/Series/Autoria.
+  structural_matches_count <- 0L
+  if ("title" %in% match_by && all(c("SO", "VL", "BP") %in% names(df1)) && all(c("SO", "VL", "BP") %in% names(df2))) {
+    unmatched_1_s <- setdiff(seq_len(n1), vapply(matched_pairs, function(p) p[1], integer(1L)))
+    if (length(unmatched_1_s) > 0L && any(!matched_in_2)) {
+      so1_norm <- normalize_title_str(df1$SO)
+      so2_norm <- normalize_title_str(df2$SO)
+      vl1_clean <- clean_bib_locator(df1$VL)
+      vl2_clean <- clean_bib_locator(df2$VL)
+      bp1_clean <- clean_bib_locator(df1$BP)
+      bp2_clean <- clean_bib_locator(df2$BP)
+
+      for (i in unmatched_1_s) {
+        if (is.na(vl1_clean[i]) || is.na(bp1_clean[i]) || nchar(so1_norm[i]) < 5L) next
+        sn1 <- au_surnames1[[i]]
+        if (length(sn1) == 0L) next
+
+        cand_indices <- which(!matched_in_2 &
+                                !is.na(vl2_clean) & vl2_clean == vl1_clean[i] &
+                                !is.na(bp2_clean) & bp2_clean == bp1_clean[i] &
+                                nchar(so2_norm) >= 5L)
+        if (length(cand_indices) == 0L) next
+
+        d1 <- dois1[i]
+        if (!is.na(d1) && nzchar(d1)) {
+          cand_d2 <- dois2[cand_indices]
+          doi_conflict <- !is.na(cand_d2) & nzchar(cand_d2) & cand_d2 != d1
+          if (any(doi_conflict)) {
+            same_core <- which(doi_conflict & dois2_core[cand_indices] == dois1_core[i])
+            for (cp in same_core) {
+              if (is_doi_separator_variant(d1, cand_d2[cp])) doi_conflict[cp] <- FALSE
+            }
+          }
+          cand_indices <- cand_indices[!doi_conflict]
+        }
+        if (length(cand_indices) == 0L) next
+
+        t_doc1 <- dt1[i]
+        if (!is.na(t_doc1) && nzchar(t_doc1)) {
+          is_th1 <- t_doc1 %in% c("THESIS", "DISSERTATION")
+          is_ar1 <- t_doc1 %in% c("ARTICLE", "JOURNAL ARTICLE", "JOURNAL")
+          if (is_th1 || is_ar1) {
+            cdt2 <- dt2[cand_indices]
+            dt_inc <- (is_th1 & cdt2 %in% c("ARTICLE", "JOURNAL ARTICLE", "JOURNAL")) |
+                      (is_ar1 & cdt2 %in% c("THESIS", "DISSERTATION"))
+            cand_indices <- cand_indices[!dt_inc]
+          }
+        }
+        if (length(cand_indices) == 0L) next
+
+        p1 <- py1[i]
+        if (!is.na(p1)) {
+          cand_p2 <- py2[cand_indices]
+          cand_indices <- cand_indices[is.na(cand_p2) | abs(cand_p2 - p1) <= 1]
+        }
+        if (length(cand_indices) == 0L) next
+
+        part1 <- parts1[i]
+        cand_parts2 <- parts2[cand_indices]
+        both_diff <- !is.na(part1) & !is.na(cand_parts2) & part1 != cand_parts2
+        is_seq1 <- !is.na(part1) && grepl("_(2|3|4|5|6|7|8|9|10)$", part1)
+        seq1 <- is_seq1 & is.na(cand_parts2)
+        seq2 <- is.na(part1) & !is.na(cand_parts2) & grepl("_(2|3|4|5|6|7|8|9|10)$", cand_parts2)
+        cand_indices <- cand_indices[!both_diff & !seq1 & !seq2]
+        if (length(cand_indices) == 0L) next
+
+        ok_au <- vapply(cand_indices, function(c_idx) {
+          sn2 <- au_surnames2[[c_idx]]
+          length(sn2) > 0L && surnames_compatible(sn1, sn2)
+        }, logical(1L))
+        cand_indices <- cand_indices[ok_au]
+        if (length(cand_indices) == 0L) next
+
+        so_dists <- utils::adist(so1_norm[i], so2_norm[cand_indices])[1, ]
+        so_sims <- 1 - (so_dists / pmax(nchar(so1_norm[i]), nchar(so2_norm[cand_indices])))
+        best_so <- which.max(so_sims)
+        if (length(best_so) > 0L && so_sims[best_so] >= 0.90) {
+          target_j <- cand_indices[best_so]
+          matched_pairs[[length(matched_pairs) + 1L]] <- c(i, target_j)
+          matched_in_2[target_j] <- TRUE
+          structural_matches_count <- structural_matches_count + 1L
+        }
+      }
+    }
+  }
+
 
   if (isTRUE(verbose)) {
     message(sprintf("[Merge Bibliolatam] Registros Colecao 1: %d | Colecao 2: %d", n1, n2))
@@ -834,6 +1100,7 @@ merge_bibliolatam <- function(df1,
     n2 = n2,
     doi_duplicates = doi_matches_count,
     title_duplicates = title_matches_count,
+    structural_duplicates = structural_matches_count,
     total_duplicates = length(matched_pairs),
     final_count = nrow(out),
     candidates_before_len = candidates_before_len,
